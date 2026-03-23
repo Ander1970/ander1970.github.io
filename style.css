@@ -1,0 +1,279 @@
+/* ── 基礎重置 ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --primary:   #7c3aed;
+  --secondary: #06b6d4;
+  --accent:    #f59e0b;
+  --bg:        #0f0f1a;
+  --card-bg:   #1a1a2e;
+  --text:      #e2e8f0;
+  --text-mute: #94a3b8;
+  --radius:    16px;
+}
+
+body {
+  font-family: 'Noto Sans TC', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── 背景動態效果 ── */
+.bg-animation {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.bg-animation span {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.08;
+  animation: float 12s infinite ease-in-out;
+}
+.bg-animation span:nth-child(1) { width:400px; height:400px; background:var(--primary); top:-100px; left:-100px; animation-delay:0s; }
+.bg-animation span:nth-child(2) { width:300px; height:300px; background:var(--secondary); bottom:-80px; right:-80px; animation-delay:-4s; }
+.bg-animation span:nth-child(3) { width:200px; height:200px; background:var(--accent); top:40%; left:60%; animation-delay:-8s; }
+.bg-animation span:nth-child(4) { width:150px; height:150px; background:var(--primary); top:60%; left:10%; animation-delay:-2s; }
+.bg-animation span:nth-child(5) { width:250px; height:250px; background:var(--secondary); top:20%; right:5%; animation-delay:-6s; }
+.bg-animation span:nth-child(6) { width:180px; height:180px; background:var(--accent); bottom:20%; left:40%; animation-delay:-10s; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%       { transform: translateY(-30px) scale(1.05); }
+}
+
+/* ── 導航列 ── */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 40px;
+  background: rgba(15,15,26,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.logo {
+  font-size: 1.4rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.game-count {
+  background: rgba(124,58,237,0.2);
+  border: 1px solid rgba(124,58,237,0.4);
+  color: #a78bfa;
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+/* ── Hero ── */
+.hero {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 80px 20px 40px;
+}
+.hero-title {
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 900;
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
+.highlight {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero-sub {
+  color: var(--text-mute);
+  font-size: 1.1rem;
+  margin-bottom: 36px;
+}
+
+/* ── 搜尋欄 ── */
+.search-box {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 999px;
+  padding: 12px 24px;
+  width: min(480px, 90%);
+  transition: border-color 0.3s;
+}
+.search-box:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.2);
+}
+.search-icon { margin-right: 10px; font-size: 1rem; }
+.search-box input {
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-size: 1rem;
+  width: 100%;
+  font-family: inherit;
+}
+.search-box input::placeholder { color: var(--text-mute); }
+
+/* ── 標籤篩選 ── */
+.tag-section {
+  position: relative;
+  z-index: 1;
+  padding: 0 40px 32px;
+  display: flex;
+  justify-content: center;
+}
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+.tag-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--text-mute);
+  padding: 6px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.tag-btn:hover,
+.tag-btn.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+/* ── 遊戲格線 ── */
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+/* ── 遊戲卡片 ── */
+.game-card {
+  background: var(--card-bg);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+  position: relative;
+}
+.game-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 60px rgba(124,58,237,0.3);
+  border-color: rgba(124,58,237,0.5);
+}
+.card-thumb {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  display: block;
+  background: linear-gradient(135deg, #1e1e3a, #2d2d5e);
+}
+.card-thumb-placeholder {
+  width: 100%;
+  aspect-ratio: 16/9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  background: linear-gradient(135deg, #1e1e3a, #2d2d5e);
+}
+.card-body {
+  padding: 18px;
+}
+.card-body h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.card-body p {
+  color: var(--text-mute);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tag {
+  background: rgba(124,58,237,0.15);
+  color: #a78bfa;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+}
+.badge-featured {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--accent);
+  color: #000;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+.badge-new {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #10b981;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+/* ── 空狀態 ── */
+.empty-state {
+  text-align: center;
+  padding: 80px 0;
+  color: var(--text-mute);
+  font-size: 1.2rem;
+}
+
+/* ── Footer ── */
+.footer {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 24px;
+  color: var(--text-mute);
+  font-size: 0.875rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+/* ── 手機響應 ── */
+@media (max-width: 600px) {
+  .navbar { padding: 14px 20px; }
+  .hero { padding: 60px 16px 32px; }
+  .tag-section { padding: 0 16px 24px; }
+  .container { padding: 0 16px 60px; }
+}

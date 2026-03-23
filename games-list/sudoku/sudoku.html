@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>幼兒友善數獨（智慧提示版）</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <style>
+    :root {
+      --boardSize: min(92vw, 520px);
+    }
+
+    .safe-area {
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+
+    .grid-wrap {
+      width: var(--boardSize);
+      height: var(--boardSize);
+    }
+
+    .cell {
+      width: calc(var(--boardSize)/9);
+      height: calc(var(--boardSize)/9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: clamp(18px, 5.2vw, 28px);
+      user-select: none;
+      cursor: pointer;
+      border: 1px solid #CBD5E1;
+      transition: background-color 0.2s;
+    }
+
+    .cell.given {
+      background: #FFFFFF;
+      color: #1F2937;
+      cursor: default;
+    }
+
+    .cell.user {
+      background: #FFFFFF;
+      color: #2563EB;
+    }
+
+    .cell.selected {
+      outline: 3px solid #F59E0B;
+      background: #FEF3C7 !important;
+      z-index: 2;
+      position: relative;
+    }
+
+    .cell.rc-hl {
+      background: #F8FAFC;
+    }
+
+    .cell.err {
+      background: #FEE2E2 !important;
+      color: #B91C1C !important;
+    }
+
+    .cell.hint {
+      background: #FEF9C3 !important;
+      outline: 3px solid #FBBF24;
+    }
+
+    .row-0 .cell {
+      border-top: 3px solid #111827;
+    }
+
+    .row-3 .cell {
+      border-top: 3px solid #111827;
+    }
+
+    .row-6 .cell {
+      border-top: 3px solid #111827;
+    }
+
+    .col-0 {
+      border-left: 3px solid #111827;
+    }
+
+    .col-3 {
+      border-left: 3px solid #111827;
+    }
+
+    .col-6 {
+      border-left: 3px solid #111827;
+    }
+
+    .row-8 .cell {
+      border-bottom: 3px solid #111827;
+    }
+
+    .col-8 {
+      border-right: 3px solid #111827;
+    }
+
+    .row-0 .col-0 {
+      border-top-left-radius: 1rem;
+    }
+
+    .row-0 .col-8 {
+      border-top-right-radius: 1rem;
+    }
+
+    .row-8 .col-0 {
+      border-bottom-left-radius: 1rem;
+    }
+
+    .row-8 .col-8 {
+      border-bottom-right-radius: 1rem;
+    }
+
+    @keyframes wiggle {
+      0% {
+        transform: translateX(0)
+      }
+
+      25% {
+        transform: translateX(-4px)
+      }
+
+      50% {
+        transform: translateX(4px)
+      }
+
+      75% {
+        transform: translateX(-3px)
+      }
+
+      100% {
+        transform: translateX(0)
+      }
+    }
+
+    .wiggle {
+      animation: wiggle .22s ease-in-out 1;
+    }
+
+    .dock {
+      position: sticky;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+
+    .tap {
+      min-height: 56px;
+      min-width: 56px;
+    }
+
+    /* 列印 */
+    @media print {
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      .page {
+        display: block;
+        margin-bottom: 40px;
+        page-break-after: always;
+      }
+
+      .sudoku-container {
+        width: 100%;
+        margin-bottom: 20px;
+      }
+
+      .sudoku-title {
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
+
+      .sudoku-table {
+        border-collapse: collapse;
+        width: 100%;
+        table-layout: fixed;
+      }
+
+      .sudoku-table td {
+        width: 11.11%;
+        height: 0;
+        padding-bottom: 11.11%;
+        text-align: center;
+        border: 1px solid #000;
+        font-size: 14px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .sudoku-table td::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .sudoku-table tr:nth-child(3) td,
+      .sudoku-table tr:nth-child(6) td {
+        border-bottom: 3px solid #000;
+      }
+
+      .sudoku-table tr:nth-child(3)~tr td {
+        border-top: none;
+      }
+
+      .sudoku-table tr:nth-child(6)~tr td {
+        border-top: none;
+      }
+
+      .sudoku-table td:nth-child(3),
+      .sudoku-table td:nth-child(6) {
+        border-right: 3px solid #000;
+      }
+
+      .sudoku-table td:nth-child(4) {
+        border-left: none;
+      }
+
+      .sudoku-table td:nth-child(7) {
+        border-left: none;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-b from-sky-50 to-white text-gray-900 safe-area">
+  <div id="app" class="max-w-md mx-auto min-h-screen flex flex-col pt-7">
+
+    <!-- Header -->
+    <header class="px-4 pt-4 pb-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-sky-500 flex items-center justify-center text-white text-xl">9×9</div>
+        <div>
+          <h1 class="text-xl font-extrabold leading-tight">小小腦力島 · 幼兒友善數獨</h1>
+          <p class="text-xs text-gray-500">隨機出題 · 難度可選 · 邏輯評分 · 列印</p>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <a href="../../index.html"
+          class="tap rounded-xl px-3 py-2 border text-sm flex items-center bg-white hover:bg-slate-50 transition-all shadow-sm">
+          <i class="fa-solid fa-house mr-1"></i>大廳
+        </a>
+        <button id="btnAbout"
+          class="tap rounded-xl px-3 py-2 border text-sm bg-white hover:bg-slate-50 transition-all shadow-sm">
+          <i class="fa-regular fa-circle-question mr-1"></i>說明
+        </button>
+      </div>
+    </header>
+
+    <!-- Welcome -->
+    <section id="screen-welcome" class="px-6 pb-4 pt-6">
+      <div class="bg-white rounded-3xl shadow-sm p-6">
+        <div class="text-6xl mb-3">🧩</div>
+        <h2 class="text-2xl font-extrabold mb-1">準備好了嗎？</h2>
+        <p class="text-gray-600 mb-5">可以直接玩，或列印題目在紙上挑戰！</p>
+        <div class="grid grid-cols-1 gap-3">
+          <button id="btnStart"
+            class="tap w-full bg-sky-600 hover:bg-sky-700 text-white rounded-2xl py-4 text-lg font-bold">
+            <i class="fa-solid fa-shuffle mr-2"></i>開始新題目
+          </button>
+          <button id="btnSettings" class="tap w-full bg-white border rounded-2xl py-4 text-lg font-bold">
+            <i class="fa-solid fa-sliders mr-2"></i>家長設定
+          </button>
+          <button id="btnPrintMode" class="tap w-full bg-white border rounded-2xl py-4 text-lg font-bold">
+            <i class="fa-solid fa-print mr-2"></i>列印題目
+          </button>
+          <a href="../../index.html"
+            class="tap w-full bg-white border rounded-2xl py-4 text-lg font-bold flex items-center justify-center text-gray-700 hover:bg-slate-50 transition-all">
+            <i class="fa-solid fa-house mr-2"></i>回到大廳
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Game -->
+    <section id="screen-game" class="hidden flex-1 px-4 pb-24">
+      <div class="flex items-center justify-between mb-2">
+        <button id="btnBackHome" class="tap px-3 py-2 rounded-xl border bg-white" title="返回"><i
+            class="fa-solid fa-arrow-left"></i></button>
+        <div class="text-center leading-tight">
+          <div class="text-xs text-gray-500">
+            <span id="labelDifficulty">容易</span>｜唯一解｜評分 <span id="labelScore">—</span>
+          </div>
+          <div id="timer" class="font-bold">00:00</div>
+        </div>
+        <div class="flex gap-2">
+          <button id="btnSteps" class="tap px-3 py-2 rounded-xl border bg-white" title="解題步驟"><i
+              class="fa-solid fa-list-check"></i></button>
+          <button id="btnUndo" class="tap px-3 py-2 rounded-xl border bg-white" title="撤銷"><i
+              class="fa-solid fa-rotate-left"></i></button>
+          <button id="btnHint" class="tap px-3 py-2 rounded-xl border bg-yellow-400/20 text-yellow-700 bg-white"
+            title="提示"><i class="fa-regular fa-lightbulb"></i></button>
+        </div>
+      </div>
+      <div id="board" class="grid-wrap mx-auto rounded-2xl overflow-hidden bg-white shadow ring-1 ring-slate-200"></div>
+      <div class="dock mt-4">
+        <div
+          class="bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/70 shadow-[0_-8px_24px_rgba(0,0,0,0.06)] rounded-t-3xl p-3">
+          <div class="flex flex-col gap-2">
+            <div class="grid grid-cols-5 gap-2">
+              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50" data-key="1">1</button>
+              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50" data-key="2">2</button>
+              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50" data-key="3">3</button>
+              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50" data-key="4">4</button>
+              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50" data-key="5">5</button>
+            </div>
+            <div class="grid grid-cols-5 gap-2">
+              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50" data-key="6">6</button>
+              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50" data-key="7">7</button>
+              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50" data-key="8">8</button>
+              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50" data-key="9">9</button>
+              <button class="key tap rounded-2xl py-3 font-bold bg-rose-50 text-rose-700" data-key="erase" title="擦除"><i
+                  class="fa-solid fa-eraser"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Dialog -->
+    <dialog id="dlgAbout" class="rounded-3xl p-6 max-w-sm">
+      <h3 class="text-xl font-extrabold mb-3">遊戲說明</h3>
+      <div class="space-y-2 text-gray-700 text-sm">
+        <p>數獨是一個邏輯益智遊戲。目標是在一個 9×9 的格子中，填入 1 到 9 的數字。</p>
+        <p>規則：</p>
+        <ul class="list-disc pl-5">
+          <li>每一橫列，都必須包含 1-9 的所有數字。</li>
+          <li>每一縱行，都必須包含 1-9 的所有數字。</li>
+          <li>每一個九宮格（粗線框起來的 3x3 區域），也都要有 1-9 的所有數字。</li>
+        </ul>
+        <p>祝您玩得愉快！</p>
+      </div>
+      <div class="mt-5 text-right">
+        <button id="btnCloseAbout" class="tap bg-sky-600 text-white rounded-xl py-2 px-5 font-bold">了解</button>
+      </div>
+    </dialog>
+
+    <!-- Settings Dialog -->
+    <dialog id="dlgSettings" class="rounded-3xl p-6 max-w-sm">
+      <h3 class="text-xl font-extrabold mb-3">家長設定</h3>
+
+      <div class="mb-4">
+        <label class="block mb-2">預設難度</label>
+        <select id="defaultDifficulty" class="border rounded-xl px-3 py-2 w-full">
+          <option value="easy">容易</option>
+          <option value="medium" selected>中等</option>
+          <option value="hard">困難</option>
+        </select>
+        <p class="text-xs text-gray-500 mt-1">註：題目會以「邏輯步驟」評估難度與分數，不只看挖空數量。</p>
+      </div>
+
+      <div class="mb-4">
+        <label class="inline-flex items-center gap-2">
+          <input id="soundEnabled" type="checkbox" class="h-5 w-5" checked>
+          <span>啟用音效</span>
+        </label>
+      </div>
+
+      <div class="flex items-center justify-between py-3 border-b">
+        <div>
+          <div class="font-bold">阻止錯誤放置</div>
+          <div class="text-xs text-gray-500">若數字不正確會阻擋並抖動提示</div>
+        </div>
+        <label class="inline-flex items-center gap-2">
+          <input id="optBlockError" type="checkbox" class="h-5 w-5" checked>
+          <span class="text-sm">開啟</span>
+        </label>
+      </div>
+
+      <div class="flex items-center justify-between py-3 border-b">
+        <div>
+          <div class="font-bold">顯示相同數字高亮</div>
+          <div class="text-xs text-gray-500">選到某格時，同行同列會變淡、相同數字會亮</div>
+        </div>
+        <label class="inline-flex items-center gap-2">
+          <input id="optHighlight" type="checkbox" class="h-5 w-5" checked>
+          <span class="text-sm">開啟</span>
+        </label>
+      </div>
+
+      <div class="flex items-center justify-between py-3 border-b">
+        <div>
+          <div class="font-bold">提示次數</div>
+          <div class="text-xs text-gray-500">每一關可使用的提示數</div>
+        </div>
+        <select id="optHints" class="border rounded-xl px-3 py-2">
+          <option value="∞">不限</option>
+          <option value="10" selected>10 次</option>
+          <option value="5">5 次</option>
+          <option value="3">3 次</option>
+        </select>
+      </div>
+
+      <div class="flex items-center justify-between py-3">
+        <div>
+          <div class="font-bold">計時器</div>
+          <div class="text-xs text-gray-500">顯示/隱藏遊玩時間</div>
+        </div>
+        <label class="inline-flex items-center gap-2">
+          <input id="optTimer" type="checkbox" class="h-5 w-5" checked>
+          <span class="text-sm">顯示</span>
+        </label>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 mt-4">
+        <button id="btnCancelSettings" class="tap bg-gray-200 rounded-xl py-3 font-bold">取消</button>
+        <button id="btnSaveSettings" class="tap bg-sky-600 text-white rounded-xl py-3 font-bold">儲存</button>
+      </div>
+    </dialog>
+
+    <!-- Print Dialog -->
+    <dialog id="dlgPrint" class="rounded-3xl p-6 max-w-sm">
+      <h3 class="text-xl font-extrabold mb-3">列印題目設定</h3>
+      <div class="mb-4">
+        <label class="block mb-2">題目數量</label>
+        <input id="printCount" type="number" min="2" max="50" value="10" class="border rounded-xl px-3 py-2 w-full">
+      </div>
+      <div class="mb-4">
+        <label class="block mb-2">難度</label>
+        <select id="printDifficulty" class="border rounded-xl px-3 py-2 w-full">
+          <option value="easy">容易</option>
+          <option value="medium" selected>中等</option>
+          <option value="hard">困難</option>
+        </select>
+      </div>
+      <div class="mb-6">
+        <label class="inline-flex items-center gap-2">
+          <input id="printIncludeAnswer" type="checkbox" class="h-5 w-5">
+          <span>附答案頁</span>
+        </label>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <button id="btnCancelPrint" class="tap bg-gray-200 rounded-xl py-3 font-bold">取消</button>
+        <button id="btnDoPrint" class="tap bg-sky-600 text-white rounded-xl py-3 font-bold">列印</button>
+      </div>
+    </dialog>
+
+    <!-- Steps dialog -->
+    <dialog id="dlgSteps" class="rounded-3xl p-0 max-w-md w-[92vw]">
+      <div class="p-5">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-lg font-extrabold">解題步驟（由易到難）</h3>
+          <button id="btnCloseSteps" class="px-3 py-1 rounded-lg border">關閉</button>
+        </div>
+        <div id="stepsSummary" class="text-sm text-gray-600 mb-3">—</div>
+        <ol id="stepsList" class="list-decimal pl-5 space-y-1 text-sm"></ol>
+      </div>
+    </dialog>
+
+    <!-- Win dialog -->
+    <dialog id="dlgWin" class="rounded-3xl p-0 backdrop:bg-black/40">
+      <div class="p-6 text-center">
+        <div class="text-6xl mb-2">🎉</div>
+        <h3 class="text-xl font-extrabold mb-1">太棒了！完成了！</h3>
+        <p class="text-gray-600 mb-4">用時 <span id="winTime">00:00</span>，使用提示 <span id="winHints">0</span> 次。</p>
+        <div class="grid grid-cols-2 gap-2 mb-2">
+          <button id="btnReplay" class="tap bg-sky-100 rounded-xl py-3 font-bold">重玩本關</button>
+          <button id="btnNext" class="tap bg-sky-600 text-white rounded-xl py-3 font-bold">下一題</button>
+        </div>
+        <a href="../../index.html"
+          class="tap block w-full bg-white border rounded-xl py-3 font-bold text-gray-700 hover:bg-slate-50 transition-all">
+          <i class="fa-solid fa-house mr-1"></i>回到遊戲大廳
+        </a>
+      </div>
+    </dialog>
+
+    <!-- Hint Dialog -->
+    <dialog id="dlgHint" class="rounded-3xl p-6 max-w-sm text-center backdrop:bg-black/40">
+      <div id="hintIcon" class="text-5xl mb-3">💡</div>
+      <h3 id="hintTitle" class="text-xl font-extrabold mb-2">解題提示</h3>
+      <div id="hintText" class="text-gray-700 mb-5 text-left space-y-3"></div>
+      <div class="grid grid-cols-2 gap-2">
+        <button id="btnFillHint" class="tap bg-amber-500 text-white rounded-xl py-3 font-bold">幫我填上</button>
+        <button id="btnCloseHint" class="tap bg-gray-200 rounded-xl py-3 font-bold">我知道了</button>
+      </div>
+    </dialog>
+
+  </div>
+
+  <script>
+    /* ========= 工具 ========= */
+    const deepCopy = g => g.map(r => [...r]);
+    const shuffle = arr => { for (let i = arr.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1) | 0);[arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; };
+    const range1to9 = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+    /* ========= Sudoku 基礎 ========= */
+    function isValidPlacement(grid, row, col, num) {
+      for (let c = 0; c < 9; c++) { if (c !== col && grid[row][c] === num) return false; }
+      for (let r = 0; r < 9; r++) { if (r !== row && grid[r][col] === num) return false; }
+      const sr = Math.floor(row / 3) * 3, sc = Math.floor(col / 3) * 3;
+      for (let r = sr; r < sr + 3; r++) { for (let c = sc; c < sc + 3; c++) { if ((r !== row || c !== col) && grid[r][c] === num) return false; } }
+      return true;
+    }
+    function findEmpty(grid) {
+      for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) if (grid[r][c] === 0) return [r, c];
+      return null;
+    }
+    function countSolutions(grid, limit = 2) {
+      let count = 0;
+      function dfs() {
+        if (count >= limit) return;
+        const empty = findEmpty(grid);
+        if (!empty) { count++; return; }
+        const [r, c] = empty;
+        const nums = shuffle(range1to9.slice());
+        for (const n of nums) {
+          if (isValidPlacement(grid, r, c, n)) {
+            grid[r][c] = n;
+            dfs();
+            grid[r][c] = 0;
+            if (count >= limit) return;
+          }
+        }
+      }
+      dfs();
+      return count;
+    }
+    function generateSolved() {
+      const grid = Array.from({ length: 9 }, () => Array(9).fill(0));
+      function fillCell(pos = 0) {
+        if (pos === 81) return true;
+        const r = Math.floor(pos / 9), c = pos % 9;
+        const nums = shuffle(range1to9.slice());
+        for (const n of nums) {
+          if (isValidPlacement(grid, r, c, n)) {
+            grid[r][c] = n;
+            if (fillCell(pos + 1)) return true;
+            grid[r][c] = 0;
+          }
+        }
+        return false;
+      }
+      fillCell(0);
+      return grid;
+    }
+
+    /* ========= 依難度的挖空（並保證唯一解） ========= */
+    function makePuzzleFromSolution(solution, difficulty) {
+      let targetHoles;
+      if (difficulty === 'easy') { targetHoles = 24 + Math.floor(Math.random() * 7); }
+      else if (difficulty === 'medium') { targetHoles = 35 + Math.floor(Math.random() * 11); }
+      else { targetHoles = 45 + Math.floor(Math.random() * 14); }
+      const puzzle = deepCopy(solution);
+      const positions = shuffle([...Array(81).keys()]);
+      let holes = 0;
+      for (const idx of positions) {
+        if (holes >= targetHoles) break;
+        const r = Math.floor(idx / 9), c = idx % 9;
+        if (puzzle[r][c] === 0) continue;
+        const backup = puzzle[r][c];
+        puzzle[r][c] = 0;
+        const test = deepCopy(puzzle);
+        const solCount = countSolutions(test, 2);
+        if (solCount === 1) {
+          holes++;
+        } else {
+          puzzle[r][c] = backup;
+        }
+      }
+      return puzzle;
+    }
+
+    /* ========= 候選與邏輯技巧 ========= */
+    function getCandidates(grid, r, c) {
+      if (grid[r][c] !== 0) return [];
+      const used = new Set();
+      for (let i = 0; i < 9; i++) { used.add(grid[r][i]); used.add(grid[i][c]); }
+      const sr = Math.floor(r / 3) * 3, sc = Math.floor(c / 3) * 3;
+      for (let i = sr; i < sr + 3; i++) for (let j = sc; j < sc + 3; j++) used.add(grid[i][j]);
+      return range1to9.filter(n => !used.has(n));
+    }
+    function getUsedNumbers(grid, r, c) {
+      const used = new Set();
+      const sr = Math.floor(r / 3) * 3, sc = Math.floor(c / 3) * 3;
+      for (let i = 0; i < 9; i++) {
+        if (grid[r][i] !== 0) used.add(grid[r][i]);
+        if (grid[i][c] !== 0) used.add(grid[i][c]);
+      }
+      for (let i = sr; i < sr + 3; i++) {
+        for (let j = sc; j < sc + 3; j++) {
+          if (grid[i][j] !== 0) used.add(grid[i][j]);
+        }
+      }
+      return Array.from(used).sort((a, b) => a - b);
+    }
+    function applyNakedSingle(grid, steps) {
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          if (grid[r][c] === 0) {
+            const cand = getCandidates(grid, r, c);
+            if (cand.length === 1) {
+              grid[r][c] = cand[0];
+              steps.push({ tech: 'Naked Single', r, c, value: cand[0] });
+              return true;
+            }
+          }
+        }
+      }
+      return false;
+    }
+    function applyHiddenSingle(grid, steps) {
+      for (let r = 0; r < 9; r++) {
+        const places = Array.from({ length: 10 }, () => []);
+        for (let c = 0; c < 9; c++) {
+          if (grid[r][c] === 0) {
+            for (const n of getCandidates(grid, r, c)) places[n].push([r, c]);
+          }
+        }
+        for (let n = 1; n <= 9; n++) {
+          if (places[n].length === 1) {
+            const [rr, cc] = places[n][0];
+            grid[rr][cc] = n;
+            steps.push({ tech: 'Hidden Single (Row)', r: rr, c: cc, value: n });
+            return true;
+          }
+        }
+      }
+      for (let c = 0; c < 9; c++) {
+        const places = Array.from({ length: 10 }, () => []);
+        for (let r = 0; r < 9; r++) {
+          if (grid[r][c] === 0) {
+            for (const n of getCandidates(grid, r, c)) places[n].push([r, c]);
+          }
+        }
+        for (let n = 1; n <= 9; n++) {
+          if (places[n].length === 1) {
+            const [rr, cc] = places[n][0];
+            grid[rr][cc] = n;
+            steps.push({ tech: 'Hidden Single (Col)', r: rr, c: cc, value: n });
+            return true;
+          }
+        }
+      }
+      for (let br = 0; br < 3; br++) {
+        for (let bc = 0; bc < 3; bc++) {
+          const places = Array.from({ length: 10 }, () => []);
+          for (let r = br * 3; r < br * 3 + 3; r++) {
+            for (let c = bc * 3; c < bc * 3 + 3; c++) {
+              if (grid[r][c] === 0) {
+                for (const n of getCandidates(grid, r, c)) places[n].push([r, c]);
+              }
+            }
+          }
+          for (let n = 1; n <= 9; n++) {
+            if (places[n].length === 1) {
+              const [rr, cc] = places[n][0];
+              grid[rr][cc] = n;
+              steps.push({ tech: 'Hidden Single (Box)', r: rr, c: cc, value: n });
+              return true;
+            }
+          }
+        }
+      }
+      return false;
+    }
+    function applyNakedPair(grid, steps) {
+      const eq = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
+      for (let r = 0; r < 9; r++) {
+        const cells = [], cands = [];
+        for (let c = 0; c < 9; c++) {
+          if (grid[r][c] === 0) {
+            const cand = getCandidates(grid, r, c);
+            if (cand.length === 2) { cells.push(c); cands.push(cand.sort()); }
+          }
+        }
+        for (let i = 0; i < cands.length; i++) {
+          for (let j = i + 1; j < cands.length; j++) {
+            if (eq(cands[i], cands[j])) {
+              const pair = cands[i], A = cells[i], B = cells[j];
+              let eliminated = 0;
+              for (let c = 0; c < 9; c++) {
+                if (c === A || c === B || grid[r][c] !== 0) continue;
+                const cand = getCandidates(grid, r, c);
+                const newCand = cand.filter(x => !pair.includes(x));
+                if (newCand.length < cand.length) {
+                  eliminated += cand.length - newCand.length;
+                }
+              }
+              if (eliminated > 0) {
+                steps.push({ tech: 'Naked Pair (Row)', r, c: -1, note: `候選 ${pair.join('/')} 鎖定於兩格，同行其他格移除 ${eliminated} 次` });
+                return true;
+              }
+            }
+          }
+        }
+      }
+      for (let c = 0; c < 9; c++) {
+        const rows = [], cands = [];
+        for (let r = 0; r < 9; r++) {
+          if (grid[r][c] === 0) {
+            const cand = getCandidates(grid, r, c);
+            if (cand.length === 2) { rows.push(r); cands.push(cand.sort()); }
+          }
+        }
+        for (let i = 0; i < cands.length; i++) {
+          for (let j = i + 1; j < cands.length; j++) {
+            if (eq(cands[i], cands[j])) {
+              const pair = cands[i], A = rows[i], B = rows[j];
+              let eliminated = 0;
+              for (let r = 0; r < 9; r++) {
+                if (r === A || r === B || grid[r][c] !== 0) continue;
+                const cand = getCandidates(grid, r, c);
+                const newCand = cand.filter(x => !pair.includes(x));
+                if (newCand.length < cand.length) eliminated += cand.length - newCand.length;
+              }
+              if (eliminated > 0) {
+                steps.push({ tech: 'Naked Pair (Col)', r: -1, c, note: `候選 ${pair.join('/')} 鎖定於兩格，同列其他格移除 ${eliminated} 次` });
+                return true;
+              }
+            }
+          }
+        }
+      }
+      for (let br = 0; br < 3; br++) {
+        for (let bc = 0; bc < 3; bc++) {
+          const pos = [], cands = [];
+          for (let r = br * 3; r < br * 3 + 3; r++) {
+            for (let c = bc * 3; c < bc * 3 + 3; c++) {
+              if (grid[r][c] === 0) {
+                const cand = getCandidates(grid, r, c);
+                if (cand.length === 2) { pos.push([r, c]); cands.push(cand.sort()); }
+              }
+            }
+          }
+          for (let i = 0; i < cands.length; i++) {
+            for (let j = i + 1; j < cands.length; j++) {
+              const pair = cands[i];
+              if (JSON.stringify(pair) === JSON.stringify(cands[j])) {
+                let eliminated = 0;
+                for (let r = br * 3; r < br * 3 + 3; r++) {
+                  for (let c = bc * 3; c < bc * 3 + 3; c++) {
+                    if (grid[r][c] === 0) {
+                      const cand = getCandidates(grid, r, c);
+                      if (!((pos[i][0] === r && pos[i][1] === c) || (pos[j][0] === r && pos[j][1] === c))) {
+                        const newCand = cand.filter(x => !pair.includes(x));
+                        if (newCand.length < cand.length) eliminated += cand.length - newCand.length;
+                      }
+                    }
+                  }
+                }
+                if (eliminated > 0) {
+                  steps.push({ tech: 'Naked Pair (Box)', r: br * 3, c: bc * 3, note: `候選 ${pair.join('/')} 鎖定於兩格，宮內其他格移除 ${eliminated} 次` });
+                  return true;
+                }
+              }
+            }
+          }
+        }
+      }
+      return false;
+    }
+
+    /* ========= 難度分析（解題模擬 + 評分） ========= */
+    const TECH_SCORE = {
+      'Naked Single': 1,
+      'Hidden Single (Row)': 2,
+      'Hidden Single (Col)': 2,
+      'Hidden Single (Box)': 2,
+      'Naked Pair (Row)': 3,
+      'Naked Pair (Col)': 3,
+      'Naked Pair (Box)': 3
+    };
+
+    function analyzeDifficulty(puzzle) {
+      const work = deepCopy(puzzle);
+      const steps = [];
+      let progress = true, guard = 0;
+      while (progress && guard < 500) {
+        guard++;
+        progress = false;
+        if (applyNakedSingle(work, steps)) { progress = true; continue; }
+        if (applyHiddenSingle(work, steps)) { progress = true; continue; }
+        if (applyNakedPair(work, steps)) { progress = true; continue; }
+      }
+      let score = 0;
+      for (const s of steps) { score += TECH_SCORE[s.tech] ?? 0; }
+      let solved = !findEmpty(work);
+      return { score, steps, solved, solvedGrid: work };
+    }
+
+    /* ========= 目標難度區間 ========= */
+    function inTargetScore(score, difficulty) {
+      if (difficulty === 'easy') return score <= 30;
+      if (difficulty === 'medium') return score > 30 && score <= 60;
+      if (difficulty === 'hard') return score > 60;
+      return true;
+    }
+    function difficultyText(d) {
+      return d === 'easy' ? '容易' : (d === 'medium' ? '中等' : '困難');
+    }
+
+    /* ========= 依邏輯評分生成題目 ========= */
+    function generatePuzzleWithDifficulty(targetDifficulty, maxAttempts = 60) {
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        const solution = generateSolved();
+        const puzzle = makePuzzleFromSolution(solution, targetDifficulty);
+        const { score, steps, solved } = analyzeDifficulty(puzzle);
+        const uniq = countSolutions(deepCopy(puzzle), 2) === 1;
+        if (uniq && solved && inTargetScore(score, targetDifficulty)) {
+          return { puzzle, solution, score, steps, attempt };
+        }
+      }
+      const fallback = (targetDifficulty === 'hard' ? 'medium' : 'easy');
+      for (let attempt = 1; attempt <= 40; attempt++) {
+        const solution = generateSolved();
+        const puzzle = makePuzzleFromSolution(solution, fallback);
+        const { score, steps, solved } = analyzeDifficulty(puzzle);
+        const uniq = countSolutions(deepCopy(puzzle), 2) === 1;
+        if (uniq && solved && inTargetScore(score, fallback)) {
+          return { puzzle, solution, score, steps, attempt, downgraded: true };
+        }
+      }
+      const solution = generateSolved();
+      const puzzle = makePuzzleFromSolution(solution, 'medium');
+      const { score, steps, solved } = analyzeDifficulty(puzzle);
+      return { puzzle, solution, score, steps, attempt: -1, downgraded: true, solved };
+    }
+
+    /* ========= 狀態 ========= */
+    let currentPuzzle = null;
+    let currentSolution = null;
+    let gameTimer = null;
+    let startTime = null;
+    let blockError = true;
+    let hiLight = true;
+    let hintLimit = 10;
+    let hintUsed = 0;
+    let timerOn = true;
+    let undoStack = [];
+    let initialPuzzle = null;
+    let currentSteps = [];
+    let currentScore = 0;
+    let currentDifficultyKey = 'medium';
+    let activeHint = null;
+
+    /* ========= UI ========= */
+    function showScreen(screenId) {
+      document.getElementById('screen-welcome').classList.add('hidden');
+      document.getElementById('screen-game').classList.add('hidden');
+      const el = document.getElementById(screenId);
+      if (el) el.classList.remove('hidden');
+    }
+
+    function renderGameBoard() {
+      const board = document.getElementById('board');
+      board.innerHTML = '';
+      for (let r = 0; r < 9; r++) {
+        const row = document.createElement('div');
+        row.className = `row-${r} flex`;
+        for (let c = 0; c < 9; c++) {
+          const value = currentPuzzle[r][c];
+          const cell = document.createElement('div');
+          cell.className = `cell ${value ? 'given' : 'user'} col-${c}`;
+          cell.dataset.r = r;
+          cell.dataset.c = c;
+          cell.textContent = value ? value : '';
+          cell.addEventListener('click', () => selectCell(cell));
+          row.appendChild(cell);
+        }
+        board.appendChild(row);
+      }
+    }
+
+    function selectCell(cell) {
+      document.querySelectorAll('.cell').forEach(c => c.classList.remove('selected', 'rc-hl', 'hint'));
+      if (cell) {
+        if (!cell.classList.contains('given')) cell.classList.add('selected');
+        const r = Number(cell.dataset.r), c = Number(cell.dataset.c);
+        document.querySelectorAll('.cell').forEach(el => {
+          if (Number(el.dataset.r) === r || Number(el.dataset.c) === c) { el.classList.add('rc-hl'); }
+        });
+        if (hiLight) {
+          const val = cell.textContent.trim();
+          if (val) {
+            document.querySelectorAll('.cell').forEach(el => { if (el.textContent.trim() === val) el.classList.add('hint'); });
+          }
+        }
+      }
+    }
+
+    function getGridValues() {
+      const g = Array.from({ length: 9 }, () => Array(9).fill(0));
+      document.querySelectorAll('.cell').forEach(cell => {
+        const r = Number(cell.dataset.r), c = Number(cell.dataset.c);
+        const v = Number(cell.textContent.trim());
+        g[r][c] = isNaN(v) ? 0 : v;
+      });
+      return g;
+    }
+
+    function validateAll() {
+      const g = getGridValues();
+      document.querySelectorAll('.cell').forEach(cell => cell.classList.remove('err', 'hint'));
+      document.querySelectorAll('.cell.user').forEach(cell => {
+        const r = Number(cell.dataset.r), c = Number(cell.dataset.c);
+        const v = Number(cell.textContent.trim()); if (!v) return;
+        if (!isValidPlacement(g, r, c, v)) cell.classList.add('err');
+      });
+    }
+
+    function checkWin() {
+      let ok = true; let gFilled = true;
+      const g = getGridValues();
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          if (g[r][c] === 0) { gFilled = false; break; }
+        }
+        if (!gFilled) break;
+      }
+
+      if (gFilled) {
+        for (let r = 0; r < 9; r++) {
+          for (let c = 0; c < 9; c++) {
+            const val = g[r][c];
+            g[r][c] = 0; // Temporarily empty to validate against others
+            if (!isValidPlacement(g, r, c, val)) {
+              ok = false;
+              break;
+            }
+            g[r][c] = val; // Restore
+          }
+          if (!ok) break;
+        }
+      }
+
+      if (gFilled && ok) {
+        const finalTime = stopTimer();
+        try {
+          document.getElementById('winTime').textContent = finalTime;
+          document.getElementById('winHints').textContent = hintUsed;
+          document.getElementById('dlgWin')?.showModal();
+        } catch (e) { }
+      }
+    }
+
+    /* ========= 計時 ========= */
+    function startTimer() {
+      if (gameTimer) clearInterval(gameTimer);
+      if (!timerOn) { document.getElementById('timer').classList.add('invisible'); return; }
+      document.getElementById('timer').classList.remove('invisible');
+      startTime = Date.now();
+      gameTimer = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+        document.getElementById('timer').textContent =
+          `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      }, 1000);
+    }
+    function stopTimer() {
+      let finalTime = '00:00';
+      if (gameTimer) { clearInterval(gameTimer); gameTimer = null; }
+      if (startTime) {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+        finalTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        startTime = null;
+      }
+      return finalTime;
+    }
+
+    /* ========= 提示 / 撤銷 ========= */
+    function applyHint(step) {
+      const { r, c, value } = step;
+      const cell = document.querySelector(`.cell[data-r='${r}'][data-c='${c}']`);
+      if (!cell || cell.classList.contains('given')) return;
+
+      undoStack.push({ cell: cell, old: cell.textContent.trim() });
+      cell.textContent = String(value);
+      currentPuzzle[r][c] = Number(value);
+
+      selectCell(cell);
+      cell.classList.add('hint');
+      validateAll();
+      checkWin();
+    }
+
+    function hint() {
+      if (hintLimit !== Infinity && hintUsed >= hintLimit) {
+        const btn = document.getElementById('btnHint');
+        btn.classList.add('wiggle');
+        setTimeout(() => btn.classList.remove('wiggle'), 220);
+        return;
+      }
+
+      const currentGrid = getGridValues();
+      let stepFound = null;
+
+      for (const step of currentSteps) {
+        if (typeof step.value !== 'undefined' && currentGrid[step.r][step.c] === 0) {
+          stepFound = step;
+          break;
+        }
+      }
+
+      if (stepFound) {
+        hintUsed++;
+        activeHint = stepFound;
+        const { tech, r, c, value } = stepFound;
+        let hintMessageHTML = '';
+
+        switch (tech) {
+          case 'Naked Single':
+            const usedNums = getUsedNumbers(currentGrid, r, c);
+            hintMessageHTML = `
+                    <div class='font-bold'>位置：第 ${r + 1} 橫列, 第 ${c + 1} 直行</div>
+                    <div class='text-sm'>
+                        <p class='mb-1'><strong>線索：</strong> 這個格子的相關行列宮已經出現了數字：</p>
+                        <p class='text-sky-700 font-mono bg-sky-50 p-2 rounded-lg text-center'>${usedNums.join(', ')}</p>
+                    </div>
+                    <div><strong>結論：</strong> 因此，這裡唯一能填的數字就是 <strong class='text-xl text-amber-600'>${value}</strong>。</div>
+                `;
+            break;
+          case 'Hidden Single (Row)':
+            hintMessageHTML = `
+                    <div class='font-bold'>位置：第 ${r + 1} 橫列, 第 ${c + 1} 直行</div>
+                    <div class='text-sm'>
+                        <p><strong>線索：</strong> 請仔細觀察第 <strong>${r + 1}</strong> 橫列的所有空格。</p>
+                    </div>
+                    <div><strong>結論：</strong> 您會發現，數字 <strong class='text-xl text-amber-600'>${value}</strong> 在這一列中，只剩下這個位置可以填了。</div>
+                `;
+            break;
+          case 'Hidden Single (Col)':
+            hintMessageHTML = `
+                    <div class='font-bold'>位置：第 ${r + 1} 橫列, 第 ${c + 1} 直行</div>
+                    <div class='text-sm'>
+                        <p><strong>線索：</strong> 請仔細觀察第 <strong>${c + 1}</strong> 直行的所有空格。</p>
+                    </div>
+                    <div><strong>結論：</strong> 您會發現，數字 <strong class='text-xl text-amber-600'>${value}</strong> 在這一行中，只剩下這個位置可以填了。</div>
+                `;
+            break;
+          case 'Hidden Single (Box)':
+            const boxNum = Math.floor(r / 3) * 3 + Math.floor(c / 3) + 1;
+            hintMessageHTML = `
+                    <div class='font-bold'>位置：第 ${r + 1} 橫列, 第 ${c + 1} 直行</div>
+                    <div class='text-sm'>
+                        <p><strong>線索：</strong> 請仔細觀察第 <strong>${boxNum}</strong> 個九宮格的所有空格。</p>
+                    </div>
+                    <div><strong>結論：</strong> 您會發現，數字 <strong class='text-xl text-amber-600'>${value}</strong> 在這個宮格中，只剩下這個位置可以填了。</div>
+                `;
+            break;
+          default:
+            hintMessageHTML = `
+                    <div class='font-bold'>位置：第 ${r + 1} 橫列, 第 ${c + 1} 直行</div>
+                    <div><strong>結論：</strong> 根據一個解題技巧，這裡可以填入數字 <strong class='text-xl text-amber-600'>${value}</strong>。</div>
+                `;
+            break;
+        }
+
+        const cell = document.querySelector(`.cell[data-r='${r}'][data-c='${c}']`);
+        selectCell(cell);
+        cell.classList.add('hint');
+
+        document.getElementById('hintText').innerHTML = hintMessageHTML;
+        document.getElementById('dlgHint').showModal();
+      } else {
+        simpleFillHint();
+      }
+    }
+
+    function simpleFillHint() {
+      let cell = Array.from(document.querySelectorAll('.cell.user')).find(x => !x.textContent.trim());
+      if (!cell) return;
+      hintUsed++;
+      const r = Number(cell.dataset.r), c = Number(cell.dataset.c);
+      applyHint({ r, c, value: currentSolution[r][c] });
+    }
+
+
+    function undo() {
+      const last = undoStack.pop();
+      if (!last) return;
+      const r = Number(last.cell.dataset.r), c = Number(last.cell.dataset.c);
+      const val = last.old === '' ? 0 : Number(last.old);
+      last.cell.textContent = last.old;
+      currentPuzzle[r][c] = val;
+      validateAll();
+    }
+
+    /* ========= 新遊戲（邏輯難度控制） ========= */
+    function startNewGame() {
+      const difficulty = document.getElementById('defaultDifficulty')?.value || 'easy';
+      currentDifficultyKey = difficulty;
+
+      // TODO: Add a loading indicator
+      const gen = generatePuzzleWithDifficulty(difficulty);
+      currentPuzzle = gen.puzzle;
+      initialPuzzle = deepCopy(gen.puzzle);
+      currentSolution = gen.solution;
+      currentSteps = gen.steps || [];
+      currentScore = gen.score || 0;
+
+      hintUsed = 0;
+      undoStack = [];
+      hiLight = document.getElementById('optHighlight')?.checked ?? true;
+
+      document.getElementById('labelDifficulty').textContent = difficultyText(difficulty);
+      document.getElementById('labelScore').textContent = String(currentScore);
+
+      renderGameBoard();
+      startTimer();
+      showScreen('screen-game');
+
+      const firstEmpty = document.querySelector('.cell.user');
+      if (firstEmpty) selectCell(firstEmpty);
+    }
+
+    /* ========= 事件 ========= */
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('btnStart').addEventListener('click', startNewGame);
+
+      // About Dialog Listeners
+      document.getElementById('btnAbout').addEventListener('click', () => document.getElementById('dlgAbout').showModal());
+      document.getElementById('btnCloseAbout').addEventListener('click', () => document.getElementById('dlgAbout').close());
+
+      document.getElementById('btnSettings').addEventListener('click', () => document.getElementById('dlgSettings').showModal());
+      document.getElementById('btnCancelSettings').addEventListener('click', () => document.getElementById('dlgSettings').close());
+      document.getElementById('btnSaveSettings').addEventListener('click', () => {
+        blockError = document.getElementById('optBlockError')?.checked ?? true;
+        hiLight = document.getElementById('optHighlight')?.checked ?? true;
+        const hintsVal = document.getElementById('optHints')?.value ?? '10';
+        timerOn = document.getElementById('optTimer')?.checked ?? true;
+        hintLimit = (hintsVal === '∞') ? Infinity : Number(hintsVal) || 10;
+        if (!timerOn) { stopTimer(); document.getElementById('timer').classList.add('invisible'); }
+        else if (startTime) { document.getElementById('timer').classList.remove('invisible'); startTimer(); }
+        document.getElementById('dlgSettings').close();
+      });
+      document.getElementById('btnBackHome').addEventListener('click', () => { stopTimer(); showScreen('screen-welcome'); });
+
+      document.querySelectorAll('.key').forEach(key => {
+        key.addEventListener('click', () => {
+          const k = key.dataset.key;
+          handleKeyPress(k === 'erase' ? 'erase' : parseInt(k));
+        });
+      });
+
+      document.getElementById('btnHint')?.addEventListener('click', hint);
+      document.getElementById('btnUndo')?.addEventListener('click', undo);
+
+      document.getElementById('btnReplay')?.addEventListener('click', () => {
+        try { document.getElementById('dlgWin').close(); } catch (e) { }
+        if (initialPuzzle) {
+          currentPuzzle = deepCopy(initialPuzzle);
+          renderGameBoard();
+          hintUsed = 0;
+          undoStack = [];
+          validateAll();
+          stopTimer();
+          startTimer();
+          const firstEmpty = document.querySelector('.cell.user');
+          if (firstEmpty) selectCell(firstEmpty);
+        }
+      });
+      document.getElementById('btnNext')?.addEventListener('click', () => {
+        try { document.getElementById('dlgWin').close(); } catch (e) { }
+        startNewGame();
+      });
+
+      document.getElementById('btnSteps')?.addEventListener('click', () => {
+        const dlg = document.getElementById('dlgSteps');
+        const list = document.getElementById('stepsList');
+        const sum = document.getElementById('stepsSummary');
+        list.innerHTML = '';
+        if (!currentSteps || !currentSteps.length) {
+          sum.textContent = '此題以非常基礎的技巧即可完成（評分 ' + currentScore + '）。';
+        } else {
+          sum.textContent = `共記錄 ${currentSteps.length} 步，評分 ${currentScore}。`;
+          currentSteps.forEach((s, i) => {
+            const li = document.createElement('li');
+            if (typeof s.value !== 'undefined') {
+              li.textContent = `${s.tech}: R${s.r + 1}C${s.c + 1} = ${s.value}`;
+            } else {
+              li.textContent = `${s.tech}` + (s.note ? `：${s.note}` : '');
+            }
+            list.appendChild(li);
+          });
+        }
+        dlg.showModal();
+      });
+      document.getElementById('btnCloseSteps')?.addEventListener('click', () => document.getElementById('dlgSteps').close());
+
+      // Hint Dialog Listeners
+      document.getElementById('btnCloseHint').addEventListener('click', () => {
+        document.getElementById('dlgHint').close();
+        document.querySelectorAll('.cell.hint').forEach(c => c.classList.remove('hint'));
+        activeHint = null;
+      });
+      document.getElementById('btnFillHint').addEventListener('click', () => {
+        if (activeHint) {
+          applyHint(activeHint);
+        }
+        document.getElementById('dlgHint').close();
+        activeHint = null;
+      });
+
+      // Print Listeners
+      document.getElementById('btnPrintMode').addEventListener('click', () => document.getElementById('dlgPrint').showModal());
+      document.getElementById('btnCancelPrint').addEventListener('click', () => document.getElementById('dlgPrint').close());
+      document.getElementById('btnDoPrint').addEventListener('click', () => {
+        const count = parseInt(document.getElementById('printCount').value) || 10;
+        const difficulty = document.getElementById('printDifficulty').value;
+        const includeAnswer = document.getElementById('printIncludeAnswer').checked;
+        document.getElementById('dlgPrint').close();
+        generatePrintPages(count, difficulty, includeAnswer);
+      });
+    });
+
+    /* ========= 列印 ========= */
+    function renderSudokuTable(grid) {
+      let html = `<table class="sudoku-table">`;
+      for (let r = 0; r < 9; r++) {
+        html += `<tr>`;
+        for (let c = 0; c < 9; c++) {
+          const value = grid[r][c] === 0 ? '' : grid[r][c];
+          html += `<td><span class="cell-val">${value}</span></td>`;
+        }
+        html += `</tr>`;
+      }
+      html += `</table>`;
+      return html;
+    }
+    function generatePrintPages(count, difficulty, includeAnswer) {
+      const puzzles = [];
+      for (let i = 0; i < count; i++) {
+        const { puzzle, solution } = generatePuzzleWithDifficulty(difficulty);
+        puzzles.push({ puzzle, solution });
+      }
+
+      let html = `
+  <html><head><title>列印數獨題目</title><style>
+    @page { size: A4; margin: 8mm; }
+    :root { --cell-size: 12mm; }
+    html, body { height:100%; -webkit-print-color-adjust: exact; print-color-adjust: exact; margin:0; padding:0; font-family: sans-serif; }
+    .page { display:flex; flex-direction:column; justify-content:flex-start; gap:8mm; page-break-after:always; }
+    .sudoku-container { width:100%; margin-bottom:2mm; max-width: calc(var(--cell-size) * 9); margin-left:auto; margin-right:auto; page-break-inside: avoid; }
+    .sudoku-title { text-align:center; font-weight:bold; margin-bottom:6px; }
+    .sudoku-table { border-collapse: collapse; width: calc(var(--cell-size) * 9); table-layout: fixed; }
+    .sudoku-table td { width: var(--cell-size); height: 0; padding-bottom: var(--cell-size); text-align: center; border: 1px solid #000; font-size: calc(var(--cell-size) * 0.45); position: relative; overflow: hidden; background: #fff; }
+    .sudoku-table td .cell-val { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: calc(var(--cell-size) * 0.6); font-weight: 700; line-height: 1; }
+    .sudoku-table tr:nth-child(3) td, .sudoku-table tr:nth-child(6) td { border-bottom: 3px solid #000; }
+    .sudoku-table td:nth-child(3), .sudoku-table td:nth-child(6) { border-right: 3px solid #000; }
+  </style></head><body>`;
+
+      for (let i = 0; i < puzzles.length; i += 2) {
+        html += `<div class="page">`;
+        for (let j = 0; j < 2; j++) {
+          const idx = i + j;
+          if (idx >= puzzles.length) break;
+          html += `<div class="sudoku-container">
+        <div class="sudoku-title">第 ${idx + 1} 題（${difficultyText(difficulty)}）</div>
+        ${renderSudokuTable(puzzles[idx].puzzle)}
+      </div>`;
+        }
+        html += `</div>`;
+      }
+
+      if (includeAnswer) {
+        html += `<h2 style="text-align:center; margin-top:40px; page-break-before: always;">答案</h2>`;
+        for (let i = 0; i < puzzles.length; i += 2) {
+          html += `<div class="page">`;
+          for (let j = 0; j < 2; j++) {
+            const idx = i + j;
+            if (idx >= puzzles.length) break;
+            html += `<div class="sudoku-container">
+          <div class="sudoku-title">第 ${idx + 1} 題答案</div>
+          ${renderSudokuTable(puzzles[idx].solution)}
+        </div>`;
+          }
+          html += `</div>`;
+        }
+      }
+
+      html += `</body></html>`;
+      const printWin = window.open('', '_blank');
+      printWin.document.write(html);
+      printWin.document.close();
+      printWin.focus();
+      printWin.print();
+    }
+
+    /* ========= 輸入處理 ========= */
+    function handleKeyPress(key) {
+      const selectedCell = document.querySelector('.cell.selected');
+      if (!selectedCell || selectedCell.classList.contains('given')) return;
+
+      const row = parseInt(selectedCell.dataset.r);
+      const col = parseInt(selectedCell.dataset.c);
+      const old = selectedCell.textContent.trim();
+
+      if (key === 'erase') {
+        if (old) {
+          undoStack.push({ cell: selectedCell, old });
+          selectedCell.textContent = '';
+          currentPuzzle[row][col] = 0;
+          selectedCell.classList.remove('err');
+          validateAll();
+        }
+        return;
+      }
+
+      if (key >= 1 && key <= 9) {
+        if (blockError) {
+          const tempGrid = getGridValues();
+          tempGrid[row][col] = 0; // Test as if the cell is empty
+          if (!isValidPlacement(tempGrid, row, col, Number(key))) {
+            selectedCell.classList.add('wiggle');
+            setTimeout(() => selectedCell.classList.remove('wiggle'), 240);
+            return;
+          }
+        }
+        undoStack.push({ cell: selectedCell, old });
+        currentPuzzle[row][col] = Number(key);
+        selectedCell.textContent = String(key);
+        selectCell(selectedCell);
+        validateAll();
+        checkWin();
+      }
+    }
+  </script>
+</body>
+
+</html>

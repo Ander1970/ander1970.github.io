@@ -1,0 +1,18 @@
+[
+  {
+    "id": "sudoku",
+    "title": "幼兒友善數獨",
+    "description": "專為幼兒設計的數獨遊戲！具備智慧提示、難度選擇，還能直接列印成紙本挑戰。",
+    "icon": "🧩",
+    "thumbnail": "",
+    "path": "games-list/sudoku/sudoku.html",
+    "tags": [
+      "單人",
+      "益智",
+      "邏輯",
+      "列印"
+    ],
+    "addedDate": "2026-03-23",
+    "featured": true
+  }
+]
