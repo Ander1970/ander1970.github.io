@@ -46,5 +46,21 @@
     ],
     "addedDate": "2026-03-24",
     "featured": false
+  },
+  {
+    "id": "silver_garden",
+    "title": "銀齡樂園",
+    "description": "體驗春夏秋冬四季美景的接物遊戲！具備挑戰模式與無限模式，適合訓練反應力與手眼協調。",
+    "icon": "🌸",
+    "thumbnail": "",
+    "path": "games-list/garden/garden.html",
+    "tags": [
+      "單人",
+      "動作",
+      "反應",
+      "四季"
+    ],
+    "addedDate": "2026-03-24",
+    "featured": true
   }
 ]
