@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -10,70 +11,293 @@
     <!-- Embedded CSS -->
     <style>
         /* --- Global Styles & Reset --- */
-        html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; background-color: #f0f2f5; }
-        .view { display: none; width: 100%; height: 100%; overflow-y: auto; flex-direction: column; }
-        .view.active { display: flex; }
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        .view {
+            display: none;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            flex-direction: column;
+        }
+
+        .view.active {
+            display: flex;
+        }
+
         /* Toggle Switch Style */
-        .toggle-checkbox:checked + .toggle-label { background-color: #34D399; }
-        .toggle-checkbox:checked + .toggle-label::after { transform: translateX(100%); }
-        .toggle-label::after { content: ''; position: absolute; width: 1.25rem; height: 1.25rem; border-radius: 50%; background-color: white; top: 2px; left: 2px; transition: transform 0.2s ease-in-out; }
+        .toggle-checkbox:checked+.toggle-label {
+            background-color: #34D399;
+        }
+
+        .toggle-checkbox:checked+.toggle-label::after {
+            transform: translateX(100%);
+        }
+
+        .toggle-label::after {
+            content: '';
+            position: absolute;
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 50%;
+            background-color: white;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s ease-in-out;
+        }
+
         /* Card Flip Styles */
-        .card { perspective: 1000px; cursor: pointer; }
-        .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; border-radius: 8px; }
-        .card.is-flipped .card-inner { transform: rotateY(180deg); }
-        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .card-front { background-color: white; transform: rotateY(180deg); border: 1px solid #ccc; font-size: 4rem; line-height: 1; }
-        .card-back { background-color: #60A5FA; color: white; border: 1px solid #3B82F6; font-size: 2.5rem; }
-        .card.fade-out { opacity: 0; transition: opacity 0.5s ease-out; cursor: default; pointer-events: none; }
+        .card {
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            border-radius: 8px;
+        }
+
+        .card.is-flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .card-front {
+            background-color: white;
+            transform: rotateY(180deg);
+            border: 1px solid #ccc;
+            font-size: 4rem;
+            line-height: 1;
+        }
+
+        .card-back {
+            background-color: #60A5FA;
+            color: white;
+            border: 1px solid #3B82F6;
+            font-size: 2.5rem;
+        }
+
+        .card.fade-out {
+            opacity: 0;
+            transition: opacity 0.5s ease-out;
+            cursor: default;
+            pointer-events: none;
+        }
+
         /* Game Over Modal Styles */
-        .modal { display: none; } .modal.active { display: flex; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } } @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .modal.active { animation: fadeIn 0.3s ease-out forwards; } .modal.active > div { animation: scaleIn 0.3s ease-out forwards; }
+        .modal {
+            display: none;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal.active {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        .modal.active>div {
+            animation: scaleIn 0.3s ease-out forwards;
+        }
+
         /* Font size button */
-        .font-size-btn { width: 2.5rem; height: 2.5rem; }
+        .font-size-btn {
+            width: 2.5rem;
+            height: 2.5rem;
+        }
+
         /* View padding */
-        .view > * { padding-left: 1rem; padding-right: 1rem; } .view > header, .view > footer { padding-left: 0; padding-right: 0; } #gameView > main { padding-bottom: 1rem; }
+        .view>* {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .view>header,
+        .view>footer {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        #gameView>main {
+            padding-bottom: 1rem;
+        }
+
         /* Records View Specific Styles */
-        #recordsList li { background-color: white; padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 0.375rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-        #recordsList li .details { display: flex; flex-direction: column; align-items: flex-start; margin-right: 1rem; flex-grow: 1; }
-        #recordsList li .date { font-size: 0.875rem; color: #6B7280; white-space: nowrap; margin-top: 0.25rem; }
-        #recordsList li .difficulty-badge { font-size: 0.75rem; font-weight: 600; padding: 0.125rem 0.5rem; border-radius: 0.25rem; margin-right: 0.5rem; color: white; }
-        .badge-easy { background-color: #34D399; } .badge-normal { background-color: #A5B4FC; } .badge-slightly-hard { background-color: #60A5FA; } .badge-hard { background-color: #FBBF24; } .badge-expert { background-color: #F87171; } .badge-demon { background-color: #A78BFA; }
+        #recordsList li {
+            background-color: white;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.375rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        #recordsList li .details {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-right: 1rem;
+            flex-grow: 1;
+        }
+
+        #recordsList li .date {
+            font-size: 0.875rem;
+            color: #6B7280;
+            white-space: nowrap;
+            margin-top: 0.25rem;
+        }
+
+        #recordsList li .difficulty-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.25rem;
+            margin-right: 0.5rem;
+            color: white;
+        }
+
+        .badge-easy {
+            background-color: #34D399;
+        }
+
+        .badge-normal {
+            background-color: #A5B4FC;
+        }
+
+        .badge-slightly-hard {
+            background-color: #60A5FA;
+        }
+
+        .badge-hard {
+            background-color: #FBBF24;
+        }
+
+        .badge-expert {
+            background-color: #F87171;
+        }
+
+        .badge-demon {
+            background-color: #A78BFA;
+        }
     </style>
 </head>
+
 <body class="h-full">
 
     <!-- HTML Views (Home, Difficulty, Game, Settings, Records) - No changes needed -->
     <!-- ... (Paste all previous HTML view divs here) ... -->
-     <!-- === Home View === -->
+    <!-- === Home View === -->
     <div id="homeView" class="view bg-gradient-to-b from-sky-100 to-white items-center justify-center p-6 active">
-        <div class="text-center mb-12"> <i class="fas fa-brain text-6xl text-blue-500 mb-4"></i> <h1 class="text-4xl font-bold text-gray-800 mb-2">記憶大考驗</h1> <p class="text-lg text-gray-600">為長輩設計的趣味翻牌遊戲</p> </div>
+        <div class="text-center mb-12"> <i class="fas fa-brain text-6xl text-blue-500 mb-4"></i>
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">記憶大考驗</h1>
+            <p class="text-lg text-gray-600">為長輩設計的趣味翻牌遊戲</p>
+        </div>
         <div class="w-full max-w-xs flex flex-col space-y-6">
-            <button id="homeStartGameBtn" class="w-full bg-green-500 hover:bg-green-600 text-white text-2xl font-bold py-4 px-6 rounded-xl shadow-md transition flex items-center justify-center"> <i class="fas fa-play mr-3"></i> 開始新遊戲 </button>
-            <button id="homeViewRecordsBtn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white text-2xl font-bold py-4 px-6 rounded-xl shadow-md transition flex items-center justify-center"> <i class="fas fa-chart-bar mr-3"></i> 查看紀錄 </button>
-            <button id="homeSettingsBtn" class="w-full bg-gray-400 hover:bg-gray-500 text-white text-2xl font-bold py-4 px-6 rounded-xl shadow-md transition flex items-center justify-center"> <i class="fas fa-cog mr-3"></i> 設定 </button>
+            <button id="homeStartGameBtn"
+                class="w-full bg-green-500 hover:bg-green-600 text-white text-2xl font-bold py-4 px-6 rounded-xl shadow-md transition flex items-center justify-center">
+                <i class="fas fa-play mr-3"></i> 開始新遊戲 </button>
+            <button id="homeViewRecordsBtn"
+                class="w-full bg-yellow-500 hover:bg-yellow-600 text-white text-2xl font-bold py-4 px-6 rounded-xl shadow-md transition flex items-center justify-center">
+                <i class="fas fa-chart-bar mr-3"></i> 查看紀錄 </button>
+            <button id="homeSettingsBtn"
+                class="w-full bg-gray-400 hover:bg-gray-500 text-white text-2xl font-bold py-4 px-6 rounded-xl shadow-md transition flex items-center justify-center">
+                <i class="fas fa-cog mr-3"></i> 設定 </button>
+            <a href="../../index.html"
+                class="w-full bg-white border-2 border-gray-200 hover:bg-gray-50 text-gray-500 text-xl font-bold py-3 px-6 rounded-xl shadow-sm transition flex items-center justify-center mt-2">
+                <i class="fas fa-chevron-left mr-2"></i> 回到大廳
+            </a>
         </div>
         <footer class="mt-auto text-sm text-gray-500 pb-4"> 版本 1.0.0 </footer>
     </div>
 
     <!-- === Difficulty View === -->
     <div id="difficultyView" class="view bg-white p-6">
-        <header class="mb-8 text-center relative pt-4 px-6"> <button id="difficultyBackBtn" class="absolute top-4 left-4 text-gray-600 hover:text-gray-800 text-2xl p-2"> <i class="fas fa-arrow-left"></i> </button> <h1 class="text-3xl font-bold text-gray-800">選擇遊戲難度</h1> </header>
+        <header class="mb-8 text-center relative pt-4 px-6"> <button id="difficultyBackBtn"
+                class="absolute top-4 left-4 text-gray-600 hover:text-gray-800 text-2xl p-2"> <i
+                    class="fas fa-arrow-left"></i> </button>
+            <h1 class="text-3xl font-bold text-gray-800">選擇遊戲難度</h1>
+        </header>
         <div class="flex-grow flex flex-col items-center space-y-6 px-6">
             <h2 class="text-xl font-semibold text-gray-700 mb-4">選擇牌組大小：</h2>
             <div class="grid grid-cols-2 gap-3 w-full max-w-sm">
-                 <button data-difficulty="easy" class="difficulty-btn bg-green-100 hover:bg-green-200 border border-green-300 text-green-800 text-lg font-semibold py-5 px-4 rounded-lg shadow transition"> <i class="fas fa-seedling mr-2"></i> 簡單 (6張) </button>
-                 <button data-difficulty="normal" class="difficulty-btn bg-indigo-100 hover:bg-indigo-200 border border-indigo-300 text-indigo-800 text-lg font-semibold py-5 px-4 rounded-lg shadow transition"> <i class="fas fa-leaf mr-2"></i> 普通 (8張) </button>
-                 <button data-difficulty="slightly-hard" class="difficulty-btn bg-blue-100 hover:bg-blue-200 border border-blue-300 text-blue-800 text-lg font-semibold py-5 px-4 rounded-lg shadow transition"> <i class="fas fa-stream mr-2"></i> 稍難 (10張) </button>
-                 <button data-difficulty="hard" class="difficulty-btn bg-amber-100 hover:bg-amber-200 border border-amber-300 text-amber-800 text-lg font-semibold py-5 px-4 rounded-lg shadow transition"> <i class="fas fa-mountain mr-2"></i> 困難 (12張) </button>
-                 <button data-difficulty="expert" class="difficulty-btn bg-red-100 hover:bg-red-200 border border-red-300 text-red-800 text-lg font-semibold py-5 px-4 rounded-lg shadow transition"> <i class="fas fa-fire-alt mr-2"></i> 挑戰 (16張) </button>
-                 <button data-difficulty="demon" class="difficulty-btn bg-purple-100 hover:bg-purple-200 border border-purple-300 text-purple-800 text-lg font-semibold py-5 px-4 rounded-lg shadow transition"> <i class="fas fa-meteor mr-2"></i> 魔王 (20張) </button>
+                <button data-difficulty="easy"
+                    class="difficulty-btn bg-green-100 hover:bg-green-200 border border-green-300 text-green-800 text-lg font-semibold py-5 px-4 rounded-lg shadow transition">
+                    <i class="fas fa-seedling mr-2"></i> 簡單 (6張) </button>
+                <button data-difficulty="normal"
+                    class="difficulty-btn bg-indigo-100 hover:bg-indigo-200 border border-indigo-300 text-indigo-800 text-lg font-semibold py-5 px-4 rounded-lg shadow transition">
+                    <i class="fas fa-leaf mr-2"></i> 普通 (8張) </button>
+                <button data-difficulty="slightly-hard"
+                    class="difficulty-btn bg-blue-100 hover:bg-blue-200 border border-blue-300 text-blue-800 text-lg font-semibold py-5 px-4 rounded-lg shadow transition">
+                    <i class="fas fa-stream mr-2"></i> 稍難 (10張) </button>
+                <button data-difficulty="hard"
+                    class="difficulty-btn bg-amber-100 hover:bg-amber-200 border border-amber-300 text-amber-800 text-lg font-semibold py-5 px-4 rounded-lg shadow transition">
+                    <i class="fas fa-mountain mr-2"></i> 困難 (12張) </button>
+                <button data-difficulty="expert"
+                    class="difficulty-btn bg-red-100 hover:bg-red-200 border border-red-300 text-red-800 text-lg font-semibold py-5 px-4 rounded-lg shadow transition">
+                    <i class="fas fa-fire-alt mr-2"></i> 挑戰 (16張) </button>
+                <button data-difficulty="demon"
+                    class="difficulty-btn bg-purple-100 hover:bg-purple-200 border border-purple-300 text-purple-800 text-lg font-semibold py-5 px-4 rounded-lg shadow transition">
+                    <i class="fas fa-meteor mr-2"></i> 魔王 (20張) </button>
             </div>
             <div class="border-t border-gray-200 w-full max-w-sm my-6"></div>
             <h2 class="text-xl font-semibold text-gray-700 mb-4">遊戲設定：</h2>
             <div class="flex items-center justify-between w-full max-w-sm bg-gray-100 p-4 rounded-lg">
-                <label for="difficultyPreviewToggle" class="text-lg text-gray-800 flex items-center cursor-pointer"> <i class="fas fa-eye mr-3 text-blue-500"></i> 預先顯示 </label>
-                <div class="relative inline-block w-14 h-8 align-middle select-none transition"> <input type="checkbox" name="toggle" id="difficultyPreviewToggle" class="toggle-checkbox absolute opacity-0 w-0 h-0"/> <label for="difficultyPreviewToggle" class="toggle-label block overflow-hidden h-8 rounded-full bg-gray-300 cursor-pointer"></label> </div>
+                <label for="difficultyPreviewToggle" class="text-lg text-gray-800 flex items-center cursor-pointer"> <i
+                        class="fas fa-eye mr-3 text-blue-500"></i> 預先顯示 </label>
+                <div class="relative inline-block w-14 h-8 align-middle select-none transition"> <input type="checkbox"
+                        name="toggle" id="difficultyPreviewToggle" class="toggle-checkbox absolute opacity-0 w-0 h-0" />
+                    <label for="difficultyPreviewToggle"
+                        class="toggle-label block overflow-hidden h-8 rounded-full bg-gray-300 cursor-pointer"></label>
+                </div>
             </div>
             <p class="text-sm text-gray-500 max-w-sm text-center mt-2 pb-6">開啟後，開始前會顯示牌的位置。</p>
         </div>
@@ -81,26 +305,120 @@
 
     <!-- === Game View === -->
     <div id="gameView" class="view bg-green-50 p-4">
-         <header class="flex items-center justify-between mb-4 px-2 flex-shrink-0"> <button id="gameBackBtn" class="text-gray-600 hover:text-gray-800 text-xl p-2 flex items-center"> <i class="fas fa-arrow-left mr-1"></i> 離開 </button> <div class="text-center"> <div class="text-xl font-semibold text-gray-700">時間: <span id="gameTime" class="font-mono">00:00</span></div> <div class="text-lg text-gray-600">步數: <span id="gameMoves" class="font-mono">0</span></div> </div> <button id="gamePreviewBtn" class="text-blue-500 hover:text-blue-700 text-xl p-2 flex items-center"> <i class="fas fa-eye mr-1"></i> 偷看 </button> </header>
-         <main class="flex-grow flex items-center justify-center py-2"> <div id="gameBoard" class="grid gap-2 max-w-md w-full"></div> </main>
-         <div id="gameOverModal" class="modal fixed inset-0 bg-black bg-opacity-70 items-center justify-center p-6 z-50"> <div class="bg-white rounded-xl p-8 text-center shadow-xl max-w-sm w-full"> <i class="fas fa-trophy text-6xl text-yellow-400 mb-4"></i> <h2 class="text-3xl font-bold text-gray-800 mb-3">恭喜過關！</h2> <p class="text-lg text-gray-600 mb-2">你的成績：</p> <p class="text-xl font-semibold text-blue-600 mb-1">時間：<span id="finalTime">00:00</span></p> <p class="text-xl font-semibold text-blue-600 mb-6">步數：<span id="finalMoves">0</span></p> <div class="flex flex-col sm:flex-row gap-4 justify-center"> <button id="playAgainBtn" class="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white text-xl font-bold py-3 px-6 rounded-lg shadow transition"> <i class="fas fa-redo mr-2"></i> 再玩一次 </button> <button id="backToMenuBtn" class="w-full sm:w-auto bg-gray-400 hover:bg-gray-500 text-white text-xl font-bold py-3 px-6 rounded-lg shadow transition"> <i class="fas fa-home mr-2"></i> 回主選單 </button> </div> </div> </div>
+        <header class="flex items-center justify-between mb-4 px-2 flex-shrink-0"> <button id="gameBackBtn"
+                class="text-gray-600 hover:text-gray-800 text-xl p-2 flex items-center"> <i
+                    class="fas fa-arrow-left mr-1"></i> 離開 </button>
+            <div class="text-center">
+                <div class="text-xl font-semibold text-gray-700">時間: <span id="gameTime" class="font-mono">00:00</span>
+                </div>
+                <div class="text-lg text-gray-600">步數: <span id="gameMoves" class="font-mono">0</span></div>
+            </div> <button id="gamePreviewBtn" class="text-blue-500 hover:text-blue-700 text-xl p-2 flex items-center">
+                <i class="fas fa-eye mr-1"></i> 偷看 </button>
+        </header>
+        <main class="flex-grow flex items-center justify-center py-2">
+            <div id="gameBoard" class="grid gap-2 max-w-md w-full"></div>
+        </main>
+        <div id="gameOverModal" class="modal fixed inset-0 bg-black bg-opacity-70 items-center justify-center p-6 z-50">
+            <div class="bg-white rounded-xl p-8 text-center shadow-xl max-w-sm w-full"> <i
+                    class="fas fa-trophy text-6xl text-yellow-400 mb-4"></i>
+                <h2 class="text-3xl font-bold text-gray-800 mb-3">恭喜過關！</h2>
+                <p class="text-lg text-gray-600 mb-2">你的成績：</p>
+                <p class="text-xl font-semibold text-blue-600 mb-1">時間：<span id="finalTime">00:00</span></p>
+                <p class="text-xl font-semibold text-blue-600 mb-6">步數：<span id="finalMoves">0</span></p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center"> <button id="playAgainBtn"
+                        class="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white text-xl font-bold py-3 px-6 rounded-lg shadow transition">
+                        <i class="fas fa-redo mr-2"></i> 再玩一次 </button> <button id="backToMenuBtn"
+                        class="w-full sm:w-auto bg-gray-400 hover:bg-gray-500 text-white text-xl font-bold py-3 px-6 rounded-lg shadow transition">
+                        <i class="fas fa-home mr-2"></i> 回主選單 </button> <a href="../../index.html"
+                        class="w-full sm:w-auto bg-white border border-gray-300 text-gray-500 text-xl font-bold py-3 px-6 rounded-lg shadow-sm transition flex items-center justify-center">
+                        <i class="fas fa-chevron-left mr-2"></i> 回到大廳 </a> </div>
+            </div>
+        </div>
     </div>
 
     <!-- === Settings View === -->
     <div id="settingsView" class="view bg-gray-50 p-6">
-         <header class="mb-8 text-center relative pt-4 px-6"> <button id="settingsBackBtn" class="absolute top-0 left-0 text-gray-600 hover:text-gray-800 text-2xl p-2"> <i class="fas fa-arrow-left"></i> </button> <h1 class="text-3xl font-bold text-gray-800">遊戲設定</h1> </header>
-         <div class="flex-grow space-y-6 px-6 pb-6">
-             <div class="bg-white p-5 rounded-lg shadow"> <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">音效與音樂</h2> <div class="space-y-4"> <div class="flex items-center justify-between"> <label for="settingSoundToggle" class="text-lg text-gray-800 flex items-center cursor-pointer"> <i class="fas fa-volume-up mr-3 text-blue-500 w-6 text-center"></i> 遊戲音效 </label> <div class="relative inline-block w-14 h-8 align-middle select-none transition"> <input type="checkbox" name="sound-toggle" id="settingSoundToggle" class="toggle-checkbox absolute opacity-0 w-0 h-0" checked/> <label for="settingSoundToggle" class="toggle-label block overflow-hidden h-8 rounded-full bg-gray-300 cursor-pointer"></label> </div> </div> <div class="flex items-center justify-between"> <label for="settingMusicToggle" class="text-lg text-gray-800 flex items-center cursor-pointer"> <i class="fas fa-music mr-3 text-purple-500 w-6 text-center"></i> 背景音樂 </label> <div class="relative inline-block w-14 h-8 align-middle select-none transition"> <input type="checkbox" name="music-toggle" id="settingMusicToggle" class="toggle-checkbox absolute opacity-0 w-0 h-0"/> <label for="settingMusicToggle" class="toggle-label block overflow-hidden h-8 rounded-full bg-gray-300 cursor-pointer"></label> </div> </div> </div> </div>
-             <div class="bg-white p-5 rounded-lg shadow"> <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">視覺輔助</h2> <div class="space-y-4"> <div class="flex items-center justify-between"> <label for="settingContrastToggle" class="text-lg text-gray-800 flex items-center cursor-pointer"> <i class="fas fa-adjust mr-3 text-orange-500 w-6 text-center"></i> 高對比模式 <span class="text-sm text-gray-500 ml-2">(待實現)</span> </label> <div class="relative inline-block w-14 h-8 align-middle select-none transition"> <input type="checkbox" name="contrast-toggle" id="settingContrastToggle" class="toggle-checkbox absolute opacity-0 w-0 h-0"/> <label for="settingContrastToggle" class="toggle-label block overflow-hidden h-8 rounded-full bg-gray-300 cursor-pointer"></label> </div> </div> <div class="flex items-center justify-between"> <span class="text-lg text-gray-800 flex items-center"> <i class="fas fa-text-height mr-3 text-indigo-500 w-6 text-center"></i> 字體大小 <span class="text-sm text-gray-500 ml-2">(待實現)</span> </span> <div class="flex items-center space-x-2"> <button id="decreaseFontBtn" class="font-size-btn bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold rounded-full text-lg flex items-center justify-center">-</button> <span id="fontSizeDisplay" class="text-lg font-medium w-8 text-center">中</span> <button id="increaseFontBtn" class="font-size-btn bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold rounded-full text-lg flex items-center justify-center">+</button> </div> </div> </div> </div>
-             <div class="bg-white p-5 rounded-lg shadow"> <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">其他</h2> <button id="clearSettingsRecordsBtn" class="w-full text-left text-lg text-red-600 hover:bg-red-50 p-3 rounded-md flex items-center"> <i class="fas fa-trash-alt mr-3 w-6 text-center"></i> 清除遊戲紀錄 </button> <button id="aboutBtn" class="w-full text-left text-lg text-gray-700 hover:bg-gray-100 p-3 rounded-md flex items-center mt-2"> <i class="fas fa-info-circle mr-3 w-6 text-center"></i> 關於我們 </button> </div>
-         </div>
+        <header class="mb-8 text-center relative pt-4 px-6"> <button id="settingsBackBtn"
+                class="absolute top-0 left-0 text-gray-600 hover:text-gray-800 text-2xl p-2"> <i
+                    class="fas fa-arrow-left"></i> </button>
+            <h1 class="text-3xl font-bold text-gray-800">遊戲設定</h1>
+        </header>
+        <div class="flex-grow space-y-6 px-6 pb-6">
+            <div class="bg-white p-5 rounded-lg shadow">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">音效與音樂</h2>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between"> <label for="settingSoundToggle"
+                            class="text-lg text-gray-800 flex items-center cursor-pointer"> <i
+                                class="fas fa-volume-up mr-3 text-blue-500 w-6 text-center"></i> 遊戲音效 </label>
+                        <div class="relative inline-block w-14 h-8 align-middle select-none transition"> <input
+                                type="checkbox" name="sound-toggle" id="settingSoundToggle"
+                                class="toggle-checkbox absolute opacity-0 w-0 h-0" checked /> <label
+                                for="settingSoundToggle"
+                                class="toggle-label block overflow-hidden h-8 rounded-full bg-gray-300 cursor-pointer"></label>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between"> <label for="settingMusicToggle"
+                            class="text-lg text-gray-800 flex items-center cursor-pointer"> <i
+                                class="fas fa-music mr-3 text-purple-500 w-6 text-center"></i> 背景音樂 </label>
+                        <div class="relative inline-block w-14 h-8 align-middle select-none transition"> <input
+                                type="checkbox" name="music-toggle" id="settingMusicToggle"
+                                class="toggle-checkbox absolute opacity-0 w-0 h-0" /> <label for="settingMusicToggle"
+                                class="toggle-label block overflow-hidden h-8 rounded-full bg-gray-300 cursor-pointer"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-lg shadow">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">視覺輔助</h2>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between"> <label for="settingContrastToggle"
+                            class="text-lg text-gray-800 flex items-center cursor-pointer"> <i
+                                class="fas fa-adjust mr-3 text-orange-500 w-6 text-center"></i> 高對比模式 <span
+                                class="text-sm text-gray-500 ml-2">(待實現)</span> </label>
+                        <div class="relative inline-block w-14 h-8 align-middle select-none transition"> <input
+                                type="checkbox" name="contrast-toggle" id="settingContrastToggle"
+                                class="toggle-checkbox absolute opacity-0 w-0 h-0" /> <label for="settingContrastToggle"
+                                class="toggle-label block overflow-hidden h-8 rounded-full bg-gray-300 cursor-pointer"></label>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between"> <span
+                            class="text-lg text-gray-800 flex items-center"> <i
+                                class="fas fa-text-height mr-3 text-indigo-500 w-6 text-center"></i> 字體大小 <span
+                                class="text-sm text-gray-500 ml-2">(待實現)</span> </span>
+                        <div class="flex items-center space-x-2"> <button id="decreaseFontBtn"
+                                class="font-size-btn bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold rounded-full text-lg flex items-center justify-center">-</button>
+                            <span id="fontSizeDisplay" class="text-lg font-medium w-8 text-center">中</span> <button
+                                id="increaseFontBtn"
+                                class="font-size-btn bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold rounded-full text-lg flex items-center justify-center">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-lg shadow">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">其他</h2> <button
+                    id="clearSettingsRecordsBtn"
+                    class="w-full text-left text-lg text-red-600 hover:bg-red-50 p-3 rounded-md flex items-center"> <i
+                        class="fas fa-trash-alt mr-3 w-6 text-center"></i> 清除遊戲紀錄 </button> <button id="aboutBtn"
+                    class="w-full text-left text-lg text-gray-700 hover:bg-gray-100 p-3 rounded-md flex items-center mt-2">
+                    <i class="fas fa-info-circle mr-3 w-6 text-center"></i> 關於我們 </button>
+            </div>
+        </div>
     </div>
 
     <!-- === Records View === -->
     <div id="recordsView" class="view bg-gray-100 p-6">
-        <header class="mb-6 text-center relative pt-4 px-6"> <button id="recordsBackBtn" class="absolute top-4 left-4 text-gray-600 hover:text-gray-800 text-2xl p-2"> <i class="fas fa-arrow-left"></i> </button> <h1 class="text-3xl font-bold text-gray-800">遊戲紀錄</h1> </header>
-        <div class="flex-grow px-6 pb-6 space-y-4"> <ul id="recordsList" class="space-y-2"></ul> <p id="noRecordsMsg" class="text-center text-gray-500 text-lg hidden">目前沒有遊戲紀錄</p> </div>
-        <footer class="px-6 pb-6 mt-auto"> <button id="clearRecordsBtn" class="w-full bg-red-500 hover:bg-red-600 text-white text-xl font-bold py-3 px-5 rounded-lg shadow transition duration-150"> <i class="fas fa-trash-alt mr-2"></i> 清除所有紀錄 </button> </footer>
+        <header class="mb-6 text-center relative pt-4 px-6"> <button id="recordsBackBtn"
+                class="absolute top-4 left-4 text-gray-600 hover:text-gray-800 text-2xl p-2"> <i
+                    class="fas fa-arrow-left"></i> </button>
+            <h1 class="text-3xl font-bold text-gray-800">遊戲紀錄</h1>
+        </header>
+        <div class="flex-grow px-6 pb-6 space-y-4">
+            <ul id="recordsList" class="space-y-2"></ul>
+            <p id="noRecordsMsg" class="text-center text-gray-500 text-lg hidden">目前沒有遊戲紀錄</p>
+        </div>
+        <footer class="px-6 pb-6 mt-auto"> <button id="clearRecordsBtn"
+                class="w-full bg-red-500 hover:bg-red-600 text-white text-xl font-bold py-3 px-5 rounded-lg shadow transition duration-150">
+                <i class="fas fa-trash-alt mr-2"></i> 清除所有紀錄 </button> </footer>
     </div>
 
 
@@ -112,32 +430,32 @@
             const views = document.querySelectorAll('.view');
             const icons = ['fa-star', 'fa-heart', 'fa-cloud', 'fa-apple-alt', 'fa-car', 'fa-bicycle', 'fa-anchor', 'fa-camera', 'fa-bell', 'fa-gift', 'fa-key', 'fa-lightbulb', 'fa-moon', 'fa-plane', 'fa-tree', 'fa-umbrella', 'fa-smile', 'fa-home', 'fa-music', 'fa-flag'];
             const iconTextColors = ['text-red-500', 'text-blue-500', 'text-green-500', 'text-yellow-500', 'text-purple-500', 'text-pink-500', 'text-indigo-500', 'text-teal-500', 'text-orange-500', 'text-cyan-500'];
-            const difficultyMap = {'easy': { name: '簡單', badge: 'badge-easy' }, 'normal': { name: '普通', badge: 'badge-normal' }, 'slightly-hard': { name: '稍難', badge: 'badge-slightly-hard' }, 'hard': { name: '困難', badge: 'badge-hard' }, 'expert': { name: '挑戰', badge: 'badge-expert' }, 'demon': { name: '魔王', badge: 'badge-demon' }};
+            const difficultyMap = { 'easy': { name: '簡單', badge: 'badge-easy' }, 'normal': { name: '普通', badge: 'badge-normal' }, 'slightly-hard': { name: '稍難', badge: 'badge-slightly-hard' }, 'hard': { name: '困難', badge: 'badge-hard' }, 'expert': { name: '挑戰', badge: 'badge-expert' }, 'demon': { name: '魔王', badge: 'badge-demon' } };
             const RECORDS_STORAGE_KEY = 'memoryGameRecords';
             let gameState = { difficulty: 'medium', previewEnabled: false, soundEnabled: true, musicEnabled: false, cardCount: 12, totalPairs: 6, iconSet: [], cards: [], flippedCards: [], matchedPairs: 0, moves: 0, timerInterval: null, seconds: 0, lockBoard: false, isPreviewing: false, currentView: 'homeView' };
 
             // --- DOM Element References ---
-            const homeStartGameBtn=document.getElementById('homeStartGameBtn'), homeSettingsBtn=document.getElementById('homeSettingsBtn'), homeViewRecordsBtn=document.getElementById('homeViewRecordsBtn'), difficultyButtons=document.querySelectorAll('#difficultyView .difficulty-btn'), difficultyPreviewToggle=document.getElementById('difficultyPreviewToggle'), difficultyBackBtn=document.getElementById('difficultyBackBtn'), gameBoard=document.getElementById('gameBoard'), gameTimeDisplay=document.getElementById('gameTime'), gameMovesDisplay=document.getElementById('gameMoves'), gameBackBtn=document.getElementById('gameBackBtn'), gamePreviewBtn=document.getElementById('gamePreviewBtn'), gameOverModal=document.getElementById('gameOverModal'), finalTime=document.getElementById('finalTime'), finalMoves=document.getElementById('finalMoves'), playAgainBtn=document.getElementById('playAgainBtn'), backToMenuBtn=document.getElementById('backToMenuBtn'), settingsBackBtn=document.getElementById('settingsBackBtn'), settingSoundToggle=document.getElementById('settingSoundToggle'), settingMusicToggle=document.getElementById('settingMusicToggle'), settingContrastToggle=document.getElementById('settingContrastToggle'), clearSettingsRecordsBtn=document.getElementById('clearSettingsRecordsBtn'), aboutBtn=document.getElementById('aboutBtn'), decreaseFontBtn=document.getElementById('decreaseFontBtn'), increaseFontBtn=document.getElementById('increaseFontBtn'), fontSizeDisplay=document.getElementById('fontSizeDisplay'), recordsBackBtn=document.getElementById('recordsBackBtn'), recordsList=document.getElementById('recordsList'), noRecordsMsg=document.getElementById('noRecordsMsg'), clearRecordsBtn=document.getElementById('clearRecordsBtn');
+            const homeStartGameBtn = document.getElementById('homeStartGameBtn'), homeSettingsBtn = document.getElementById('homeSettingsBtn'), homeViewRecordsBtn = document.getElementById('homeViewRecordsBtn'), difficultyButtons = document.querySelectorAll('#difficultyView .difficulty-btn'), difficultyPreviewToggle = document.getElementById('difficultyPreviewToggle'), difficultyBackBtn = document.getElementById('difficultyBackBtn'), gameBoard = document.getElementById('gameBoard'), gameTimeDisplay = document.getElementById('gameTime'), gameMovesDisplay = document.getElementById('gameMoves'), gameBackBtn = document.getElementById('gameBackBtn'), gamePreviewBtn = document.getElementById('gamePreviewBtn'), gameOverModal = document.getElementById('gameOverModal'), finalTime = document.getElementById('finalTime'), finalMoves = document.getElementById('finalMoves'), playAgainBtn = document.getElementById('playAgainBtn'), backToMenuBtn = document.getElementById('backToMenuBtn'), settingsBackBtn = document.getElementById('settingsBackBtn'), settingSoundToggle = document.getElementById('settingSoundToggle'), settingMusicToggle = document.getElementById('settingMusicToggle'), settingContrastToggle = document.getElementById('settingContrastToggle'), clearSettingsRecordsBtn = document.getElementById('clearSettingsRecordsBtn'), aboutBtn = document.getElementById('aboutBtn'), decreaseFontBtn = document.getElementById('decreaseFontBtn'), increaseFontBtn = document.getElementById('increaseFontBtn'), fontSizeDisplay = document.getElementById('fontSizeDisplay'), recordsBackBtn = document.getElementById('recordsBackBtn'), recordsList = document.getElementById('recordsList'), noRecordsMsg = document.getElementById('noRecordsMsg'), clearRecordsBtn = document.getElementById('clearRecordsBtn');
 
             // --- Navigation Function ---
             function navigateToView(targetViewId) { views.forEach(v => v.classList.toggle('active', v.id === targetViewId)); gameState.currentView = targetViewId; console.log(`Navigated: ${targetViewId}`); if (targetViewId === 'gameView') initGame(); else if (targetViewId === 'recordsView') displayRecords(); else stopTimer(); }
             // --- Settings Logic ---
             function loadSettings() { gameState.soundEnabled = localStorage.getItem('soundEnabled') !== 'false'; gameState.musicEnabled = localStorage.getItem('musicEnabled') === 'true'; settingSoundToggle.checked = gameState.soundEnabled; settingMusicToggle.checked = gameState.musicEnabled; console.log('Settings loaded'); } function saveSettings() { localStorage.setItem('soundEnabled', gameState.soundEnabled); localStorage.setItem('musicEnabled', gameState.musicEnabled); console.log('Settings saved'); }
-            if(settingsBackBtn) settingsBackBtn.addEventListener('click',()=>navigateToView('homeView')); if(settingSoundToggle) settingSoundToggle.addEventListener('change',e=>{gameState.soundEnabled=e.target.checked;saveSettings();}); if(settingMusicToggle) settingMusicToggle.addEventListener('change',e=>{gameState.musicEnabled=e.target.checked;saveSettings();}); if(settingContrastToggle) settingContrastToggle.addEventListener('change',e=>{alert('待實現');e.target.checked=!e.target.checked;}); if(clearSettingsRecordsBtn) clearSettingsRecordsBtn.addEventListener('click', clearAllRecords); if(aboutBtn) aboutBtn.addEventListener('click',()=>alert('v1.0'));
+            if (settingsBackBtn) settingsBackBtn.addEventListener('click', () => navigateToView('homeView')); if (settingSoundToggle) settingSoundToggle.addEventListener('change', e => { gameState.soundEnabled = e.target.checked; saveSettings(); }); if (settingMusicToggle) settingMusicToggle.addEventListener('change', e => { gameState.musicEnabled = e.target.checked; saveSettings(); }); if (settingContrastToggle) settingContrastToggle.addEventListener('change', e => { alert('待實現'); e.target.checked = !e.target.checked; }); if (clearSettingsRecordsBtn) clearSettingsRecordsBtn.addEventListener('click', clearAllRecords); if (aboutBtn) aboutBtn.addEventListener('click', () => alert('v1.0'));
             // --- Difficulty Selection Logic ---
-            if(difficultyBackBtn) difficultyBackBtn.addEventListener('click',()=>navigateToView('homeView')); difficultyButtons.forEach(b=>{b.addEventListener('click',()=>{gameState.difficulty=b.getAttribute('data-difficulty');gameState.previewEnabled=difficultyPreviewToggle.checked;navigateToView('gameView');});});
+            if (difficultyBackBtn) difficultyBackBtn.addEventListener('click', () => navigateToView('homeView')); difficultyButtons.forEach(b => { b.addEventListener('click', () => { gameState.difficulty = b.getAttribute('data-difficulty'); gameState.previewEnabled = difficultyPreviewToggle.checked; navigateToView('gameView'); }); });
             // --- Home View Logic ---
-            if(homeStartGameBtn) homeStartGameBtn.addEventListener('click',()=>navigateToView('difficultyView')); if(homeSettingsBtn) homeSettingsBtn.addEventListener('click',()=>navigateToView('settingsView')); if(homeViewRecordsBtn) homeViewRecordsBtn.addEventListener('click',()=>navigateToView('recordsView'));
+            if (homeStartGameBtn) homeStartGameBtn.addEventListener('click', () => navigateToView('difficultyView')); if (homeSettingsBtn) homeSettingsBtn.addEventListener('click', () => navigateToView('settingsView')); if (homeViewRecordsBtn) homeViewRecordsBtn.addEventListener('click', () => navigateToView('recordsView'));
             // --- Record Management Functions ---
-            function getRecords() { try { const r = localStorage.getItem(RECORDS_STORAGE_KEY); return r ? JSON.parse(r) : []; } catch(e) { console.error(e); return []; } } function saveRecord(rec) { try { const rs = getRecords(); rs.push(rec); rs.sort((a, b) => b.timestamp - a.timestamp); localStorage.setItem(RECORDS_STORAGE_KEY, JSON.stringify(rs)); } catch(e) { console.error(e); } }
-            function displayRecords() { const rs = getRecords(); recordsList.innerHTML = ''; const hasRecords = rs.length > 0; noRecordsMsg.classList.toggle('hidden', !hasRecords); clearRecordsBtn.classList.toggle('opacity-50', !hasRecords); clearRecordsBtn.classList.toggle('cursor-not-allowed', !hasRecords); clearRecordsBtn.disabled = !hasRecords; if(hasRecords){ rs.forEach(rec => { const li = document.createElement('li'); const di = difficultyMap[rec.difficulty] || {name:rec.difficulty, badge:'bg-gray-400'}; const dt = new Date(rec.timestamp).toLocaleDateString('zh-TW'); li.innerHTML = `<div class="details"><span class="text-lg font-semibold flex items-center"><span class="difficulty-badge ${di.badge}">${di.name}</span> 時間: ${rec.timeFormatted}</span><span class="text-md text-gray-700">步數: ${rec.moves}</span></div><span class="date">${dt}</span>`; recordsList.appendChild(li); }); } }
-            function clearAllRecords() { if(confirm('確定清除所有紀錄？')){ try{ localStorage.removeItem(RECORDS_STORAGE_KEY); if(gameState.currentView==='recordsView') displayRecords(); alert('紀錄已清除！'); } catch(e){ alert('清除失敗'); } } }
-            if(clearRecordsBtn) clearRecordsBtn.addEventListener('click', clearAllRecords); if(recordsBackBtn) recordsBackBtn.addEventListener('click',()=>navigateToView('homeView'));
+            function getRecords() { try { const r = localStorage.getItem(RECORDS_STORAGE_KEY); return r ? JSON.parse(r) : []; } catch (e) { console.error(e); return []; } } function saveRecord(rec) { try { const rs = getRecords(); rs.push(rec); rs.sort((a, b) => b.timestamp - a.timestamp); localStorage.setItem(RECORDS_STORAGE_KEY, JSON.stringify(rs)); } catch (e) { console.error(e); } }
+            function displayRecords() { const rs = getRecords(); recordsList.innerHTML = ''; const hasRecords = rs.length > 0; noRecordsMsg.classList.toggle('hidden', !hasRecords); clearRecordsBtn.classList.toggle('opacity-50', !hasRecords); clearRecordsBtn.classList.toggle('cursor-not-allowed', !hasRecords); clearRecordsBtn.disabled = !hasRecords; if (hasRecords) { rs.forEach(rec => { const li = document.createElement('li'); const di = difficultyMap[rec.difficulty] || { name: rec.difficulty, badge: 'bg-gray-400' }; const dt = new Date(rec.timestamp).toLocaleDateString('zh-TW'); li.innerHTML = `<div class="details"><span class="text-lg font-semibold flex items-center"><span class="difficulty-badge ${di.badge}">${di.name}</span> 時間: ${rec.timeFormatted}</span><span class="text-md text-gray-700">步數: ${rec.moves}</span></div><span class="date">${dt}</span>`; recordsList.appendChild(li); }); } }
+            function clearAllRecords() { if (confirm('確定清除所有紀錄？')) { try { localStorage.removeItem(RECORDS_STORAGE_KEY); if (gameState.currentView === 'recordsView') displayRecords(); alert('紀錄已清除！'); } catch (e) { alert('清除失敗'); } } }
+            if (clearRecordsBtn) clearRecordsBtn.addEventListener('click', clearAllRecords); if (recordsBackBtn) recordsBackBtn.addEventListener('click', () => navigateToView('homeView'));
 
             // --- Game Logic ---
-            function initGame() { switch(gameState.difficulty){ case 'easy':gameState.cardCount=6;break; case 'normal':gameState.cardCount=8;break; case 'slightly-hard':gameState.cardCount=10;break; case 'hard':gameState.cardCount=12;break; case 'expert':gameState.cardCount=16;break; case 'demon':gameState.cardCount=20;break; default:gameState.cardCount=12;} gameState.totalPairs=gameState.cardCount/2; if(icons.length<gameState.totalPairs){console.error("Icons insufficient");return;} gameState.iconSet=icons.slice(0,gameState.totalPairs); let cardIcons=[...gameState.iconSet,...gameState.iconSet]; resetGameStatus(); shuffle(cardIcons); createBoard(cardIcons); startTimer(); if(gameState.previewEnabled) previewGame(); }
-            function resetGameStatus() { gameState.matchedPairs=0; gameState.moves=0; gameState.seconds=0; gameState.flippedCards=[]; gameState.lockBoard=false; gameState.isPreviewing=false; gameState.cards=[]; gameMovesDisplay.textContent=gameState.moves; gameTimeDisplay.textContent=formatTime(gameState.seconds); stopTimer(); gameBoard.innerHTML=''; gameOverModal.classList.remove('active'); }
-            function shuffle(a) { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} }
+            function initGame() { switch (gameState.difficulty) { case 'easy': gameState.cardCount = 6; break; case 'normal': gameState.cardCount = 8; break; case 'slightly-hard': gameState.cardCount = 10; break; case 'hard': gameState.cardCount = 12; break; case 'expert': gameState.cardCount = 16; break; case 'demon': gameState.cardCount = 20; break; default: gameState.cardCount = 12; } gameState.totalPairs = gameState.cardCount / 2; if (icons.length < gameState.totalPairs) { console.error("Icons insufficient"); return; } gameState.iconSet = icons.slice(0, gameState.totalPairs); let cardIcons = [...gameState.iconSet, ...gameState.iconSet]; resetGameStatus(); shuffle(cardIcons); createBoard(cardIcons); startTimer(); if (gameState.previewEnabled) previewGame(); }
+            function resetGameStatus() { gameState.matchedPairs = 0; gameState.moves = 0; gameState.seconds = 0; gameState.flippedCards = []; gameState.lockBoard = false; gameState.isPreviewing = false; gameState.cards = []; gameMovesDisplay.textContent = gameState.moves; gameTimeDisplay.textContent = formatTime(gameState.seconds); stopTimer(); gameBoard.innerHTML = ''; gameOverModal.classList.remove('active'); }
+            function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[a[i], a[j]] = [a[j], a[i]]; } }
 
             // --- MODIFIED: createBoard function for layout ---
             function createBoard(cardIcons) {
@@ -172,20 +490,20 @@
                 console.log(`Board created: ${gameState.cardCount} cards, ${cols} columns.`);
             }
 
-            function handleCardClick(e) { if(gameState.lockBoard||gameState.isPreviewing)return; const card=e.currentTarget; if(card.classList.contains('is-flipped')||card.classList.contains('fade-out'))return; flipCard(card); gameState.flippedCards.push(card); if(gameState.flippedCards.length===2){ gameState.lockBoard=true; incrementMoves(); setTimeout(checkForMatch, 500); } }
+            function handleCardClick(e) { if (gameState.lockBoard || gameState.isPreviewing) return; const card = e.currentTarget; if (card.classList.contains('is-flipped') || card.classList.contains('fade-out')) return; flipCard(card); gameState.flippedCards.push(card); if (gameState.flippedCards.length === 2) { gameState.lockBoard = true; incrementMoves(); setTimeout(checkForMatch, 500); } }
             function flipCard(c) { c.classList.add('is-flipped'); playSound('flip'); }
-            function unflipCards() { setTimeout(()=>{gameState.flippedCards.forEach(c=>{if(!c.classList.contains('fade-out'))c.classList.remove('is-flipped');}); resetFlippedCards();}, 1000); }
-            function checkForMatch() { const [c1,c2]=gameState.flippedCards; const match=c1.dataset.cardId===c2.dataset.cardId; if(match){ playSound('match'); disableCards(); gameState.matchedPairs++; if(gameState.matchedPairs===gameState.totalPairs) endGame(); else resetFlippedCards(); } else { playSound('nomatch'); unflipCards(); } }
-            function disableCards() { gameState.flippedCards.forEach(c=>{c.classList.add('fade-out'); c.removeEventListener('click', handleCardClick);}); }
-            function resetFlippedCards() { gameState.flippedCards=[]; gameState.lockBoard=false; }
-            function incrementMoves() { gameState.moves++; gameMovesDisplay.textContent=gameState.moves; }
-            function startTimer() { stopTimer(); gameState.seconds=0; gameTimeDisplay.textContent=formatTime(gameState.seconds); gameState.timerInterval=setInterval(()=>{gameState.seconds++; gameTimeDisplay.textContent=formatTime(gameState.seconds);}, 1000); }
-            function stopTimer() { clearInterval(gameState.timerInterval); gameState.timerInterval=null; }
-            function formatTime(s) { const min=Math.floor(s/60); const sec=s%60; return `${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`; }
-            function previewGame() { if(!gameState.cards||gameState.cards.length===0)return; console.log("Preview..."); gameState.isPreviewing=true; gameState.lockBoard=true; gameState.cards.forEach(c=>c.classList.add('is-flipped')); const pTime=3000+(gameState.totalPairs*200); setTimeout(()=>{gameState.cards.forEach(c=>c.classList.remove('is-flipped')); gameState.lockBoard=false; gameState.isPreviewing=false; console.log("Preview end.");}, pTime); }
-            function endGame() { console.log("Game Over!"); stopTimer(); playSound('win'); const timeFmt=formatTime(gameState.seconds); finalTime.textContent=timeFmt; finalMoves.textContent=gameState.moves; gameOverModal.classList.add('active'); const rec={difficulty:gameState.difficulty, timeInSeconds:gameState.seconds, timeFormatted:timeFmt, moves:gameState.moves, timestamp:Date.now()}; saveRecord(rec); }
+            function unflipCards() { setTimeout(() => { gameState.flippedCards.forEach(c => { if (!c.classList.contains('fade-out')) c.classList.remove('is-flipped'); }); resetFlippedCards(); }, 1000); }
+            function checkForMatch() { const [c1, c2] = gameState.flippedCards; const match = c1.dataset.cardId === c2.dataset.cardId; if (match) { playSound('match'); disableCards(); gameState.matchedPairs++; if (gameState.matchedPairs === gameState.totalPairs) endGame(); else resetFlippedCards(); } else { playSound('nomatch'); unflipCards(); } }
+            function disableCards() { gameState.flippedCards.forEach(c => { c.classList.add('fade-out'); c.removeEventListener('click', handleCardClick); }); }
+            function resetFlippedCards() { gameState.flippedCards = []; gameState.lockBoard = false; }
+            function incrementMoves() { gameState.moves++; gameMovesDisplay.textContent = gameState.moves; }
+            function startTimer() { stopTimer(); gameState.seconds = 0; gameTimeDisplay.textContent = formatTime(gameState.seconds); gameState.timerInterval = setInterval(() => { gameState.seconds++; gameTimeDisplay.textContent = formatTime(gameState.seconds); }, 1000); }
+            function stopTimer() { clearInterval(gameState.timerInterval); gameState.timerInterval = null; }
+            function formatTime(s) { const min = Math.floor(s / 60); const sec = s % 60; return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`; }
+            function previewGame() { if (!gameState.cards || gameState.cards.length === 0) return; console.log("Preview..."); gameState.isPreviewing = true; gameState.lockBoard = true; gameState.cards.forEach(c => c.classList.add('is-flipped')); const pTime = 3000 + (gameState.totalPairs * 200); setTimeout(() => { gameState.cards.forEach(c => c.classList.remove('is-flipped')); gameState.lockBoard = false; gameState.isPreviewing = false; console.log("Preview end."); }, pTime); }
+            function endGame() { console.log("Game Over!"); stopTimer(); playSound('win'); const timeFmt = formatTime(gameState.seconds); finalTime.textContent = timeFmt; finalMoves.textContent = gameState.moves; gameOverModal.classList.add('active'); const rec = { difficulty: gameState.difficulty, timeInSeconds: gameState.seconds, timeFormatted: timeFmt, moves: gameState.moves, timestamp: Date.now() }; saveRecord(rec); }
             // Game View Button Listeners
-            if(gameBackBtn) gameBackBtn.addEventListener('click',()=>{if(confirm('確定離開？')) {stopTimer();navigateToView('homeView');}}); if(gamePreviewBtn) gamePreviewBtn.addEventListener('click',()=>{if(!gameState.lockBoard&&!gameState.isPreviewing) previewGame();}); if(playAgainBtn) playAgainBtn.addEventListener('click',()=>navigateToView('gameView')); if(backToMenuBtn) backToMenuBtn.addEventListener('click',()=>navigateToView('homeView'));
+            if (gameBackBtn) gameBackBtn.addEventListener('click', () => { if (confirm('確定離開？')) { stopTimer(); navigateToView('homeView'); } }); if (gamePreviewBtn) gamePreviewBtn.addEventListener('click', () => { if (!gameState.lockBoard && !gameState.isPreviewing) previewGame(); }); if (playAgainBtn) playAgainBtn.addEventListener('click', () => navigateToView('gameView')); if (backToMenuBtn) backToMenuBtn.addEventListener('click', () => navigateToView('homeView'));
             // --- Audio Playback Function (Placeholder) ---
             function playSound(type) { if (!gameState.soundEnabled) return; console.log(`Sound: ${type}`); }
             // --- Initial Setup ---
@@ -196,4 +514,5 @@
     </script>
 
 </body>
+
 </html>
