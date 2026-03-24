@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,1133 +11,1186 @@
         .floating-animation {
             animation: float 3s ease-in-out infinite;
         }
+
         @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
         }
-        
+
         .fade-in {
             animation: fadeIn 1s ease-in;
         }
+
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
-        
+
         .season-card:hover {
             transform: scale(1.05);
             transition: all 0.3s ease;
         }
-        
+
         .pulse-animation {
             animation: pulse 2s infinite;
         }
-        
+
         .falling-item {
             animation: fall 4s linear infinite;
             cursor: pointer;
         }
+
         @keyframes fall {
-            from { transform: translateY(-100px) rotate(0deg); }
-            to { transform: translateY(100vh) rotate(360deg); }
+            from {
+                transform: translateY(-100px) rotate(0deg);
+            }
+
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
         }
-        
+
         .score-popup {
             animation: scoreUp 1s ease-out forwards;
             pointer-events: none;
         }
+
         @keyframes scoreUp {
-            0% { transform: translateY(0) scale(1); opacity: 1; }
-            100% { transform: translateY(-50px) scale(1.2); opacity: 0; }
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-50px) scale(1.2);
+                opacity: 0;
+            }
         }
-        
+
         .autumn-bg {
             background: linear-gradient(180deg, #FED7AA 0%, #FDBA74 50%, #FB923C 100%);
         }
-        
+
         .spring-bg {
             background: linear-gradient(180deg, #FECACA 0%, #BBF7D0 50%, #86EFAC 100%);
         }
-        
+
         .summer-bg {
             background: linear-gradient(180deg, #FEF3C7 0%, #FBBF24 50%, #F97316 100%);
         }
-        
+
         .winter-bg {
             background: linear-gradient(180deg, #DBEAFE 0%, #93C5FD 50%, #3B82F6 100%);
         }
-        
+
         .page {
             display: none;
         }
-        
+
         .page.active {
             display: block;
         }
-        
+
         .btn-large {
             min-height: 64px;
             font-size: 1.5rem;
         }
-        
+
         .clickable-item {
             transition: all 0.2s ease;
         }
-        
+
         .clickable-item:active {
             transform: scale(0.9);
         }
     </style>
 </head>
+
 <body class="bg-gradient-to-b from-green-100 to-blue-100 min-h-screen">
 
-<!-- 首頁 -->
-<div id="homePage" class="page active">
-    <div class="container mx-auto px-6 py-8 max-w-md min-h-screen">
-        <!-- 標題區域 -->
-        <div class="text-center mb-12 fade-in">
-            <div class="mb-6">
-                <i class="fas fa-seedling text-6xl text-green-600 floating-animation"></i>
-            </div>
-            <h1 class="text-4xl font-bold text-gray-800 mb-4">銀齡樂園</h1>
-            <p class="text-xl text-gray-600 mb-2">Silver Garden</p>
-            <p class="text-lg text-gray-500">輕鬆收集，快樂時光</p>
-        </div>
-
-        <!-- 主要按鈕 -->
-        <div class="space-y-6">
-            <button onclick="showPage('seasonPage')" class="w-full bg-green-500 hover:bg-green-600 text-white text-2xl font-bold py-6 px-8 rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105 btn-large">
-                <i class="fas fa-play mr-3"></i>
-                開始遊戲
-            </button>
-            
-            <button onclick="showPage('achievementPage')" class="w-full bg-blue-500 hover:bg-blue-600 text-white text-2xl font-bold py-6 px-8 rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105 btn-large">
-                <i class="fas fa-trophy mr-3"></i>
-                我的成就
-            </button>
-            
-            <button onclick="showPage('settingsPage')" class="w-full bg-purple-500 hover:bg-purple-600 text-white text-2xl font-bold py-6 px-8 rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105 btn-large">
-                <i class="fas fa-cog mr-3"></i>
-                設定
-            </button>
-        </div>
-
-        <!-- 底部裝飾 -->
-        <div class="mt-12 text-center">
-            <div class="flex justify-center space-x-4 text-3xl">
-                <i class="fas fa-leaf text-green-400 floating-animation" style="animation-delay: 0.5s;"></i>
-                <i class="fas fa-flower text-pink-400 floating-animation" style="animation-delay: 1s;"></i>
-                <i class="fas fa-snowflake text-blue-400 floating-animation" style="animation-delay: 1.5s;"></i>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 季節選擇頁面 -->
-<div id="seasonPage" class="page">
-    <div class="bg-gradient-to-b from-sky-100 to-indigo-100 min-h-screen">
-        <div class="container mx-auto px-6 py-8 max-w-md">
-            <!-- 頂部導航 -->
-            <div class="flex items-center justify-between mb-8">
-                <button onclick="showPage('homePage')" class="text-gray-600 hover:text-gray-800 text-3xl p-2">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
-                <h1 class="text-3xl font-bold text-gray-800">選擇季節</h1>
-                <button onclick="showPage('homePage')" class="text-gray-600 hover:text-gray-800 text-3xl p-2">
-                    <i class="fas fa-home"></i>
-                </button>
+    <!-- 首頁 -->
+    <div id="homePage" class="page active">
+        <div class="container mx-auto px-6 py-8 max-w-md min-h-screen">
+            <!-- 標題區域 -->
+            <div class="text-center mb-12 fade-in">
+                <div class="mb-6">
+                    <i class="fas fa-seedling text-6xl text-green-600 floating-animation"></i>
+                </div>
+                <h1 class="text-4xl font-bold text-gray-800 mb-4">銀齡樂園</h1>
+                <p class="text-xl text-gray-600 mb-2">Silver Garden</p>
+                <p class="text-lg text-gray-500">輕鬆收集，快樂時光</p>
             </div>
 
-            <!-- 季節卡片 -->
-            <div class="grid grid-cols-1 gap-6">
-                <!-- 春天 -->
-                <div onclick="startGame('spring')" class="season-card bg-gradient-to-r from-pink-200 to-green-200 p-6 rounded-3xl shadow-lg cursor-pointer">
-                    <div class="flex items-center">
-                        <div class="mr-6">
-                            <i class="fas fa-seedling text-6xl text-green-600 pulse-animation"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="text-3xl font-bold text-gray-800 mb-2">春天</h3>
-                            <p class="text-xl text-gray-600 mb-3">櫻花飛舞</p>
-                            <div class="bg-white bg-opacity-70 rounded-xl p-3">
-                                <p class="text-lg text-gray-700">收集: 櫻花瓣、甲蟲
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 夏天 -->
-                <div onclick="startGame('summer')" class="season-card bg-gradient-to-r from-yellow-200 to-orange-200 p-6 rounded-3xl shadow-lg cursor-pointer">
-                    <div class="flex items-center">
-                        <div class="mr-6">
-                            <i class="fas fa-sun text-6xl text-orange-500 pulse-animation"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="text-3xl font-bold text-gray-800 mb-2">夏天</h3>
-                            <p class="text-xl text-gray-600 mb-3">果實豐收</p>
-                            <div class="bg-white bg-opacity-70 rounded-xl p-3">
-                                <p class="text-lg text-gray-700">收集: 蘋果、橘子</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 秋天 -->
-                <div onclick="startGame('autumn')" class="season-card bg-gradient-to-r from-orange-200 to-red-200 p-6 rounded-3xl shadow-lg cursor-pointer">
-                    <div class="flex items-center">
-                        <div class="mr-6">
-                            <i class="fas fa-leaf text-6xl text-red-600 pulse-animation"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="text-3xl font-bold text-gray-800 mb-2">秋天</h3>
-                            <p class="text-xl text-gray-600 mb-3">楓葉滿天</p>
-                            <div class="bg-white bg-opacity-70 rounded-xl p-3">
-                                <p class="text-lg text-gray-700">收集: 楓葉、銀杏</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 冬天 -->
-                <div onclick="startGame('winter')" class="season-card bg-gradient-to-r from-blue-200 to-purple-200 p-6 rounded-3xl shadow-lg cursor-pointer relative">
-                    <div class="flex items-center">
-                        <div class="mr-6">
-                            <i class="fas fa-snowflake text-6xl text-blue-600 pulse-animation"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="text-3xl font-bold text-gray-800 mb-2">冬天</h3>
-                            <p class="text-xl text-gray-600 mb-3">雪花紛飛</p>
-                            <div class="bg-white bg-opacity-70 rounded-xl p-3">
-                                <p class="text-lg text-gray-700" id="winterStatus">收集: 雪花、雪人</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 底部提示 -->
-            <div class="mt-8 bg-white bg-opacity-80 rounded-2xl p-6">
-                <div class="flex items-center">
-                    <i class="fas fa-lightbulb text-yellow-500 text-3xl mr-4"></i>
-                    <p class="text-xl text-gray-700">點擊任一季節開始您的收集之旅！</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 遊戲主界面 -->
-<div id="gamePage" class="page">
-    <div id="gameBackground" class="autumn-bg min-h-screen overflow-hidden relative">
-        <!-- 遊戲頂部UI -->
-        <div class="flex justify-between items-center p-4 bg-black bg-opacity-20 relative z-10">
-            <!-- 返回按鈕 -->
-            <button onclick="endGame()" class="bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-800 text-2xl p-4 rounded-full shadow-lg">
-                <i class="fas fa-arrow-left"></i>
-            </button>
-
-            <!-- 分數顯示 -->
-            <div class="bg-white bg-opacity-95 rounded-2xl px-6 py-3 shadow-lg">
-                <div class="flex items-center">
-                    <i class="fas fa-star text-yellow-500 text-3xl mr-2"></i>
-                    <span id="gameScore" class="text-3xl font-bold text-gray-800">0</span>
-                </div>
-            </div>
-
-            <!-- 暫停按鈕 -->
-            <button onclick="pauseGame()" class="bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-800 text-2xl p-4 rounded-full shadow-lg">
-                <i class="fas fa-pause"></i>
-            </button>
-        </div>
-
-        <!-- 遊戲區域 -->
-        <div id="gameArea" class="relative h-screen">
-            <!-- 飄落物品會動態添加到這裡 -->
-        </div>
-
-        <!-- 底部統計 -->
-        <div class="fixed bottom-0 left-0 right-0 bg-white bg-opacity-95 p-4 z-10">
-            <div class="flex justify-around text-center max-w-md mx-auto">
-                <div>
-                    <i id="item1Icon" class="fas fa-leaf text-red-500 text-3xl mb-2"></i>
-                    <p id="item1Count" class="text-xl font-bold text-gray-800">0</p>
-                    <p id="item1Name" class="text-base text-gray-600">紅楓葉</p>
-                </div>
-                <div>
-                    <i id="item2Icon" class="fas fa-leaf text-orange-500 text-3xl mb-2"></i>
-                    <p id="item2Count" class="text-xl font-bold text-gray-800">0</p>
-                    <p id="item2Name" class="text-base text-gray-600">橙楓葉</p>
-                </div>
-                <div>
-                    <i id="item3Icon" class="fas fa-leaf text-yellow-600 text-3xl mb-2"></i>
-                    <p id="item3Count" class="text-xl font-bold text-gray-800">0</p>
-                    <p id="item3Name" class="text-base text-gray-600">黃楓葉</p>
-                </div>
-                <div>
-                    <i class="fas fa-clock text-blue-500 text-3xl mb-2"></i>
-                    <p id="gameTime" class="text-xl font-bold text-gray-800">00:00</p>
-                    <p class="text-base text-gray-600">遊戲時間</p>
-                </div>
-            </div>
-        </div>
-
-                <!-- 收集提示 -->
-        <div id="gameHint" class="absolute bottom-32 left-1/2 transform -translate-x-1/2 z-10">
-            <div class="bg-white bg-opacity-95 rounded-2xl px-8 py-4 shadow-lg">
-                <p class="text-xl text-gray-800 text-center">
-                    <i class="fas fa-hand-point-up text-blue-500 mr-2"></i>
-                    輕觸收集物品
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 成就頁面 -->
-<div id="achievementPage" class="page">
-    <div class="bg-gradient-to-b from-yellow-100 to-orange-100 min-h-screen">
-        <div class="container mx-auto px-6 py-8 max-w-md">
-            <!-- 頂部導航 -->
-            <div class="flex items-center justify-between mb-8">
-                <button onclick="showPage('homePage')" class="text-gray-600 hover:text-gray-800 text-3xl p-2">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
-                <h1 class="text-3xl font-bold text-gray-800">我的成就</h1>
-                <button onclick="showPage('homePage')" class="text-gray-600 hover:text-gray-800 text-3xl p-2">
-                    <i class="fas fa-home"></i>
-                </button>
-            </div>
-
-            <!-- 總統計 -->
-            <div class="bg-white bg-opacity-90 rounded-3xl p-6 mb-6 shadow-lg">
-                <div class="text-center mb-4">
-                    <i class="fas fa-trophy text-yellow-500 text-5xl mb-3"></i>
-                    <h2 class="text-2xl font-bold text-gray-800">遊戲統計</h2>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="text-center">
-                        <p class="text-3xl font-bold text-blue-600" id="totalScore">1,250</p>
-                        <p class="text-lg text-gray-600">總分數</p>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-3xl font-bold text-green-600" id="totalItems">156</p>
-                        <p class="text-lg text-gray-600">收集物品</p>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-3xl font-bold text-purple-600" id="totalTime">45:30</p>
-                        <p class="text-lg text-gray-600">遊戲時間</p>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-3xl font-bold text-orange-600" id="totalGames">12</p>
-                        <p class="text-lg text-gray-600">遊戲次數</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 成就列表 -->
-            <div class="space-y-4">
-                <div class="bg-white bg-opacity-90 rounded-2xl p-4 shadow-lg">
-                    <div class="flex items-center">
-                        <i class="fas fa-medal text-gold text-3xl mr-4"></i>
-                        <div class="flex-1">
-                            <h3 class="text-xl font-bold text-gray-800">初次收集</h3>
-                            <p class="text-lg text-gray-600">收集第一個物品</p>
-                        </div>
-                        <i class="fas fa-check-circle text-green-500 text-2xl"></i>
-                    </div>
-                </div>
-
-                <div class="bg-white bg-opacity-90 rounded-2xl p-4 shadow-lg">
-                    <div class="flex items-center">
-                        <i class="fas fa-leaf text-red-500 text-3xl mr-4"></i>
-                        <div class="flex-1">
-                            <h3 class="text-xl font-bold text-gray-800">秋葉收集家</h3>
-                            <p class="text-lg text-gray-600">收集50片楓葉</p>
-                        </div>
-                        <i class="fas fa-check-circle text-green-500 text-2xl"></i>
-                    </div>
-                </div>
-
-                <div class="bg-white bg-opacity-90 rounded-2xl p-4 shadow-lg opacity-60">
-                    <div class="flex items-center">
-                        <i class="fas fa-flower text-pink-500 text-3xl mr-4"></i>
-                        <div class="flex-1">
-                            <h3 class="text-xl font-bold text-gray-800">春花爛漫</h3>
-                            <p class="text-lg text-gray-600">收集100朵櫻花</p>
-                        </div>
-                        <i class="fas fa-lock text-gray-400 text-2xl"></i>
-                    </div>
-                </div>
-
-                <div class="bg-white bg-opacity-90 rounded-2xl p-4 shadow-lg opacity-60">
-                    <div class="flex items-center">
-                        <i class="fas fa-apple-alt text-red-600 text-3xl mr-4"></i>
-                        <div class="flex-1">
-                            <h3 class="text-xl font-bold text-gray-800">夏日豐收</h3>
-                            <p class="text-lg text-gray-600">收集80個水果</p>
-                        </div>
-                        <i class="fas fa-lock text-gray-400 text-2xl"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 設定頁面 -->
-<div id="settingsPage" class="page">
-    <div class="bg-gradient-to-b from-purple-100 to-pink-100 min-h-screen">
-        <div class="container mx-auto px-6 py-8 max-w-md">
-            <!-- 頂部導航 -->
-            <div class="flex items-center justify-between mb-8">
-                <button onclick="showPage('homePage')" class="text-gray-600 hover:text-gray-800 text-3xl p-2">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
-                <h1 class="text-3xl font-bold text-gray-800">設定</h1>
-                <button onclick="showPage('homePage')" class="text-gray-600 hover:text-gray-800 text-3xl p-2">
-                    <i class="fas fa-home"></i>
-                </button>
-            </div>
-
-            <!-- 設定項目 -->
+            <!-- 主要按鈕 -->
             <div class="space-y-6">
-                <!-- 音效設定 -->
-                <div class="bg-white bg-opacity-90 rounded-2xl p-6 shadow-lg">
-                    <div class="flex items-center justify-between">
+                <button onclick="showPage('seasonPage')"
+                    class="w-full bg-green-500 hover:bg-green-600 text-white text-2xl font-bold py-6 px-8 rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105 btn-large">
+                    <i class="fas fa-play mr-3"></i>
+                    開始遊戲
+                </button>
+
+                <button onclick="showPage('achievementPage')"
+                    class="w-full bg-blue-500 hover:bg-blue-600 text-white text-2xl font-bold py-6 px-8 rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105 btn-large">
+                    <i class="fas fa-trophy mr-3"></i>
+                    我的成就
+                </button>
+
+                <button onclick="showPage('settingsPage')"
+                    class="w-full bg-purple-500 hover:bg-purple-600 text-white text-2xl font-bold py-6 px-8 rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105 btn-large">
+                    <i class="fas fa-cog mr-3"></i>
+                    設定
+                </button>
+
+                <a href="../../index.html"
+                    class="w-full flex items-center justify-center bg-slate-400 hover:bg-slate-500 text-white text-2xl font-bold py-6 px-8 rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105 btn-large">
+                    <i class="fas fa-door-open mr-3"></i>
+                    回到遊戲大廳
+                </a>
+            </div>
+
+            <!-- 底部裝飾 -->
+            <div class="mt-12 text-center">
+                <div class="flex justify-center space-x-4 text-3xl">
+                    <i class="fas fa-leaf text-green-400 floating-animation" style="animation-delay: 0.5s;"></i>
+                    <i class="fas fa-flower text-pink-400 floating-animation" style="animation-delay: 1s;"></i>
+                    <i class="fas fa-snowflake text-blue-400 floating-animation" style="animation-delay: 1.5s;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 季節選擇頁面 -->
+    <div id="seasonPage" class="page">
+        <div class="bg-gradient-to-b from-sky-100 to-indigo-100 min-h-screen">
+            <div class="container mx-auto px-6 py-8 max-w-md">
+                <!-- 頂部導航 -->
+                <div class="flex items-center justify-between mb-8">
+                    <button onclick="showPage('homePage')" class="text-gray-600 hover:text-gray-800 text-3xl p-2">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h1 class="text-3xl font-bold text-gray-800">選擇季節</h1>
+                    <button onclick="showPage('homePage')" class="text-gray-600 hover:text-gray-800 text-3xl p-2">
+                        <i class="fas fa-home"></i>
+                    </button>
+                </div>
+
+                <!-- 季節卡片 -->
+                <div class="grid grid-cols-1 gap-6">
+                    <!-- 春天 -->
+                    <div onclick="startGame('spring')"
+                        class="season-card bg-gradient-to-r from-pink-200 to-green-200 p-6 rounded-3xl shadow-lg cursor-pointer">
                         <div class="flex items-center">
-                            <i class="fas fa-volume-up text-blue-500 text-3xl mr-4"></i>
-                            <div>
-                                <h3 class="text-2xl font-bold text-gray-800">音效</h3>
-                                <p class="text-lg text-gray-600">遊戲音效開關</p>
+                            <div class="mr-6">
+                                <i class="fas fa-seedling text-6xl text-green-600 pulse-animation"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-3xl font-bold text-gray-800 mb-2">春天</h3>
+                                <p class="text-xl text-gray-600 mb-3">櫻花飛舞</p>
+                                <div class="bg-white bg-opacity-70 rounded-xl p-3">
+                                    <p class="text-lg text-gray-700">收集: 櫻花瓣、甲蟲
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" class="sr-only peer" checked>
-                            <div class="w-16 h-8 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-7 after:w-7 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
                     </div>
-                </div>
 
-                <!-- 背景音樂設定 -->
-                <div class="bg-white bg-opacity-90 rounded-2xl p-6 shadow-lg">
-                    <div class="flex items-center justify-between">
+                    <!-- 夏天 -->
+                    <div onclick="startGame('summer')"
+                        class="season-card bg-gradient-to-r from-yellow-200 to-orange-200 p-6 rounded-3xl shadow-lg cursor-pointer">
                         <div class="flex items-center">
-                            <i class="fas fa-music text-green-500 text-3xl mr-4"></i>
-                            <div>
-                                <h3 class="text-2xl font-bold text-gray-800">背景音樂</h3>
-                                <p class="text-lg text-gray-600">背景音樂開關</p>
+                            <div class="mr-6">
+                                <i class="fas fa-sun text-6xl text-orange-500 pulse-animation"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-3xl font-bold text-gray-800 mb-2">夏天</h3>
+                                <p class="text-xl text-gray-600 mb-3">果實豐收</p>
+                                <div class="bg-white bg-opacity-70 rounded-xl p-3">
+                                    <p class="text-lg text-gray-700">收集: 蘋果、橘子</p>
+                                </div>
                             </div>
                         </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" class="sr-only peer" checked>
-                            <div class="w-16 h-8 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-7 after:w-7 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
                     </div>
-                </div>
 
-                <!-- 難度設定 -->
-                <div class="bg-white bg-opacity-90 rounded-2xl p-6 shadow-lg">
-                    <div class="flex items-center mb-4">
-                        <i class="fas fa-sliders-h text-orange-500 text-3xl mr-4"></i>
-                        <div>
-                            <h3 class="text-2xl font-bold text-gray-800">遊戲難度</h3>
-                            <p class="text-lg text-gray-600">調整物品掉落速度</p>
-                        </div>
-                    </div>
-                    <div class="space-y-3">
-                        <label class="flex items-center">
-                            <input type="radio" name="difficulty" value="easy" class="w-6 h-6 text-blue-600" checked>
-                            <span class="ml-3 text-xl text-gray-800">簡單</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="radio" name="difficulty" value="normal" class="w-6 h-6 text-blue-600">
-                            <span class="ml-3 text-xl text-gray-800">一般</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="radio" name="difficulty" value="hard" class="w-6 h-6 text-blue-600">
-                            <span class="ml-3 text-xl text-gray-800">困難</span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- 挑戰模式設定 -->
-                <div class="bg-white bg-opacity-90 rounded-2xl p-6 shadow-lg">
-                    <div class="flex items-center justify-between">
+                    <!-- 秋天 -->
+                    <div onclick="startGame('autumn')"
+                        class="season-card bg-gradient-to-r from-orange-200 to-red-200 p-6 rounded-3xl shadow-lg cursor-pointer">
                         <div class="flex items-center">
-                            <i class="fas fa-skull-crossbones text-red-500 text-3xl mr-4"></i>
-                            <div>
-                                <h3 class="text-2xl font-bold text-gray-800">挑戰模式</h3>
-                                <p class="text-lg text-gray-600">障礙物出現（點擊扣分）</p>
+                            <div class="mr-6">
+                                <i class="fas fa-leaf text-6xl text-red-600 pulse-animation"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-3xl font-bold text-gray-800 mb-2">秋天</h3>
+                                <p class="text-xl text-gray-600 mb-3">楓葉滿天</p>
+                                <div class="bg-white bg-opacity-70 rounded-xl p-3">
+                                    <p class="text-lg text-gray-700">收集: 楓葉、銀杏</p>
+                                </div>
                             </div>
                         </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="challengeModeToggle" class="sr-only peer">
-                            <div class="w-16 h-8 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-7 after:w-7 after:transition-all peer-checked:bg-red-600"></div>
-                        </label>
                     </div>
-                </div>
 
-                <!-- 無限模式設定 -->
-                <div class="bg-white bg-opacity-90 rounded-2xl p-6 shadow-lg">
-                    <div class="flex items-center justify-between">
+                    <!-- 冬天 -->
+                    <div onclick="startGame('winter')"
+                        class="season-card bg-gradient-to-r from-blue-200 to-purple-200 p-6 rounded-3xl shadow-lg cursor-pointer relative">
                         <div class="flex items-center">
-                            <i class="fas fa-infinity text-blue-500 text-3xl mr-4"></i>
-                            <div>
-                                <h3 class="text-2xl font-bold text-gray-800">無限模式</h3>
-                                <p class="text-lg text-gray-600">關閉則採 60 秒倒數</p>
+                            <div class="mr-6">
+                                <i class="fas fa-snowflake text-6xl text-blue-600 pulse-animation"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-3xl font-bold text-gray-800 mb-2">冬天</h3>
+                                <p class="text-xl text-gray-600 mb-3">雪花紛飛</p>
+                                <div class="bg-white bg-opacity-70 rounded-xl p-3">
+                                    <p class="text-lg text-gray-700" id="winterStatus">收集: 雪花、雪人</p>
+                                </div>
                             </div>
                         </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="infiniteModeToggle" class="sr-only peer" checked>
-                            <div class="w-16 h-8 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-7 after:w-7 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
                     </div>
                 </div>
 
-                <!-- 關於 -->
-                <div class="bg-white bg-opacity-90 rounded-2xl p-6 shadow-lg">
+                <!-- 底部提示 -->
+                <div class="mt-8 bg-white bg-opacity-80 rounded-2xl p-6">
                     <div class="flex items-center">
-                        <i class="fas fa-info-circle text-purple-500 text-3xl mr-4"></i>
-                        <div>
-                            <h3 class="text-2xl font-bold text-gray-800">關於遊戲</h3>
-                            <p class="text-lg text-gray-600">版本 1.0.0</p>
-                            <p class="text-base text-gray-500 mt-2">專為年長族群設計的輕鬆收集遊戲</p>
+                        <i class="fas fa-lightbulb text-yellow-500 text-3xl mr-4"></i>
+                        <p class="text-xl text-gray-700">點擊任一季節開始您的收集之旅！</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 遊戲主界面 -->
+    <div id="gamePage" class="page">
+        <div id="gameBackground" class="autumn-bg min-h-screen overflow-hidden relative">
+            <!-- 遊戲頂部UI -->
+            <div class="flex justify-between items-center p-4 bg-black bg-opacity-20 relative z-10">
+                <!-- 返回按鈕 -->
+                <button onclick="endGame()"
+                    class="bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-800 text-2xl p-4 rounded-full shadow-lg">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+
+                <!-- 分數顯示 -->
+                <div class="bg-white bg-opacity-95 rounded-2xl px-6 py-3 shadow-lg">
+                    <div class="flex items-center">
+                        <i class="fas fa-star text-yellow-500 text-3xl mr-2"></i>
+                        <span id="gameScore" class="text-3xl font-bold text-gray-800">0</span>
+                    </div>
+                </div>
+
+                <!-- 暫停按鈕 -->
+                <button onclick="pauseGame()"
+                    class="bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-800 text-2xl p-4 rounded-full shadow-lg">
+                    <i class="fas fa-pause"></i>
+                </button>
+            </div>
+
+            <!-- 遊戲區域 -->
+            <div id="gameArea" class="relative h-screen">
+                <!-- 飄落物品會動態添加到這裡 -->
+            </div>
+
+            <!-- 底部統計 -->
+            <div class="fixed bottom-0 left-0 right-0 bg-white bg-opacity-95 p-4 z-10">
+                <div class="flex justify-around text-center max-w-md mx-auto">
+                    <div>
+                        <i id="item1Icon" class="fas fa-leaf text-red-500 text-3xl mb-2"></i>
+                        <p id="item1Count" class="text-xl font-bold text-gray-800">0</p>
+                        <p id="item1Name" class="text-base text-gray-600">紅楓葉</p>
+                    </div>
+                    <div>
+                        <i id="item2Icon" class="fas fa-leaf text-orange-500 text-3xl mb-2"></i>
+                        <p id="item2Count" class="text-xl font-bold text-gray-800">0</p>
+                        <p id="item2Name" class="text-base text-gray-600">橙楓葉</p>
+                    </div>
+                    <div>
+                        <i id="item3Icon" class="fas fa-leaf text-yellow-600 text-3xl mb-2"></i>
+                        <p id="item3Count" class="text-xl font-bold text-gray-800">0</p>
+                        <p id="item3Name" class="text-base text-gray-600">黃楓葉</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-clock text-blue-500 text-3xl mb-2"></i>
+                        <p id="gameTime" class="text-xl font-bold text-gray-800">00:00</p>
+                        <p class="text-base text-gray-600">遊戲時間</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 收集提示 -->
+            <div id="gameHint" class="absolute bottom-32 left-1/2 transform -translate-x-1/2 z-10">
+                <div class="bg-white bg-opacity-95 rounded-2xl px-8 py-4 shadow-lg">
+                    <p class="text-xl text-gray-800 text-center">
+                        <i class="fas fa-hand-point-up text-blue-500 mr-2"></i>
+                        輕觸收集物品
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 成就頁面 -->
+    <div id="achievementPage" class="page">
+        <div class="bg-gradient-to-b from-yellow-100 to-orange-100 min-h-screen">
+            <div class="container mx-auto px-6 py-8 max-w-md">
+                <!-- 頂部導航 -->
+                <div class="flex items-center justify-between mb-8">
+                    <button onclick="showPage('homePage')" class="text-gray-600 hover:text-gray-800 text-3xl p-2">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h1 class="text-3xl font-bold text-gray-800">我的成就</h1>
+                    <button onclick="showPage('homePage')" class="text-gray-600 hover:text-gray-800 text-3xl p-2">
+                        <i class="fas fa-home"></i>
+                    </button>
+                </div>
+
+                <!-- 總統計 -->
+                <div class="bg-white bg-opacity-90 rounded-3xl p-6 mb-6 shadow-lg">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-trophy text-yellow-500 text-5xl mb-3"></i>
+                        <h2 class="text-2xl font-bold text-gray-800">遊戲統計</h2>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="text-center">
+                            <p class="text-3xl font-bold text-blue-600" id="totalScore">1,250</p>
+                            <p class="text-lg text-gray-600">總分數</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-3xl font-bold text-green-600" id="totalItems">156</p>
+                            <p class="text-lg text-gray-600">收集物品</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-3xl font-bold text-purple-600" id="totalTime">45:30</p>
+                            <p class="text-lg text-gray-600">遊戲時間</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-3xl font-bold text-orange-600" id="totalGames">12</p>
+                            <p class="text-lg text-gray-600">遊戲次數</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 成就列表 -->
+                <div class="space-y-4">
+                    <div class="bg-white bg-opacity-90 rounded-2xl p-4 shadow-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-medal text-gold text-3xl mr-4"></i>
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold text-gray-800">初次收集</h3>
+                                <p class="text-lg text-gray-600">收集第一個物品</p>
+                            </div>
+                            <i class="fas fa-check-circle text-green-500 text-2xl"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white bg-opacity-90 rounded-2xl p-4 shadow-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-leaf text-red-500 text-3xl mr-4"></i>
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold text-gray-800">秋葉收集家</h3>
+                                <p class="text-lg text-gray-600">收集50片楓葉</p>
+                            </div>
+                            <i class="fas fa-check-circle text-green-500 text-2xl"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white bg-opacity-90 rounded-2xl p-4 shadow-lg opacity-60">
+                        <div class="flex items-center">
+                            <i class="fas fa-flower text-pink-500 text-3xl mr-4"></i>
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold text-gray-800">春花爛漫</h3>
+                                <p class="text-lg text-gray-600">收集100朵櫻花</p>
+                            </div>
+                            <i class="fas fa-lock text-gray-400 text-2xl"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white bg-opacity-90 rounded-2xl p-4 shadow-lg opacity-60">
+                        <div class="flex items-center">
+                            <i class="fas fa-apple-alt text-red-600 text-3xl mr-4"></i>
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold text-gray-800">夏日豐收</h3>
+                                <p class="text-lg text-gray-600">收集80個水果</p>
+                            </div>
+                            <i class="fas fa-lock text-gray-400 text-2xl"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-// 音效與音樂引擎 (基於 Web Audio API)
-const AudioEngine = {
-    ctx: null,
-    bgmNodes: [],
-    masterBgmGain: null,
-    isPaused: false,
-    bgmInterval: null,
-    
-    init() {
-        if (!this.ctx) {
-            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (this.ctx.state === 'suspended') {
-            this.ctx.resume();
-        }
-    },
+    <!-- 設定頁面 -->
+    <div id="settingsPage" class="page">
+        <div class="bg-gradient-to-b from-purple-100 to-pink-100 min-h-screen">
+            <div class="container mx-auto px-6 py-8 max-w-md">
+                <!-- 頂部導航 -->
+                <div class="flex items-center justify-between mb-8">
+                    <button onclick="showPage('homePage')" class="text-gray-600 hover:text-gray-800 text-3xl p-2">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h1 class="text-3xl font-bold text-gray-800">設定</h1>
+                    <button onclick="showPage('homePage')" class="text-gray-600 hover:text-gray-800 text-3xl p-2">
+                        <i class="fas fa-home"></i>
+                    </button>
+                </div>
 
-    get soundEnabled() {
-        const soundToggle = document.querySelectorAll('#settingsPage input[type="checkbox"]')[0];
-        return soundToggle ? soundToggle.checked : true;
-    },
+                <!-- 設定項目 -->
+                <div class="space-y-6">
+                    <!-- 音效設定 -->
+                    <div class="bg-white bg-opacity-90 rounded-2xl p-6 shadow-lg">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <i class="fas fa-volume-up text-blue-500 text-3xl mr-4"></i>
+                                <div>
+                                    <h3 class="text-2xl font-bold text-gray-800">音效</h3>
+                                    <p class="text-lg text-gray-600">遊戲音效開關</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" checked>
+                                <div
+                                    class="w-16 h-8 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-7 after:w-7 after:transition-all peer-checked:bg-blue-600">
+                                </div>
+                            </label>
+                        </div>
+                    </div>
 
-    get musicEnabled() {
-        const musicToggle = document.querySelectorAll('#settingsPage input[type="checkbox"]')[1];
-        return musicToggle ? musicToggle.checked : true;
-    },
+                    <!-- 背景音樂設定 -->
+                    <div class="bg-white bg-opacity-90 rounded-2xl p-6 shadow-lg">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <i class="fas fa-music text-green-500 text-3xl mr-4"></i>
+                                <div>
+                                    <h3 class="text-2xl font-bold text-gray-800">背景音樂</h3>
+                                    <p class="text-lg text-gray-600">背景音樂開關</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" checked>
+                                <div
+                                    class="w-16 h-8 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-7 after:w-7 after:transition-all peer-checked:bg-blue-600">
+                                </div>
+                            </label>
+                        </div>
+                    </div>
 
-    playSFX(type, season = 'spring') {
-        if (!this.soundEnabled) return;
-        this.init();
-        
-        const t = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        
-        if (type === 'click') {
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(600, t);
-            osc.frequency.exponentialRampToValueAtTime(300, t + 0.1);
-            gain.gain.setValueAtTime(0.1, t);
-            gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
-            osc.start(t);
-            osc.stop(t + 0.1);
-        } else if (type === 'penalty') {
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(150, t);
-            osc.frequency.exponentialRampToValueAtTime(80, t + 0.3);
-            gain.gain.setValueAtTime(0.2, t);
-            gain.gain.exponentialRampToValueAtTime(0.01, t + 0.3);
-            osc.start(t);
-            osc.stop(t + 0.3);
-        } else if (type === 'collect') {
-            const freqMap = {
-                'spring': [880, 1108, 1318], // A5, C#6, E6
-                'summer': [523, 659, 783],   // C5, E5, G5
-                'autumn': [440, 554, 659],   // A4, C#5, E5
-                'winter': [1046, 1318, 1567] // C6, E6, G6
-            };
-            const freqs = freqMap[season];
-            const freq = freqs[Math.floor(Math.random() * freqs.length)];
-            
-            osc.type = (season === 'winter' || season === 'spring') ? 'sine' : 'triangle';
-            osc.frequency.setValueAtTime(freq, t);
-            gain.gain.setValueAtTime(0.2, t);
-            gain.gain.exponentialRampToValueAtTime(0.01, t + 0.5);
-            osc.start(t);
-            osc.stop(t + 0.5);
-        } else if (type === 'timeup') {
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(440, t);
-            osc.frequency.linearRampToValueAtTime(880, t + 0.5);
-            gain.gain.setValueAtTime(0.3, t);
-            gain.gain.linearRampToValueAtTime(0, t + 1.5);
-            osc.start(t);
-            osc.stop(t + 1.5);
-        }
-    },
+                    <!-- 難度設定 -->
+                    <div class="bg-white bg-opacity-90 rounded-2xl p-6 shadow-lg">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-sliders-h text-orange-500 text-3xl mr-4"></i>
+                            <div>
+                                <h3 class="text-2xl font-bold text-gray-800">遊戲難度</h3>
+                                <p class="text-lg text-gray-600">調整物品掉落速度</p>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <label class="flex items-center">
+                                <input type="radio" name="difficulty" value="easy" class="w-6 h-6 text-blue-600"
+                                    checked>
+                                <span class="ml-3 text-xl text-gray-800">簡單</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="difficulty" value="normal" class="w-6 h-6 text-blue-600">
+                                <span class="ml-3 text-xl text-gray-800">一般</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="difficulty" value="hard" class="w-6 h-6 text-blue-600">
+                                <span class="ml-3 text-xl text-gray-800">困難</span>
+                            </label>
+                        </div>
+                    </div>
 
-    startBGM(season) {
-        if (!this.musicEnabled) return;
-        this.init();
-        this.stopBGM();
-        this.isPaused = false;
-        
-        this.masterBgmGain = this.ctx.createGain();
-        this.masterBgmGain.gain.value = 0.25;
-        this.masterBgmGain.connect(this.ctx.destination);
-        
-        // 使用五聲音階讓隨機生成的旋律和諧悅耳
-        let scale = [];
-        if (season === 'spring') scale = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25]; // C大調的五聲音階 (活潑清脆)
-        else if (season === 'summer') scale = [196.00, 220.00, 246.94, 293.66, 329.63, 392.00]; // G大調低音五聲音階 (溫暖悠然)
-        else if (season === 'autumn') scale = [220.00, 261.63, 293.66, 329.63, 392.00, 440.00]; // A小調五聲音階 (微帶涼意躍動)
-        else if (season === 'winter') scale = [293.66, 349.23, 392.00, 440.00, 523.25, 587.33]; // D小調高音五聲音階 (高冷透明)
-        
-        // 初始旋律模式 (8分音符，陣列長度 8 代表 4 拍的組合)
-        // 數值代表音階索引，-1 代表休止符
-        let melodyPattern = [1, -1, 3, 2, -1, 4, 1, 5];
-        let step = 0;
-        
-        // 利用定時器每 250 毫秒 (約 120 BPM 的 8分音符) 播放音符
-        this.bgmInterval = setInterval(() => {
-            if (this.isPaused || !this.ctx) return;
-            const t = this.ctx.currentTime;
-            
-            // 每 16 步 (2 小節) 隨機改變一次旋律組合，保持新鮮感又不至於過度雜亂
-            if (step % 16 === 0) {
-                melodyPattern = Array.from({length: 8}, () => Math.random() > 0.3 ? Math.floor(Math.random() * (scale.length - 1)) : -1);
-            }
-            
-            // --- 播放貝斯 (每小節的第一拍和第三拍發聲) ---
-            if (step % 4 === 0) {
-                const bOsc = this.ctx.createOscillator();
-                const bGain = this.ctx.createGain();
-                bOsc.connect(bGain);
-                bGain.connect(this.masterBgmGain);
-                
-                bOsc.type = (season === 'summer' || season === 'autumn') ? 'triangle' : 'sine';
-                // 偶爾變換貝斯根音
-                const bassNote = (step % 16 === 8) ? scale[4] / 2 : scale[0] / 2;
-                bOsc.frequency.setValueAtTime(bassNote, t);
-                
-                bGain.gain.setValueAtTime(0.4, t);
-                bGain.gain.exponentialRampToValueAtTime(0.01, t + 1.0); // 長衰減
-                
-                bOsc.start(t);
-                bOsc.stop(t + 1.0);
-            }
-            
-            // --- 播放旋律 (依據目前的旋律組合) ---
-            const noteIdx = melodyPattern[step % 8];
-            if (noteIdx !== -1) {
-                const mOsc = this.ctx.createOscillator();
-                const mGain = this.ctx.createGain();
-                mOsc.connect(mGain);
-                mGain.connect(this.masterBgmGain);
-                
-                mOsc.type = (season === 'spring' || season === 'winter') ? 'sine' : 'triangle';
-                
-                let note = scale[noteIdx];
-                // 春天與冬天偶爾高八度，增加閃爍感
-                if ((season === 'spring' || season === 'winter') && Math.random() > 0.8) {
-                    note *= 2;
+                    <!-- 挑戰模式設定 -->
+                    <div class="bg-white bg-opacity-90 rounded-2xl p-6 shadow-lg">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <i class="fas fa-skull-crossbones text-red-500 text-3xl mr-4"></i>
+                                <div>
+                                    <h3 class="text-2xl font-bold text-gray-800">挑戰模式</h3>
+                                    <p class="text-lg text-gray-600">障礙物出現（點擊扣分）</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="challengeModeToggle" class="sr-only peer">
+                                <div
+                                    class="w-16 h-8 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-7 after:w-7 after:transition-all peer-checked:bg-red-600">
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 無限模式設定 -->
+                    <div class="bg-white bg-opacity-90 rounded-2xl p-6 shadow-lg">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <i class="fas fa-infinity text-blue-500 text-3xl mr-4"></i>
+                                <div>
+                                    <h3 class="text-2xl font-bold text-gray-800">無限模式</h3>
+                                    <p class="text-lg text-gray-600">關閉則採 60 秒倒數</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="infiniteModeToggle" class="sr-only peer" checked>
+                                <div
+                                    class="w-16 h-8 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-7 after:w-7 after:transition-all peer-checked:bg-blue-600">
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 關於 -->
+                    <div class="bg-white bg-opacity-90 rounded-2xl p-6 shadow-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-info-circle text-purple-500 text-3xl mr-4"></i>
+                            <div>
+                                <h3 class="text-2xl font-bold text-gray-800">關於遊戲</h3>
+                                <p class="text-lg text-gray-600">版本 1.0.0</p>
+                                <p class="text-base text-gray-500 mt-2">專為年長族群設計的輕鬆收集遊戲</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 音效與音樂引擎 (基於 Web Audio API)
+        const AudioEngine = {
+            ctx: null,
+            bgmNodes: [],
+            masterBgmGain: null,
+            isPaused: false,
+            bgmInterval: null,
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
                 }
-                
-                mOsc.frequency.setValueAtTime(note, t);
-                
-                mGain.gain.setValueAtTime(0.2, t);
-                mGain.gain.exponentialRampToValueAtTime(0.01, t + 0.3); // 短促撥弦感
-                
-                mOsc.start(t);
-                mOsc.stop(t + 0.3);
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            },
+
+            get soundEnabled() {
+                const soundToggle = document.querySelectorAll('#settingsPage input[type="checkbox"]')[0];
+                return soundToggle ? soundToggle.checked : true;
+            },
+
+            get musicEnabled() {
+                const musicToggle = document.querySelectorAll('#settingsPage input[type="checkbox"]')[1];
+                return musicToggle ? musicToggle.checked : true;
+            },
+
+            playSFX(type, season = 'spring') {
+                if (!this.soundEnabled) return;
+                this.init();
+
+                const t = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, t);
+                    osc.frequency.exponentialRampToValueAtTime(300, t + 0.1);
+                    gain.gain.setValueAtTime(0.1, t);
+                    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
+                    osc.start(t);
+                    osc.stop(t + 0.1);
+                } else if (type === 'penalty') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(150, t);
+                    osc.frequency.exponentialRampToValueAtTime(80, t + 0.3);
+                    gain.gain.setValueAtTime(0.2, t);
+                    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.3);
+                    osc.start(t);
+                    osc.stop(t + 0.3);
+                } else if (type === 'collect') {
+                    const freqMap = {
+                        'spring': [880, 1108, 1318], // A5, C#6, E6
+                        'summer': [523, 659, 783],   // C5, E5, G5
+                        'autumn': [440, 554, 659],   // A4, C#5, E5
+                        'winter': [1046, 1318, 1567] // C6, E6, G6
+                    };
+                    const freqs = freqMap[season];
+                    const freq = freqs[Math.floor(Math.random() * freqs.length)];
+
+                    osc.type = (season === 'winter' || season === 'spring') ? 'sine' : 'triangle';
+                    osc.frequency.setValueAtTime(freq, t);
+                    gain.gain.setValueAtTime(0.2, t);
+                    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.5);
+                    osc.start(t);
+                    osc.stop(t + 0.5);
+                } else if (type === 'timeup') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(440, t);
+                    osc.frequency.linearRampToValueAtTime(880, t + 0.5);
+                    gain.gain.setValueAtTime(0.3, t);
+                    gain.gain.linearRampToValueAtTime(0, t + 1.5);
+                    osc.start(t);
+                    osc.stop(t + 1.5);
+                }
+            },
+
+            startBGM(season) {
+                if (!this.musicEnabled) return;
+                this.init();
+                this.stopBGM();
+                this.isPaused = false;
+
+                this.masterBgmGain = this.ctx.createGain();
+                this.masterBgmGain.gain.value = 0.25;
+                this.masterBgmGain.connect(this.ctx.destination);
+
+                // 使用五聲音階讓隨機生成的旋律和諧悅耳
+                let scale = [];
+                if (season === 'spring') scale = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25]; // C大調的五聲音階 (活潑清脆)
+                else if (season === 'summer') scale = [196.00, 220.00, 246.94, 293.66, 329.63, 392.00]; // G大調低音五聲音階 (溫暖悠然)
+                else if (season === 'autumn') scale = [220.00, 261.63, 293.66, 329.63, 392.00, 440.00]; // A小調五聲音階 (微帶涼意躍動)
+                else if (season === 'winter') scale = [293.66, 349.23, 392.00, 440.00, 523.25, 587.33]; // D小調高音五聲音階 (高冷透明)
+
+                // 初始旋律模式 (8分音符，陣列長度 8 代表 4 拍的組合)
+                // 數值代表音階索引，-1 代表休止符
+                let melodyPattern = [1, -1, 3, 2, -1, 4, 1, 5];
+                let step = 0;
+
+                // 利用定時器每 250 毫秒 (約 120 BPM 的 8分音符) 播放音符
+                this.bgmInterval = setInterval(() => {
+                    if (this.isPaused || !this.ctx) return;
+                    const t = this.ctx.currentTime;
+
+                    // 每 16 步 (2 小節) 隨機改變一次旋律組合，保持新鮮感又不至於過度雜亂
+                    if (step % 16 === 0) {
+                        melodyPattern = Array.from({ length: 8 }, () => Math.random() > 0.3 ? Math.floor(Math.random() * (scale.length - 1)) : -1);
+                    }
+
+                    // --- 播放貝斯 (每小節的第一拍和第三拍發聲) ---
+                    if (step % 4 === 0) {
+                        const bOsc = this.ctx.createOscillator();
+                        const bGain = this.ctx.createGain();
+                        bOsc.connect(bGain);
+                        bGain.connect(this.masterBgmGain);
+
+                        bOsc.type = (season === 'summer' || season === 'autumn') ? 'triangle' : 'sine';
+                        // 偶爾變換貝斯根音
+                        const bassNote = (step % 16 === 8) ? scale[4] / 2 : scale[0] / 2;
+                        bOsc.frequency.setValueAtTime(bassNote, t);
+
+                        bGain.gain.setValueAtTime(0.4, t);
+                        bGain.gain.exponentialRampToValueAtTime(0.01, t + 1.0); // 長衰減
+
+                        bOsc.start(t);
+                        bOsc.stop(t + 1.0);
+                    }
+
+                    // --- 播放旋律 (依據目前的旋律組合) ---
+                    const noteIdx = melodyPattern[step % 8];
+                    if (noteIdx !== -1) {
+                        const mOsc = this.ctx.createOscillator();
+                        const mGain = this.ctx.createGain();
+                        mOsc.connect(mGain);
+                        mGain.connect(this.masterBgmGain);
+
+                        mOsc.type = (season === 'spring' || season === 'winter') ? 'sine' : 'triangle';
+
+                        let note = scale[noteIdx];
+                        // 春天與冬天偶爾高八度，增加閃爍感
+                        if ((season === 'spring' || season === 'winter') && Math.random() > 0.8) {
+                            note *= 2;
+                        }
+
+                        mOsc.frequency.setValueAtTime(note, t);
+
+                        mGain.gain.setValueAtTime(0.2, t);
+                        mGain.gain.exponentialRampToValueAtTime(0.01, t + 0.3); // 短促撥弦感
+
+                        mOsc.start(t);
+                        mOsc.stop(t + 0.3);
+                    }
+
+                    step++;
+                }, 220); // 縮短步進時間讓節奏變快、更輕快活潑 (約 136 BPM)
+            },
+
+            pauseBGM() {
+                if (this.masterBgmGain && this.ctx) {
+                    this.masterBgmGain.gain.setTargetAtTime(0, this.ctx.currentTime, 0.5);
+                    this.isPaused = true;
+                }
+            },
+
+            resumeBGM() {
+                if (this.masterBgmGain && this.musicEnabled && this.ctx) {
+                    this.masterBgmGain.gain.setTargetAtTime(0.25, this.ctx.currentTime, 0.5);
+                    this.isPaused = false;
+                }
+            },
+
+            stopBGM() {
+                if (this.bgmInterval) clearInterval(this.bgmInterval);
+                this.bgmInterval = null;
+                if (this.masterBgmGain && this.ctx) {
+                    this.masterBgmGain.gain.setTargetAtTime(0, this.ctx.currentTime, 0.2);
+                    // 稍等淡出後斷開連線
+                    setTimeout(() => {
+                        if (this.masterBgmGain) {
+                            this.masterBgmGain.disconnect();
+                            this.masterBgmGain = null;
+                        }
+                    }, 300);
+                }
             }
-            
-            step++;
-        }, 220); // 縮短步進時間讓節奏變快、更輕快活潑 (約 136 BPM)
-    },
+        };
 
-    pauseBGM() {
-        if (this.masterBgmGain && this.ctx) {
-            this.masterBgmGain.gain.setTargetAtTime(0, this.ctx.currentTime, 0.5);
-            this.isPaused = true;
+        // 遊戲狀態
+        let gameState = {
+            currentSeason: 'autumn',
+            score: 0,
+            gameTime: 0,
+            isPlaying: false,
+            isPaused: false,
+            items: {
+                item1: 0,
+                item2: 0,
+                item3: 0
+            },
+            gameInterval: null,
+            timeInterval: null,
+            spawnInterval: null,
+            difficulty: 'easy', // 添加難度狀態
+            challengeMode: false, // 挑戰模式開關
+            infiniteMode: true, // 無限模式開關
+            activeItems: [], // 追蹤活躍的物品
+            seasonsCompleted: { // 追蹤季節完成狀態
+                spring: false,
+                summer: false,
+                autumn: false,
+                winter: false
+            }
+        };
+
+        // 難度配置
+        const difficultyConfig = {
+            easy: {
+                spawnRate: 1500,        // 每1.5秒生成一個物品
+                fallDuration: 6000,     // 6秒掉落時間
+                maxItems: 8,            // 最多8個物品同時存在
+                itemSize: 'text-6xl',   // 較大的物品尺寸
+                scoreMultiplier: 1.2    // 分數加成
+            },
+            normal: {
+                spawnRate: 1000,        // 每1秒生成一個物品
+                fallDuration: 4500,     // 4.5秒掉落時間
+                maxItems: 12,           // 最多12個物品同時存在
+                itemSize: 'text-5xl',   // 標準物品尺寸
+                scoreMultiplier: 1.0    // 標準分數
+            },
+            hard: {
+                spawnRate: 800,         // 每0.8秒生成一個物品
+                fallDuration: 3500,     // 3.5秒掉落時間
+                maxItems: 16,           // 最多16個物品同時存在
+                itemSize: 'text-4xl',   // 較小的物品尺寸
+                scoreMultiplier: 1.5    // 高分數加成
+            }
+        };
+
+        // 季節配置
+        const seasonConfig = {
+            spring: {
+                bg: 'spring-bg',
+                completionScore: 100, // 完成分數
+                items: [
+                    { icon: 'fas fa-seedling', color: 'text-pink-400', name: '櫻花瓣', points: 10 },
+                    { icon: 'fas fa-bug', color: 'text-purple-400', name: '甲蟲', points: 20 },
+                    { icon: 'fas fa-fan', color: 'text-yellow-400', name: '小花', points: 15 }
+                ],
+                penaltyItems: [
+                    { icon: 'fas fa-wind', color: 'text-gray-400', name: '強風', points: -15 },
+                    { icon: 'fas fa-cloud-rain', color: 'text-gray-500', name: '雨滴', points: -10 }
+                ]
+            },
+            summer: {
+                bg: 'summer-bg',
+                completionScore: 150, // 完成分數
+                items: [
+                    { icon: 'fas fa-apple-alt', color: 'text-red-500', name: '蘋果', points: 15 },
+                    { icon: 'fas fa-lemon', color: 'text-orange-500', name: '橘子', points: 12 },
+                    { icon: 'fas fa-sun', color: 'text-yellow-500', name: '陽光', points: 25 }
+                ],
+                penaltyItems: [
+                    { icon: 'fas fa-cloud-bolt', color: 'text-gray-600', name: '雷電', points: -25 },
+                    { icon: 'fas fa-mosquito', color: 'text-red-800', name: '蚊子', points: -15 }
+                ]
+            },
+            autumn: {
+                bg: 'autumn-bg',
+                completionScore: 120, // 完成分數
+                items: [
+                    { icon: 'fas fa-leaf', color: 'text-red-500', name: '紅楓葉', points: 10 },
+                    { icon: 'fas fa-leaf', color: 'text-orange-500', name: '橙楓葉', points: 12 },
+                    { icon: 'fas fa-leaf', color: 'text-yellow-600', name: '黃楓葉', points: 8 }
+                ],
+                penaltyItems: [
+                    { icon: 'fas fa-stone', color: 'text-gray-600', name: '石頭', points: -20 },
+                    { icon: 'fas fa-poo', color: 'text-yellow-900', name: '泥巴', points: -15 }
+                ]
+            },
+            winter: {
+                bg: 'winter-bg',
+                completionScore: 200, // 完成分數
+                items: [
+                    { icon: 'fas fa-snowflake', color: 'text-blue-400', name: '雪花', points: 20 },
+                    { icon: 'fas fa-snowman', color: 'text-gray-400', name: '雪人', points: 30 },
+                    { icon: 'fas fa-holly-berry', color: 'text-red-500', name: '冬青果', points: 18 }
+                ],
+                penaltyItems: [
+                    { icon: 'fas fa-icicles', color: 'text-blue-200', name: '冰柱', points: -25 },
+                    { icon: 'fas fa-meteor', color: 'text-gray-500', name: '冰塊', points: -20 }
+                ]
+            }
+        };
+
+        // 頁面切換
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+
+            // 如果切換到季節選擇頁面
+            if (pageId === 'seasonPage') {
+                // 冬季關卡現已直接開放
+            }
         }
-    },
 
-    resumeBGM() {
-        if (this.masterBgmGain && this.musicEnabled && this.ctx) {
-            this.masterBgmGain.gain.setTargetAtTime(0.25, this.ctx.currentTime, 0.5);
-            this.isPaused = false;
-        }
-    },
+        // 開始遊戲
+        function startGame(season) {
+            gameState.currentSeason = season;
+            gameState.score = 0;
+            document.getElementById('gameScore').textContent = '0'; // 在遊戲開始時將分數顯示歸零
+            gameState.gameTime = 0;
+            gameState.isPlaying = true;
+            gameState.isPaused = false;
+            gameState.items = { item1: 0, item2: 0, item3: 0 };
+            gameState.activeItems = [];
 
-    stopBGM() {
-        if (this.bgmInterval) clearInterval(this.bgmInterval);
-        this.bgmInterval = null;
-        if (this.masterBgmGain && this.ctx) {
-            this.masterBgmGain.gain.setTargetAtTime(0, this.ctx.currentTime, 0.2);
-            // 稍等淡出後斷開連線
+            // 獲取當前難度、挑戰模式與無限模式設置
+            const difficultyRadio = document.querySelector('#settingsPage input[name="difficulty"]:checked');
+            gameState.difficulty = difficultyRadio ? difficultyRadio.value : 'easy';
+            gameState.challengeMode = document.getElementById('challengeModeToggle').checked;
+            gameState.infiniteMode = document.getElementById('infiniteModeToggle').checked;
+
+            // 設置初始時間
+            gameState.gameTime = gameState.infiniteMode ? 0 : 60;
+            updateGameTime(); // 立即更新顯示
+
+            // 設置背景
+            const gameBackground = document.getElementById('gameBackground');
+            gameBackground.className = `${seasonConfig[season].bg} min-h-screen overflow-hidden relative`;
+
+            // 設置底部統計
+            const config = seasonConfig[season];
+            for (let i = 0; i < 3; i++) {
+                document.getElementById(`item${i + 1}Icon`).className = `${config.items[i].icon} ${config.items[i].color} text-3xl mb-2`;
+                document.getElementById(`item${i + 1}Name`).textContent = config.items[i].name;
+                document.getElementById(`item${i + 1}Count`).textContent = '0';
+            }
+
+            // 顯示遊戲頁面
+            showPage('gamePage');
+
+            // 清除遊戲區域
+            document.getElementById('gameArea').innerHTML = '';
+
+            // 開始遊戲聲音與背景音樂
+            AudioEngine.startBGM(season);
+
+            // 開始遊戲循環
+            startGameLoop();
+
+            // 更新遊戲提示
+            updateGameHint();
+
+            // 3秒後隱藏提示
             setTimeout(() => {
-                if (this.masterBgmGain) {
-                    this.masterBgmGain.disconnect();
-                    this.masterBgmGain = null;
+                const hint = document.getElementById('gameHint');
+                if (hint) {
+                    hint.style.display = 'none';
                 }
-            }, 300);
+            }, 4000);
         }
-    }
-};
 
-// 遊戲狀態
-let gameState = {
-    currentSeason: 'autumn',
-    score: 0,
-    gameTime: 0,
-    isPlaying: false,
-    isPaused: false,
-    items: {
-        item1: 0,
-        item2: 0,
-        item3: 0
-    },
-    gameInterval: null,
-    timeInterval: null,
-    spawnInterval: null,
-    difficulty: 'easy', // 添加難度狀態
-    challengeMode: false, // 挑戰模式開關
-    infiniteMode: true, // 無限模式開關
-    activeItems: [], // 追蹤活躍的物品
-    seasonsCompleted: { // 追蹤季節完成狀態
-        spring: false,
-        summer: false,
-        autumn: false,
-        winter: false
-    }
-};
+        // 更新遊戲提示
+        function updateGameHint() {
+            const hint = document.getElementById('gameHint');
+            const diffConfig = difficultyConfig[gameState.difficulty];
+            let hintText = '';
 
-// 難度配置
-const difficultyConfig = {
-    easy: {
-        spawnRate: 1500,        // 每1.5秒生成一個物品
-        fallDuration: 6000,     // 6秒掉落時間
-        maxItems: 8,            // 最多8個物品同時存在
-        itemSize: 'text-6xl',   // 較大的物品尺寸
-        scoreMultiplier: 1.2    // 分數加成
-    },
-    normal: {
-        spawnRate: 1000,        // 每1秒生成一個物品
-        fallDuration: 4500,     // 4.5秒掉落時間
-        maxItems: 12,           // 最多12個物品同時存在
-        itemSize: 'text-5xl',   // 標準物品尺寸
-        scoreMultiplier: 1.0    // 標準分數
-    },
-    hard: {
-        spawnRate: 800,         // 每0.8秒生成一個物品
-        fallDuration: 3500,     // 3.5秒掉落時間
-        maxItems: 16,           // 最多16個物品同時存在
-        itemSize: 'text-4xl',   // 較小的物品尺寸
-        scoreMultiplier: 1.5    // 高分數加成
-    }
-};
-
-// 季節配置
-const seasonConfig = {
-    spring: {
-        bg: 'spring-bg',
-        completionScore: 100, // 完成分數
-        items: [
-            { icon: 'fas fa-seedling', color: 'text-pink-400', name: '櫻花瓣', points: 10 },
-            { icon: 'fas fa-bug', color: 'text-purple-400', name: '甲蟲', points: 20 },
-            { icon: 'fas fa-fan', color: 'text-yellow-400', name: '小花', points: 15 }
-        ],
-        penaltyItems: [
-            { icon: 'fas fa-wind', color: 'text-gray-400', name: '強風', points: -15 },
-            { icon: 'fas fa-cloud-rain', color: 'text-gray-500', name: '雨滴', points: -10 }
-        ]
-    },
-    summer: {
-        bg: 'summer-bg',
-        completionScore: 150, // 完成分數
-        items: [
-            { icon: 'fas fa-apple-alt', color: 'text-red-500', name: '蘋果', points: 15 },
-            { icon: 'fas fa-lemon', color: 'text-orange-500', name: '橘子', points: 12 },
-            { icon: 'fas fa-sun', color: 'text-yellow-500', name: '陽光', points: 25 }
-        ],
-        penaltyItems: [
-            { icon: 'fas fa-cloud-bolt', color: 'text-gray-600', name: '雷電', points: -25 },
-            { icon: 'fas fa-mosquito', color: 'text-red-800', name: '蚊子', points: -15 }
-        ]
-    },
-    autumn: {
-        bg: 'autumn-bg',
-        completionScore: 120, // 完成分數
-        items: [
-            { icon: 'fas fa-leaf', color: 'text-red-500', name: '紅楓葉', points: 10 },
-            { icon: 'fas fa-leaf', color: 'text-orange-500', name: '橙楓葉', points: 12 },
-            { icon: 'fas fa-leaf', color: 'text-yellow-600', name: '黃楓葉', points: 8 }
-        ],
-        penaltyItems: [
-            { icon: 'fas fa-stone', color: 'text-gray-600', name: '石頭', points: -20 },
-            { icon: 'fas fa-poo', color: 'text-yellow-900', name: '泥巴', points: -15 }
-        ]
-    },
-    winter: {
-        bg: 'winter-bg',
-        completionScore: 200, // 完成分數
-        items: [
-            { icon: 'fas fa-snowflake', color: 'text-blue-400', name: '雪花', points: 20 },
-            { icon: 'fas fa-snowman', color: 'text-gray-400', name: '雪人', points: 30 },
-            { icon: 'fas fa-holly-berry', color: 'text-red-500', name: '冬青果', points: 18 }
-        ],
-        penaltyItems: [
-            { icon: 'fas fa-icicles', color: 'text-blue-200', name: '冰柱', points: -25 },
-            { icon: 'fas fa-meteor', color: 'text-gray-500', name: '冰塊', points: -20 }
-        ]
-    }
-};
-
-// 頁面切換
-function showPage(pageId) {
-    document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
-    });
-    document.getElementById(pageId).classList.add('active');
-
-    // 如果切換到季節選擇頁面
-    if (pageId === 'seasonPage') {
-        // 冬季關卡現已直接開放
-    }
-}
-
-// 開始遊戲
-function startGame(season) {
-    gameState.currentSeason = season;
-    gameState.score = 0;
-    document.getElementById('gameScore').textContent = '0'; // 在遊戲開始時將分數顯示歸零
-    gameState.gameTime = 0;
-    gameState.isPlaying = true;
-    gameState.isPaused = false;
-    gameState.items = { item1: 0, item2: 0, item3: 0 };
-    gameState.activeItems = [];
-    
-    // 獲取當前難度、挑戰模式與無限模式設置
-    const difficultyRadio = document.querySelector('#settingsPage input[name="difficulty"]:checked');
-    gameState.difficulty = difficultyRadio ? difficultyRadio.value : 'easy';
-    gameState.challengeMode = document.getElementById('challengeModeToggle').checked;
-    gameState.infiniteMode = document.getElementById('infiniteModeToggle').checked;
-    
-    // 設置初始時間
-    gameState.gameTime = gameState.infiniteMode ? 0 : 60;
-    updateGameTime(); // 立即更新顯示
-    
-    // 設置背景
-    const gameBackground = document.getElementById('gameBackground');
-    gameBackground.className = `${seasonConfig[season].bg} min-h-screen overflow-hidden relative`;
-    
-    // 設置底部統計
-    const config = seasonConfig[season];
-    for (let i = 0; i < 3; i++) {
-        document.getElementById(`item${i+1}Icon`).className = `${config.items[i].icon} ${config.items[i].color} text-3xl mb-2`;
-        document.getElementById(`item${i+1}Name`).textContent = config.items[i].name;
-        document.getElementById(`item${i+1}Count`).textContent = '0';
-    }
-    
-    // 顯示遊戲頁面
-    showPage('gamePage');
-    
-    // 清除遊戲區域
-    document.getElementById('gameArea').innerHTML = '';
-    
-    // 開始遊戲聲音與背景音樂
-    AudioEngine.startBGM(season);
-    
-    // 開始遊戲循環
-    startGameLoop();
-    
-    // 更新遊戲提示
-    updateGameHint();
-    
-    // 3秒後隱藏提示
-    setTimeout(() => {
-        const hint = document.getElementById('gameHint');
-        if (hint) {
-            hint.style.display = 'none';
-        }
-    }, 4000);
-}
-
-// 更新遊戲提示
-function updateGameHint() {
-    const hint = document.getElementById('gameHint');
-    const diffConfig = difficultyConfig[gameState.difficulty];
-    let hintText = '';
-    
-    switch(gameState.difficulty) {
-        case 'easy':
-            hintText = '<i class="fas fa-hand-point-up text-blue-500 mr-2"></i>輕鬆模式：物品較大較慢';
-            break;
-        case 'normal':
-            hintText = '<i class="fas fa-hand-point-up text-orange-500 mr-2"></i>一般模式：適中速度';
-            break;
-        case 'hard':
-            hintText = '<i class="fas fa-hand-point-up text-red-500 mr-2"></i>困難模式：更快更多物品';
-            break;
-    }
-    
-    hint.querySelector('p').innerHTML = hintText;
-}
-
-// 開始遊戲循環
-function startGameLoop() {
-    const diffConfig = difficultyConfig[gameState.difficulty];
-    
-    // 時間計時器
-    gameState.timeInterval = setInterval(() => {
-        if (!gameState.isPaused) {
-            if (gameState.infiniteMode) {
-                gameState.gameTime++;
-            } else {
-                gameState.gameTime--;
-                if (gameState.gameTime <= 0) {
-                    gameState.gameTime = 0;
-                    updateGameTime();
-                    endGame(true); // 傳入 true 表示是時間到自動結束
-                    return;
-                }
+            switch (gameState.difficulty) {
+                case 'easy':
+                    hintText = '<i class="fas fa-hand-point-up text-blue-500 mr-2"></i>輕鬆模式：物品較大較慢';
+                    break;
+                case 'normal':
+                    hintText = '<i class="fas fa-hand-point-up text-orange-500 mr-2"></i>一般模式：適中速度';
+                    break;
+                case 'hard':
+                    hintText = '<i class="fas fa-hand-point-up text-red-500 mr-2"></i>困難模式：更快更多物品';
+                    break;
             }
-            updateGameTime();
+
+            hint.querySelector('p').innerHTML = hintText;
         }
-    }, 1000);
-    
-    // 物品生成器 - 根據難度調整
-    gameState.spawnInterval = setInterval(() => {
-        if (!gameState.isPaused && gameState.activeItems.length < diffConfig.maxItems) {
-            spawnItem();
-        }
-    }, diffConfig.spawnRate);
-    
-    // 額外的快速生成器（僅困難模式）
-    if (gameState.difficulty === 'hard') {
-        setTimeout(() => {
-            const extraSpawnInterval = setInterval(() => {
+
+        // 開始遊戲循環
+        function startGameLoop() {
+            const diffConfig = difficultyConfig[gameState.difficulty];
+
+            // 時間計時器
+            gameState.timeInterval = setInterval(() => {
+                if (!gameState.isPaused) {
+                    if (gameState.infiniteMode) {
+                        gameState.gameTime++;
+                    } else {
+                        gameState.gameTime--;
+                        if (gameState.gameTime <= 0) {
+                            gameState.gameTime = 0;
+                            updateGameTime();
+                            endGame(true); // 傳入 true 表示是時間到自動結束
+                            return;
+                        }
+                    }
+                    updateGameTime();
+                }
+            }, 1000);
+
+            // 物品生成器 - 根據難度調整
+            gameState.spawnInterval = setInterval(() => {
                 if (!gameState.isPaused && gameState.activeItems.length < diffConfig.maxItems) {
-                    // 30%機率額外生成
-                    if (Math.random() < 0.3) {
-                        spawnItem();
+                    spawnItem();
+                }
+            }, diffConfig.spawnRate);
+
+            // 額外的快速生成器（僅困難模式）
+            if (gameState.difficulty === 'hard') {
+                setTimeout(() => {
+                    const extraSpawnInterval = setInterval(() => {
+                        if (!gameState.isPaused && gameState.activeItems.length < diffConfig.maxItems) {
+                            // 30%機率額外生成
+                            if (Math.random() < 0.3) {
+                                spawnItem();
+                            }
+                        }
+                    }, diffConfig.spawnRate * 0.6);
+
+                    gameState.extraSpawnInterval = extraSpawnInterval;
+                }, 5000); // 5秒后開始額外生成
+            }
+        }
+
+        // 生成掉落物品
+        function spawnItem() {
+            const gameArea = document.getElementById('gameArea');
+            const config = seasonConfig[gameState.currentSeason];
+            const diffConfig = difficultyConfig[gameState.difficulty];
+
+            // 隨機決定是否生成障礙物（挑戰模式開啟時）
+            let randomItem;
+            if (gameState.challengeMode && Math.random() < 0.2) {
+                randomItem = config.penaltyItems[Math.floor(Math.random() * config.penaltyItems.length)];
+                randomItem.isPenalty = true;
+            } else {
+                randomItem = config.items[Math.floor(Math.random() * config.items.length)];
+                randomItem.isPenalty = false;
+            }
+
+            // 創建物品元素
+            const item = document.createElement('div');
+            const itemId = 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            item.id = itemId;
+            item.className = 'absolute falling-item clickable-item';
+            item.style.left = Math.random() * 75 + 5 + '%'; // 隨機橫向位置
+            item.style.top = '-100px';
+            item.style.animationDuration = diffConfig.fallDuration + 'ms';
+            item.style.animationDelay = '0s';
+
+            // 根據難度調整物品大小
+            item.innerHTML = `<i class="${randomItem.icon} ${randomItem.color} ${diffConfig.itemSize}"></i>`;
+
+            // 添加到活躍物品列表
+            gameState.activeItems.push({
+                id: itemId,
+                element: item,
+                config: randomItem,
+                spawnTime: Date.now()
+            });
+
+            // 添加點擊事件
+            item.addEventListener('click', () => {
+                collectItem(item, randomItem, itemId);
+            });
+
+            // 添加到遊戲區域
+            gameArea.appendChild(item);
+
+            // 根據難度設置自動移除時間
+            setTimeout(() => {
+                removeItem(itemId);
+            }, diffConfig.fallDuration);
+        }
+
+        // 移除物品函數
+        function removeItem(itemId) {
+            const itemIndex = gameState.activeItems.findIndex(item => item.id === itemId);
+            if (itemIndex !== -1) {
+                const item = gameState.activeItems[itemIndex];
+                if (item.element && item.element.parentNode) {
+                    item.element.parentNode.removeChild(item.element);
+                }
+                gameState.activeItems.splice(itemIndex, 1);
+            }
+        }
+
+        // 收集物品
+        function collectItem(itemElement, itemConfig, itemId) {
+            const diffConfig = difficultyConfig[gameState.difficulty];
+
+            // 計算分數（包含難度加成）
+            const basePoints = itemConfig.points;
+            const finalPoints = itemConfig.isPenalty ? basePoints : Math.round(basePoints * diffConfig.scoreMultiplier);
+
+            // 增加/減少分數
+            gameState.score += finalPoints;
+            if (gameState.score < 0) gameState.score = 0; // 分數不低於0
+            document.getElementById('gameScore').textContent = gameState.score.toLocaleString();
+
+            // 如果是正常物品，增加物品計數
+            if (!itemConfig.isPenalty) {
+                const config = seasonConfig[gameState.currentSeason];
+                for (let i = 0; i < config.items.length; i++) {
+                    if (config.items[i].name === itemConfig.name) {
+                        gameState.items[`item${i + 1}`]++;
+                        document.getElementById(`item${i + 1}Count`).textContent = gameState.items[`item${i + 1}`];
+                        break;
                     }
                 }
-            }, diffConfig.spawnRate * 0.6);
-            
-            gameState.extraSpawnInterval = extraSpawnInterval;
-        }, 5000); // 5秒后開始額外生成
-    }
-}
+            }
 
-// 生成掉落物品
-function spawnItem() {
-    const gameArea = document.getElementById('gameArea');
-    const config = seasonConfig[gameState.currentSeason];
-    const diffConfig = difficultyConfig[gameState.difficulty];
-    
-    // 隨機決定是否生成障礙物（挑戰模式開啟時）
-    let randomItem;
-    if (gameState.challengeMode && Math.random() < 0.2) {
-        randomItem = config.penaltyItems[Math.floor(Math.random() * config.penaltyItems.length)];
-        randomItem.isPenalty = true;
-    } else {
-        randomItem = config.items[Math.floor(Math.random() * config.items.length)];
-        randomItem.isPenalty = false;
-    }
-    
-    // 創建物品元素
-    const item = document.createElement('div');
-    const itemId = 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-    item.id = itemId;
-    item.className = 'absolute falling-item clickable-item';
-    item.style.left = Math.random() * 75 + 5 + '%'; // 隨機橫向位置
-    item.style.top = '-100px';
-    item.style.animationDuration = diffConfig.fallDuration + 'ms';
-    item.style.animationDelay = '0s';
-    
-    // 根據難度調整物品大小
-    item.innerHTML = `<i class="${randomItem.icon} ${randomItem.color} ${diffConfig.itemSize}"></i>`;
-    
-    // 添加到活躍物品列表
-    gameState.activeItems.push({
-        id: itemId,
-        element: item,
-        config: randomItem,
-        spawnTime: Date.now()
-    });
-    
-    // 添加點擊事件
-    item.addEventListener('click', () => {
-        collectItem(item, randomItem, itemId);
-    });
-    
-    // 添加到遊戲區域
-    gameArea.appendChild(item);
-    
-    // 根據難度設置自動移除時間
-    setTimeout(() => {
-        removeItem(itemId);
-    }, diffConfig.fallDuration);
-}
+            // 顯示分數彈出效果
+            showScorePopup(itemElement, finalPoints > 0 ? `+${finalPoints}` : finalPoints, itemConfig.isPenalty);
 
-// 移除物品函數
-function removeItem(itemId) {
-    const itemIndex = gameState.activeItems.findIndex(item => item.id === itemId);
-    if (itemIndex !== -1) {
-        const item = gameState.activeItems[itemIndex];
-        if (item.element && item.element.parentNode) {
-            item.element.parentNode.removeChild(item.element);
+            // 從活躍物品列表中移除
+            removeItem(itemId);
+
+            // 播放收集/懲罰音效
+            if (itemConfig.isPenalty) {
+                AudioEngine.playSFX('penalty', gameState.currentSeason);
+            } else {
+                AudioEngine.playSFX('collect', gameState.currentSeason);
+            }
+
+            // 添加收集特效
+            addCollectEffect(itemElement);
         }
-        gameState.activeItems.splice(itemIndex, 1);
-    }
-}
 
-// 收集物品
-function collectItem(itemElement, itemConfig, itemId) {
-    const diffConfig = difficultyConfig[gameState.difficulty];
-    
-    // 計算分數（包含難度加成）
-    const basePoints = itemConfig.points;
-    const finalPoints = itemConfig.isPenalty ? basePoints : Math.round(basePoints * diffConfig.scoreMultiplier);
-    
-    // 增加/減少分數
-    gameState.score += finalPoints;
-    if (gameState.score < 0) gameState.score = 0; // 分數不低於0
-    document.getElementById('gameScore').textContent = gameState.score.toLocaleString();
-    
-    // 如果是正常物品，增加物品計數
-    if (!itemConfig.isPenalty) {
-        const config = seasonConfig[gameState.currentSeason];
-        for (let i = 0; i < config.items.length; i++) {
-            if (config.items[i].name === itemConfig.name) {
-                gameState.items[`item${i+1}`]++;
-                document.getElementById(`item${i+1}Count`).textContent = gameState.items[`item${i+1}`];
-                break;
+        // 顯示分數彈出
+        function showScorePopup(element, text, isPenalty = false) {
+            const popup = document.createElement('div');
+            const colorClass = isPenalty ? 'bg-red-500' : 'bg-green-500';
+            popup.className = `absolute score-popup text-2xl font-bold text-white ${colorClass} rounded-full px-4 py-2 shadow-lg`;
+            popup.textContent = text;
+            popup.style.left = element.style.left;
+            popup.style.top = element.style.top;
+            popup.style.zIndex = '1000';
+
+            document.getElementById('gameArea').appendChild(popup);
+
+            // 1秒後移除
+            setTimeout(() => {
+                if (popup.parentNode) {
+                    popup.parentNode.removeChild(popup);
+                }
+            }, 1000);
+        }
+
+        // 更新遊戲時間顯示
+        function updateGameTime() {
+            const minutes = Math.floor(gameState.gameTime / 60);
+            const seconds = gameState.gameTime % 60;
+            document.getElementById('gameTime').textContent =
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // 暫停/恢復遊戲
+        function pauseGame() {
+            gameState.isPaused = !gameState.isPaused;
+            const pauseBtn = document.querySelector('#gamePage button[onclick="pauseGame()"]');
+
+            if (gameState.isPaused) {
+                AudioEngine.pauseBGM();
+                pauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                // 暫停所有動畫
+                document.querySelectorAll('.falling-item').forEach(item => {
+                    item.style.animationPlayState = 'paused';
+                });
+            } else {
+                AudioEngine.resumeBGM();
+                pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                // 恢復所有動畫
+                document.querySelectorAll('.falling-item').forEach(item => {
+                    item.style.animationPlayState = 'running';
+                });
             }
         }
-    }
-    
-    // 顯示分數彈出效果
-    showScorePopup(itemElement, finalPoints > 0 ? `+${finalPoints}` : finalPoints, itemConfig.isPenalty);
-    
-    // 從活躍物品列表中移除
-    removeItem(itemId);
-    
-    // 播放收集/懲罰音效
-    if (itemConfig.isPenalty) {
-        AudioEngine.playSFX('penalty', gameState.currentSeason);
-    } else {
-        AudioEngine.playSFX('collect', gameState.currentSeason);
-    }
-    
-    // 添加收集特效
-    addCollectEffect(itemElement);
-}
 
-// 顯示分數彈出
-function showScorePopup(element, text, isPenalty = false) {
-    const popup = document.createElement('div');
-    const colorClass = isPenalty ? 'bg-red-500' : 'bg-green-500';
-    popup.className = `absolute score-popup text-2xl font-bold text-white ${colorClass} rounded-full px-4 py-2 shadow-lg`;
-    popup.textContent = text;
-    popup.style.left = element.style.left;
-    popup.style.top = element.style.top;
-    popup.style.zIndex = '1000';
-    
-    document.getElementById('gameArea').appendChild(popup);
-    
-    // 1秒後移除
-    setTimeout(() => {
-        if (popup.parentNode) {
-            popup.parentNode.removeChild(popup);
+        // 結束遊戲
+        function endGame(timeUp = false) {
+            gameState.isPlaying = false;
+            gameState.isPaused = false;
+            AudioEngine.stopBGM();
+
+            // 清除所有計時器
+            if (gameState.timeInterval) clearInterval(gameState.timeInterval);
+            if (gameState.spawnInterval) clearInterval(gameState.spawnInterval);
+            if (gameState.extraSpawnInterval) clearInterval(gameState.extraSpawnInterval);
+
+            // 更新統計數據
+            updateGameStats();
+
+            // 如果是時間到，顯示結算視窗
+            if (timeUp) {
+                showResultPopup();
+            } else {
+                // 手動退出則直接返回
+                finishEndGame();
+            }
         }
-    }, 1000);
-}
 
-// 更新遊戲時間顯示
-function updateGameTime() {
-    const minutes = Math.floor(gameState.gameTime / 60);
-    const seconds = gameState.gameTime % 60;
-    document.getElementById('gameTime').textContent = 
-        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-}
+        // 顯示結算彈出視窗
+        function showResultPopup() {
+            AudioEngine.playSFX('timeup');
 
-// 暫停/恢復遊戲
-function pauseGame() {
-    gameState.isPaused = !gameState.isPaused;
-    const pauseBtn = document.querySelector('#gamePage button[onclick="pauseGame()"]');
-    
-    if (gameState.isPaused) {
-        AudioEngine.pauseBGM();
-        pauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-        // 暫停所有動畫
-        document.querySelectorAll('.falling-item').forEach(item => {
-            item.style.animationPlayState = 'paused';
-        });
-    } else {
-        AudioEngine.resumeBGM();
-        pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        // 恢復所有動畫
-        document.querySelectorAll('.falling-item').forEach(item => {
-            item.style.animationPlayState = 'running';
-        });
-    }
-}
+            // 創建遮罩
+            const overlay = document.createElement('div');
+            overlay.id = 'resultOverlay';
+            overlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[100] fade-in';
 
-// 結束遊戲
-function endGame(timeUp = false) {
-    gameState.isPlaying = false;
-    gameState.isPaused = false;
-    AudioEngine.stopBGM();
-    
-    // 清除所有計時器
-    if (gameState.timeInterval) clearInterval(gameState.timeInterval);
-    if (gameState.spawnInterval) clearInterval(gameState.spawnInterval);
-    if (gameState.extraSpawnInterval) clearInterval(gameState.extraSpawnInterval);
-    
-    // 更新統計數據
-    updateGameStats();
+            const config = seasonConfig[gameState.currentSeason];
+            const totalItemsCollected = gameState.items.item1 + gameState.items.item2 + gameState.items.item3;
 
-    // 如果是時間到，顯示結算視窗
-    if (timeUp) {
-        showResultPopup();
-    } else {
-        // 手動退出則直接返回
-        finishEndGame();
-    }
-}
-
-// 顯示結算彈出視窗
-function showResultPopup() {
-    AudioEngine.playSFX('timeup');
-    
-    // 創建遮罩
-    const overlay = document.createElement('div');
-    overlay.id = 'resultOverlay';
-    overlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[100] fade-in';
-    
-    const config = seasonConfig[gameState.currentSeason];
-    const totalItemsCollected = gameState.items.item1 + gameState.items.item2 + gameState.items.item3;
-    
-    overlay.innerHTML = `
+            overlay.innerHTML = `
         <div class="bg-white rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl text-center transform scale-110">
             <div class="mb-4">
                 <i class="fas fa-flag-checkered text-6xl text-blue-500"></i>
@@ -1160,51 +1214,51 @@ function showResultPopup() {
             </button>
         </div>
     `;
-    
-    document.body.appendChild(overlay);
-}
 
-// 完成結束流程
-function finishEndGame() {
-    const overlay = document.getElementById('resultOverlay');
-    if (overlay) overlay.remove();
-    
-    // 清除所有活躍物品
-    gameState.activeItems.forEach(item => {
-        if (item.element && item.element.parentNode) {
-            item.element.parentNode.removeChild(item.element);
+            document.body.appendChild(overlay);
         }
-    });
-    gameState.activeItems = [];
-    
-    // 返回季節選擇頁面
-    showPage('seasonPage');
-}
 
-// 添加收集特效
-function addCollectEffect(element) {
-    const effect = document.createElement('div');
-    effect.className = 'absolute';
-    effect.style.left = element.style.left;
-    effect.style.top = element.style.top;
-    effect.style.pointerEvents = 'none';
-    effect.style.zIndex = '1000';
-    effect.innerHTML = '<i class="fas fa-sparkles text-yellow-400 text-3xl"></i>';
-    
-    // 添加閃爍動畫
-    effect.style.animation = 'sparkle 0.6s ease-out forwards';
-    
-    document.getElementById('gameArea').appendChild(effect);
-    
-    setTimeout(() => {
-        if (effect.parentNode) {
-            effect.parentNode.removeChild(effect);
+        // 完成結束流程
+        function finishEndGame() {
+            const overlay = document.getElementById('resultOverlay');
+            if (overlay) overlay.remove();
+
+            // 清除所有活躍物品
+            gameState.activeItems.forEach(item => {
+                if (item.element && item.element.parentNode) {
+                    item.element.parentNode.removeChild(item.element);
+                }
+            });
+            gameState.activeItems = [];
+
+            // 返回季節選擇頁面
+            showPage('seasonPage');
         }
-    }, 600);
-}
 
-// 添加閃爍動畫的CSS
-const additionalStyles = `
+        // 添加收集特效
+        function addCollectEffect(element) {
+            const effect = document.createElement('div');
+            effect.className = 'absolute';
+            effect.style.left = element.style.left;
+            effect.style.top = element.style.top;
+            effect.style.pointerEvents = 'none';
+            effect.style.zIndex = '1000';
+            effect.innerHTML = '<i class="fas fa-sparkles text-yellow-400 text-3xl"></i>';
+
+            // 添加閃爍動畫
+            effect.style.animation = 'sparkle 0.6s ease-out forwards';
+
+            document.getElementById('gameArea').appendChild(effect);
+
+            setTimeout(() => {
+                if (effect.parentNode) {
+                    effect.parentNode.removeChild(effect);
+                }
+            }, 600);
+        }
+
+        // 添加閃爍動畫的CSS
+        const additionalStyles = `
 @keyframes sparkle {
     0% { transform: scale(1) rotate(0deg); opacity: 1; }
     50% { transform: scale(1.5) rotate(180deg); opacity: 0.8; }
@@ -1212,111 +1266,112 @@ const additionalStyles = `
 }
 `;
 
-// 將額外的CSS添加到頁面
-const styleSheet = document.createElement('style');
-styleSheet.textContent = additionalStyles;
-document.head.appendChild(styleSheet);
+        // 將額外的CSS添加到頁面
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = additionalStyles;
+        document.head.appendChild(styleSheet);
 
-// 更新遊戲統計
-function updateGameStats() {
-    // 這裡可以將數據保存到本地存儲
-    const currentTotal = parseInt(document.getElementById('totalScore').textContent.replace(',', ''));
-    const newTotal = currentTotal + gameState.score;
-    document.getElementById('totalScore').textContent = newTotal.toLocaleString();
-    
-    const currentItems = parseInt(document.getElementById('totalItems').textContent);
-    const newItems = currentItems + gameState.items.item1 + gameState.items.item2 + gameState.items.item3;
-    document.getElementById('totalItems').textContent = newItems;
-    
-    const currentGames = parseInt(document.getElementById('totalGames').textContent);
-    document.getElementById('totalGames').textContent = currentGames + 1;
-    
-    console.log('遊戲統計已更新');
-}
+        // 更新遊戲統計
+        function updateGameStats() {
+            // 這裡可以將數據保存到本地存儲
+            const currentTotal = parseInt(document.getElementById('totalScore').textContent.replace(',', ''));
+            const newTotal = currentTotal + gameState.score;
+            document.getElementById('totalScore').textContent = newTotal.toLocaleString();
 
-// 頁面加載完成後初始化
-document.addEventListener('DOMContentLoaded', function() {
-    // 初始化設置
-    console.log('銀齡樂園已加載完成');
-    
-    // 為所有可點擊元素添加觸摸反饋
-    document.addEventListener('touchstart', function(e) {
-        if (e.target.closest('button, .clickable-item, .season-card')) {
-            e.target.style.transform = 'scale(0.95)';
-        }
-    });
-    
-    document.addEventListener('touchend', function(e) {
-        if (e.target.closest('button, .clickable-item, .season-card')) {
-            setTimeout(() => {
-                e.target.style.transform = '';
-            }, 150);
-        }
-    });
-    
-    // 預防頁面滾動（遊戲時）
-    document.addEventListener('touchmove', function(e) {
-        if (document.getElementById('gamePage').classList.contains('active')) {
-            e.preventDefault();
-        }
-    }, { passive: false });
-    
-    // UI 點擊音效
-    document.addEventListener('click', function(e) {
-        if (e.target.closest('button, .season-card')) {
-            AudioEngine.playSFX('click');
-        }
-    });
-});
+            const currentItems = parseInt(document.getElementById('totalItems').textContent);
+            const newItems = currentItems + gameState.items.item1 + gameState.items.item2 + gameState.items.item3;
+            document.getElementById('totalItems').textContent = newItems;
 
-// 本地存儲功能
-function saveGameData() {
-    const gameData = {
-        totalScore: document.getElementById('totalScore').textContent,
-        totalItems: document.getElementById('totalItems').textContent,
-        totalGames: document.getElementById('totalGames').textContent,
-        settings: {
-            challengeMode: document.getElementById('challengeModeToggle').checked,
-            infiniteMode: document.getElementById('infiniteModeToggle').checked,
-            difficulty: document.querySelector('#settingsPage input[name="difficulty"]:checked').value
-        }
-    };
-    localStorage.setItem('silverGardenData', JSON.stringify(gameData));
-}
+            const currentGames = parseInt(document.getElementById('totalGames').textContent);
+            document.getElementById('totalGames').textContent = currentGames + 1;
 
-// 載入遊戲數據
-function loadGameData() {
-    const savedData = localStorage.getItem('silverGardenData');
-    if (savedData) {
-        const gameData = JSON.parse(savedData);
-        if (gameData.totalScore) document.getElementById('totalScore').textContent = gameData.totalScore;
-        if (gameData.totalItems) document.getElementById('totalItems').textContent = gameData.totalItems;
-        if (gameData.totalGames) document.getElementById('totalGames').textContent = gameData.totalGames;
-        
-        // 恢復設置
-        if (gameData.settings) {
-            const challengeToggle = document.getElementById('challengeModeToggle');
-            if (challengeToggle && gameData.settings.challengeMode !== undefined) {
-                challengeToggle.checked = gameData.settings.challengeMode;
+            console.log('遊戲統計已更新');
+        }
+
+        // 頁面加載完成後初始化
+        document.addEventListener('DOMContentLoaded', function () {
+            // 初始化設置
+            console.log('銀齡樂園已加載完成');
+
+            // 為所有可點擊元素添加觸摸反饋
+            document.addEventListener('touchstart', function (e) {
+                if (e.target.closest('button, .clickable-item, .season-card')) {
+                    e.target.style.transform = 'scale(0.95)';
+                }
+            });
+
+            document.addEventListener('touchend', function (e) {
+                if (e.target.closest('button, .clickable-item, .season-card')) {
+                    setTimeout(() => {
+                        e.target.style.transform = '';
+                    }, 150);
+                }
+            });
+
+            // 預防頁面滾動（遊戲時）
+            document.addEventListener('touchmove', function (e) {
+                if (document.getElementById('gamePage').classList.contains('active')) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+
+            // UI 點擊音效
+            document.addEventListener('click', function (e) {
+                if (e.target.closest('button, .season-card')) {
+                    AudioEngine.playSFX('click');
+                }
+            });
+        });
+
+        // 本地存儲功能
+        function saveGameData() {
+            const gameData = {
+                totalScore: document.getElementById('totalScore').textContent,
+                totalItems: document.getElementById('totalItems').textContent,
+                totalGames: document.getElementById('totalGames').textContent,
+                settings: {
+                    challengeMode: document.getElementById('challengeModeToggle').checked,
+                    infiniteMode: document.getElementById('infiniteModeToggle').checked,
+                    difficulty: document.querySelector('#settingsPage input[name="difficulty"]:checked').value
+                }
+            };
+            localStorage.setItem('silverGardenData', JSON.stringify(gameData));
+        }
+
+        // 載入遊戲數據
+        function loadGameData() {
+            const savedData = localStorage.getItem('silverGardenData');
+            if (savedData) {
+                const gameData = JSON.parse(savedData);
+                if (gameData.totalScore) document.getElementById('totalScore').textContent = gameData.totalScore;
+                if (gameData.totalItems) document.getElementById('totalItems').textContent = gameData.totalItems;
+                if (gameData.totalGames) document.getElementById('totalGames').textContent = gameData.totalGames;
+
+                // 恢復設置
+                if (gameData.settings) {
+                    const challengeToggle = document.getElementById('challengeModeToggle');
+                    if (challengeToggle && gameData.settings.challengeMode !== undefined) {
+                        challengeToggle.checked = gameData.settings.challengeMode;
+                    }
+
+                    const infiniteToggle = document.getElementById('infiniteModeToggle');
+                    if (infiniteToggle && gameData.settings.infiniteMode !== undefined) {
+                        infiniteToggle.checked = gameData.settings.infiniteMode;
+                    }
+
+                    const difficultyRadio = document.querySelector(`#settingsPage input[name="difficulty"][value="${gameData.settings.difficulty}"]`);
+                    if (difficultyRadio) difficultyRadio.checked = true;
+                }
             }
-            
-            const infiniteToggle = document.getElementById('infiniteModeToggle');
-            if (infiniteToggle && gameData.settings.infiniteMode !== undefined) {
-                infiniteToggle.checked = gameData.settings.infiniteMode;
-            }
-            
-            const difficultyRadio = document.querySelector(`#settingsPage input[name="difficulty"][value="${gameData.settings.difficulty}"]`);
-            if (difficultyRadio) difficultyRadio.checked = true;
         }
-    }
-}
 
-// 頁面卸載時保存數據
-window.addEventListener('beforeunload', saveGameData);
+        // 頁面卸載時保存數據
+        window.addEventListener('beforeunload', saveGameData);
 
-// 定期保存數據
-setInterval(saveGameData, 30000); // 每30秒保存一次
-</script>
+        // 定期保存數據
+        setInterval(saveGameData, 30000); // 每30秒保存一次
+    </script>
 
 </body>
+
 </html>
