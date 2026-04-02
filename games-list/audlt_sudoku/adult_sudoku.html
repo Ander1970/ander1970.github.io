@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>極簡經典數獨</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <style>
+    :root {
+      --boardSize: min(92vw, 500px);
+      --border-main: #18181b; /* zinc-900 */
+      --border-light: #d4d4d8; /* zinc-300 */
+      --color-given: #18181b;
+      --color-user: #2563eb; /* blue-600 */
+      --bg-selected: #e0e7ff; /* indigo-100 */
+      --bg-highlight: #f4f4f5; /* zinc-100 */
+      --bg-same-num: #dbeafe; /* blue-100 */
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #fafafa;
+    }
+
+    .safe-area {
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+
+    .grid-wrap {
+      width: var(--boardSize);
+      height: var(--boardSize);
+      border: 3px solid var(--border-main);
+      background: #fff;
+    }
+
+    .cell {
+      width: calc(var(--boardSize)/9);
+      height: calc(var(--boardSize)/9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 400;
+      font-size: clamp(20px, 6vw, 32px);
+      user-select: none;
+      cursor: pointer;
+      border: 1px solid var(--border-light);
+      transition: background-color 0.1s;
+      position: relative;
+    }
+
+    .cell.given {
+      color: var(--color-given);
+      font-weight: 600;
+      cursor: default;
+    }
+
+    .cell.user {
+      color: var(--color-user);
+    }
+
+    .cell.selected {
+      background-color: var(--bg-selected) !important;
+      z-index: 2;
+    }
+
+    .cell.rc-hl {
+      background-color: var(--bg-highlight);
+    }
+
+    .cell.num-hl {
+      background-color: var(--bg-same-num);
+    }
+
+    .cell.err {
+      background-color: #fee2e2 !important;
+      color: #dc2626 !important;
+    }
+
+    /* 粗框線處理 */
+    .row-2 .cell, .row-5 .cell { border-bottom: 2px solid var(--border-main); }
+    .col-2, .col-5 { border-right: 2px solid var(--border-main); }
+
+    /* 筆記網格 */
+    .notes-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      width: 100%;
+      height: 100%;
+      padding: 2px;
+      pointer-events: none;
+    }
+
+    .note-num {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(9px, 2.2vw, 13px);
+      color: #71717a; /* zinc-500 */
+      line-height: 1;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    
+    .tap { cursor: pointer; }
+    .tap:active { transform: scale(0.96); }
+
+    /* 開關樣式 */
+    .toggle-checkbox:checked {
+      right: 0;
+      border-color: #18181b;
+    }
+    .toggle-checkbox:checked + .toggle-label {
+      background-color: #18181b;
+    }
+  </style>
+</head>
+
+<body class="text-zinc-900 safe-area flex flex-col min-h-screen">
+  <div id="app" class="max-w-md mx-auto w-full flex flex-col flex-1 pt-4 px-4 pb-8">
+
+    <!-- Header -->
+    <header class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight">經典數獨</h1>
+        <p class="text-sm text-zinc-500" id="headerDesc">鍛鍊大腦的極簡邏輯</p>
+      </div>
+      <div class="flex gap-3 text-xl text-zinc-600">
+        <button id="btnNewGameUI" class="hover:text-zinc-900 transition-colors" title="新遊戲"><i class="fa-solid fa-plus"></i></button>
+        <button id="btnSettings" class="hover:text-zinc-900 transition-colors" title="設定"><i class="fa-solid fa-gear"></i></button>
+      </div>
+    </header>
+
+    <!-- Start Screen -->
+    <section id="screen-welcome" class="flex-1 flex flex-col justify-center fade-in">
+      <div class="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm mb-8">
+        <h2 class="text-lg font-semibold mb-4 text-center border-b pb-3">選擇難度</h2>
+        <div class="space-y-3">
+          <button class="btn-start w-full py-3 px-4 border border-zinc-300 rounded-lg hover:bg-zinc-50 transition-colors text-left flex justify-between items-center" data-diff="easy">
+            <span class="font-medium">簡單 (Easy)</span>
+            <span class="text-xs text-zinc-400 font-mono">初學者</span>
+          </button>
+          <button class="btn-start w-full py-3 px-4 border border-zinc-300 rounded-lg hover:bg-zinc-50 transition-colors text-left flex justify-between items-center" data-diff="medium">
+            <span class="font-medium">中等 (Medium)</span>
+            <span class="text-xs text-zinc-400 font-mono">一般</span>
+          </button>
+          <button class="btn-start w-full py-3 px-4 border border-zinc-300 rounded-lg hover:bg-zinc-50 transition-colors text-left flex justify-between items-center" data-diff="hard">
+            <span class="font-medium">困難 (Hard)</span>
+            <span class="text-xs text-zinc-400 font-mono">進階</span>
+          </button>
+          <button class="btn-start w-full py-3 px-4 border border-zinc-900 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors text-left flex justify-between items-center" data-diff="expert">
+            <span class="font-medium">專家 (Expert)</span>
+            <span class="text-xs text-zinc-400 font-mono">大師</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Game Screen -->
+    <section id="screen-game" class="hidden flex-1 flex flex-col fade-in">
+      <!-- Game Info Bar -->
+      <div class="flex items-center justify-between mb-3 text-sm font-medium text-zinc-600">
+        <div id="labelDifficulty">中等</div>
+        <div class="flex items-center gap-4">
+          <div id="errCount" class="text-red-500 hidden">錯誤: <span>0</span>/3</div>
+          <div id="timer" class="font-mono">00:00</div>
+        </div>
+      </div>
+
+      <!-- Board -->
+      <div id="board" class="grid-wrap mx-auto relative"></div>
+
+      <!-- Controls -->
+      <div class="mt-6 flex justify-between px-2 mb-4">
+        <button id="btnUndo" class="flex flex-col items-center gap-1 text-zinc-500 hover:text-zinc-900 transition-colors">
+          <div class="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center text-lg"><i class="fa-solid fa-rotate-left"></i></div>
+          <span class="text-xs font-medium">復原</span>
+        </button>
+        <button id="btnErase" class="flex flex-col items-center gap-1 text-zinc-500 hover:text-zinc-900 transition-colors">
+          <div class="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center text-lg"><i class="fa-solid fa-eraser"></i></div>
+          <span class="text-xs font-medium">清除</span>
+        </button>
+        <button id="btnNotes" class="flex flex-col items-center gap-1 text-zinc-500 hover:text-zinc-900 transition-colors">
+          <div id="notesIconBg" class="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center text-lg transition-colors"><i class="fa-solid fa-pen"></i></div>
+          <span class="text-xs font-medium">筆記 <span id="notesStatus" class="font-normal text-[10px] uppercase">Off</span></span>
+        </button>
+        <button id="btnHint" class="flex flex-col items-center gap-1 text-zinc-500 hover:text-zinc-900 transition-colors">
+          <div class="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center text-lg"><i class="fa-regular fa-lightbulb"></i></div>
+          <span class="text-xs font-medium">提示</span>
+        </button>
+      </div>
+
+      <!-- Numpad -->
+      <div class="grid grid-cols-5 gap-2 mt-auto">
+        <button class="key tap h-14 rounded-xl text-2xl font-medium bg-zinc-100 hover:bg-zinc-200 transition-colors border border-zinc-200" data-key="1">1</button>
+        <button class="key tap h-14 rounded-xl text-2xl font-medium bg-zinc-100 hover:bg-zinc-200 transition-colors border border-zinc-200" data-key="2">2</button>
+        <button class="key tap h-14 rounded-xl text-2xl font-medium bg-zinc-100 hover:bg-zinc-200 transition-colors border border-zinc-200" data-key="3">3</button>
+        <button class="key tap h-14 rounded-xl text-2xl font-medium bg-zinc-100 hover:bg-zinc-200 transition-colors border border-zinc-200" data-key="4">4</button>
+        <button class="key tap h-14 rounded-xl text-2xl font-medium bg-zinc-100 hover:bg-zinc-200 transition-colors border border-zinc-200" data-key="5">5</button>
+        <button class="key tap h-14 rounded-xl text-2xl font-medium bg-zinc-100 hover:bg-zinc-200 transition-colors border border-zinc-200" data-key="6">6</button>
+        <button class="key tap h-14 rounded-xl text-2xl font-medium bg-zinc-100 hover:bg-zinc-200 transition-colors border border-zinc-200" data-key="7">7</button>
+        <button class="key tap h-14 rounded-xl text-2xl font-medium bg-zinc-100 hover:bg-zinc-200 transition-colors border border-zinc-200" data-key="8">8</button>
+        <button class="key tap h-14 rounded-xl text-2xl font-medium bg-zinc-100 hover:bg-zinc-200 transition-colors border border-zinc-200" data-key="9">9</button>
+        <button id="btnSubmitCheck" class="tap h-14 rounded-xl text-sm font-bold bg-zinc-900 text-white hover:bg-zinc-800 transition-colors shadow-sm">檢查</button>
+      </div>
+    </section>
+
+    <!-- Settings Dialog -->
+    <dialog id="dlgSettings" class="rounded-2xl p-0 w-[90vw] max-w-sm backdrop:bg-zinc-900/50 shadow-xl border border-zinc-200">
+      <div class="p-6">
+        <h3 class="text-xl font-bold mb-6 text-zinc-900">遊戲設定</h3>
+        
+        <div class="space-y-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="font-medium text-zinc-900">自動清除筆記</div>
+              <div class="text-xs text-zinc-500">填寫數字後自動移除相關筆記</div>
+            </div>
+            <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                <input type="checkbox" id="optAutoNotes" checked class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer transition-all duration-300"/>
+                <label for="optAutoNotes" class="toggle-label block overflow-hidden h-5 rounded-full bg-zinc-300 cursor-pointer transition-colors duration-300"></label>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="font-medium text-zinc-900">顯示相同數字</div>
+              <div class="text-xs text-zinc-500">選取時高亮盤面上相同的數字</div>
+            </div>
+            <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                <input type="checkbox" id="optHighlight" checked class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer transition-all duration-300"/>
+                <label for="optHighlight" class="toggle-label block overflow-hidden h-5 rounded-full bg-zinc-300 cursor-pointer transition-colors duration-300"></label>
+            </div>
+          </div>
+          
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="font-medium text-zinc-900">計時器</div>
+            </div>
+            <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                <input type="checkbox" id="optTimer" checked class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer transition-all duration-300"/>
+                <label for="optTimer" class="toggle-label block overflow-hidden h-5 rounded-full bg-zinc-300 cursor-pointer transition-colors duration-300"></label>
+            </div>
+          </div>
+        </div>
+
+        <button id="btnCloseSettings" class="mt-8 w-full bg-zinc-900 text-white rounded-xl py-3 font-medium hover:bg-zinc-800 transition-colors">完成</button>
+      </div>
+    </dialog>
+
+    <!-- Win Dialog -->
+    <dialog id="dlgWin" class="rounded-2xl p-0 w-[90vw] max-w-sm backdrop:bg-zinc-900/50 shadow-xl text-center">
+      <div class="p-8">
+        <div class="text-5xl mb-4 text-zinc-800"><i class="fa-solid fa-award"></i></div>
+        <h3 class="text-2xl font-bold mb-2 text-zinc-900">解題成功！</h3>
+        <p class="text-zinc-500 mb-6 text-sm">難度: <span id="winDiff" class="font-medium text-zinc-900"></span><br>完成時間: <span id="winTime" class="font-medium text-zinc-900 font-mono"></span></p>
+        <button id="btnWinNewGame" class="w-full bg-zinc-900 text-white rounded-xl py-3 font-medium hover:bg-zinc-800 transition-colors mb-2">開始新遊戲</button>
+        <button id="btnWinClose" class="w-full bg-zinc-100 text-zinc-700 rounded-xl py-3 font-medium hover:bg-zinc-200 transition-colors">查看盤面</button>
+      </div>
+    </dialog>
+
+  </div>
+
+  <script>
+    /* ========= 工具 & 基礎數獨邏輯 ========= */
+    const deepCopy = g => JSON.parse(JSON.stringify(g));
+    const shuffle = arr => { for (let i = arr.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1) | 0);[arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; };
+    const range1to9 = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+    function isValidPlacement(grid, row, col, num) {
+      for (let c = 0; c < 9; c++) if (c !== col && grid[row][c] === num) return false;
+      for (let r = 0; r < 9; r++) if (r !== row && grid[r][col] === num) return false;
+      const sr = Math.floor(row / 3) * 3, sc = Math.floor(col / 3) * 3;
+      for (let r = sr; r < sr + 3; r++) for (let c = sc; c < sc + 3; c++) if ((r !== row || c !== col) && grid[r][c] === num) return false;
+      return true;
+    }
+
+    function findEmpty(grid) {
+      for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) if (grid[r][c] === 0) return [r, c];
+      return null;
+    }
+
+    function countSolutions(grid, limit = 2) {
+      let count = 0;
+      function dfs() {
+        if (count >= limit) return;
+        const empty = findEmpty(grid);
+        if (!empty) { count++; return; }
+        const [r, c] = empty;
+        for (let n = 1; n <= 9; n++) {
+          if (isValidPlacement(grid, r, c, n)) {
+            grid[r][c] = n;
+            dfs();
+            grid[r][c] = 0;
+            if (count >= limit) return;
+          }
+        }
+      }
+      dfs();
+      return count;
+    }
+
+    function generateSolved() {
+      const grid = Array.from({ length: 9 }, () => Array(9).fill(0));
+      function fillCell(pos = 0) {
+        if (pos === 81) return true;
+        const r = Math.floor(pos / 9), c = pos % 9;
+        const nums = shuffle(range1to9.slice());
+        for (const n of nums) {
+          if (isValidPlacement(grid, r, c, n)) {
+            grid[r][c] = n;
+            if (fillCell(pos + 1)) return true;
+            grid[r][c] = 0;
+          }
+        }
+        return false;
+      }
+      fillCell(0);
+      return grid;
+    }
+
+    function makePuzzle(solution, difficulty) {
+      let targetHoles;
+      if (difficulty === 'easy') targetHoles = 35;
+      else if (difficulty === 'medium') targetHoles = 45;
+      else if (difficulty === 'hard') targetHoles = 54;
+      else targetHoles = 60; // expert
+
+      const puzzle = deepCopy(solution);
+      const positions = shuffle([...Array(81).keys()]);
+      let holes = 0;
+      for (const idx of positions) {
+        if (holes >= targetHoles) break;
+        const r = Math.floor(idx / 9), c = idx % 9;
+        if (puzzle[r][c] === 0) continue;
+        const backup = puzzle[r][c];
+        puzzle[r][c] = 0;
+        if (countSolutions(puzzle, 2) === 1) {
+          holes++;
+        } else {
+          puzzle[r][c] = backup;
+        }
+      }
+      return puzzle;
+    }
+
+    /* ========= 狀態管理 ========= */
+    let currentPuzzle = [];   // 原始題目 (不變)
+    let userGrid = [];        // 玩家填寫的數字
+    let userNotes = [];       // 玩家的筆記 [r][c] = Set
+    let currentSolution = [];
+    let selectedCell = null;
+    let notesMode = false;
+    let undoStack = [];
+    
+    // 設定
+    let optAutoNotes = true;
+    let optHighlight = true;
+    let optTimer = true;
+
+    // 計時器
+    let gameTimer = null;
+    let startTime = null;
+
+    /* ========= 核心邏輯 ========= */
+    function initGameState(difficulty) {
+      currentSolution = generateSolved();
+      currentPuzzle = makePuzzle(currentSolution, difficulty);
+      userGrid = deepCopy(currentPuzzle);
+      
+      // 初始化筆記
+      userNotes = Array.from({ length: 9 }, () => 
+        Array.from({ length: 9 }, () => new Set())
+      );
+      
+      undoStack = [];
+      notesMode = false;
+      updateNotesUI();
+      
+      document.getElementById('labelDifficulty').textContent = 
+        difficulty === 'easy' ? '簡單' : 
+        difficulty === 'medium' ? '中等' : 
+        difficulty === 'hard' ? '困難' : '專家';
+        
+      renderBoard();
+      resetTimer();
+      startTimer();
+      showScreen('screen-game');
+    }
+
+    function renderBoard() {
+      const board = document.getElementById('board');
+      board.innerHTML = '';
+      
+      for (let r = 0; r < 9; r++) {
+        const row = document.createElement('div');
+        row.className = `flex row-${r}`;
+        for (let c = 0; c < 9; c++) {
+          const cell = document.createElement('div');
+          cell.className = `cell col-${c}`;
+          cell.dataset.r = r;
+          cell.dataset.c = c;
+          
+          if (currentPuzzle[r][c] !== 0) {
+            cell.classList.add('given');
+            cell.textContent = currentPuzzle[r][c];
+          } else {
+            cell.classList.add('user');
+            updateCellContent(cell, r, c);
+          }
+          
+          cell.addEventListener('mousedown', () => selectCell(r, c));
+          row.appendChild(cell);
+        }
+        board.appendChild(row);
+      }
+      if(selectedCell) selectCell(selectedCell.r, selectedCell.c);
+      updateKeyStates();
+    }
+
+    function updateCellContent(cellDOM, r, c) {
+      const val = userGrid[r][c];
+      if (val !== 0) {
+        cellDOM.innerHTML = val;
+      } else {
+        const notes = userNotes[r][c];
+        if (notes.size > 0) {
+          let gridHTML = '<div class="notes-grid">';
+          for (let i = 1; i <= 9; i++) {
+            gridHTML += `<div class="note-num">${notes.has(i) ? i : ''}</div>`;
+          }
+          gridHTML += '</div>';
+          cellDOM.innerHTML = gridHTML;
+        } else {
+          cellDOM.innerHTML = '';
+        }
+      }
+    }
+
+    function selectCell(r, c) {
+      selectedCell = { r, c };
+      document.querySelectorAll('.cell').forEach(el => {
+        el.classList.remove('selected', 'rc-hl', 'num-hl', 'err');
+        const cr = parseInt(el.dataset.r);
+        const cc = parseInt(el.dataset.c);
+        
+        // 相關行列宮高亮
+        if (cr === r || cc === c || (Math.floor(cr/3) === Math.floor(r/3) && Math.floor(cc/3) === Math.floor(c/3))) {
+          el.classList.add('rc-hl');
+        }
+      });
+      
+      const targetDOM = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+      if (targetDOM) targetDOM.classList.add('selected');
+
+      // 相同數字高亮
+      if (optHighlight) {
+        let highlightNum = 0;
+        if (currentPuzzle[r][c] !== 0) highlightNum = currentPuzzle[r][c];
+        else if (userGrid[r][c] !== 0) highlightNum = userGrid[r][c];
+        
+        if (highlightNum > 0) {
+          document.querySelectorAll('.cell').forEach(el => {
+            const cr = parseInt(el.dataset.r);
+            const cc = parseInt(el.dataset.c);
+            const val = currentPuzzle[cr][cc] || userGrid[cr][cc];
+            if (val === highlightNum && (cr !== r || cc !== c)) {
+              el.classList.add('num-hl');
+            }
+          });
+        }
+      }
+    }
+
+    function saveState() {
+      // 儲存狀態以供復原。因為 Set 需要特殊處理，我們自訂拷貝
+      const notesCopy = userNotes.map(row => row.map(set => new Set(set)));
+      undoStack.push({
+        grid: deepCopy(userGrid),
+        notes: notesCopy
+      });
+    }
+
+    function handleInput(num) {
+      if (!selectedCell) return;
+      const { r, c } = selectedCell;
+      if (currentPuzzle[r][c] !== 0) return; // 給定數字不能改
+
+      saveState();
+
+      if (notesMode) {
+        // 筆記模式切換
+        if (userGrid[r][c] !== 0) return; // 已有確定數字，不能寫筆記
+        if (userNotes[r][c].has(num)) {
+          userNotes[r][c].delete(num);
+        } else {
+          userNotes[r][c].add(num);
+        }
+      } else {
+        // 填寫確切數字
+        if (userGrid[r][c] === num) {
+          userGrid[r][c] = 0; // 再次輸入同數字則清除
+        } else {
+          userGrid[r][c] = num;
+          // 自動清除相關筆記
+          if (optAutoNotes) {
+            clearRelatedNotes(r, c, num);
+          }
+        }
+      }
+      
+      renderBoard(); // 簡單起見全盤重繪，或可優化為只更新受影響的格子
+      checkWin();
+    }
+
+    function eraseCell() {
+      if (!selectedCell) return;
+      const { r, c } = selectedCell;
+      if (currentPuzzle[r][c] !== 0) return;
+      
+      saveState();
+      userGrid[r][c] = 0;
+      userNotes[r][c].clear();
+      renderBoard();
+    }
+
+    function undo() {
+      if (undoStack.length === 0) return;
+      const lastState = undoStack.pop();
+      userGrid = lastState.grid;
+      userNotes = lastState.notes;
+      renderBoard();
+    }
+
+    function clearRelatedNotes(r, c, num) {
+      // 行與列
+      for (let i = 0; i < 9; i++) {
+        if(userNotes[r][i]) userNotes[r][i].delete(num);
+        if(userNotes[i][c]) userNotes[i][c].delete(num);
+      }
+      // 九宮格
+      const sr = Math.floor(r / 3) * 3;
+      const sc = Math.floor(c / 3) * 3;
+      for (let i = sr; i < sr + 3; i++) {
+        for (let j = sc; j < sc + 3; j++) {
+          if(userNotes[i][j]) userNotes[i][j].delete(num);
+        }
+      }
+    }
+
+    function toggleNotesMode() {
+      notesMode = !notesMode;
+      updateNotesUI();
+    }
+
+    function updateNotesUI() {
+      const bg = document.getElementById('notesIconBg');
+      const status = document.getElementById('notesStatus');
+      if (notesMode) {
+        bg.classList.remove('bg-zinc-100');
+        bg.classList.add('bg-zinc-900', 'text-white');
+        status.textContent = 'On';
+      } else {
+        bg.classList.add('bg-zinc-100');
+        bg.classList.remove('bg-zinc-900', 'text-white');
+        status.textContent = 'Off';
+      }
+    }
+
+    function checkMistakes() {
+      let hasError = false;
+      document.querySelectorAll('.cell.user').forEach(cell => {
+        const r = parseInt(cell.dataset.r);
+        const c = parseInt(cell.dataset.c);
+        const val = userGrid[r][c];
+        if (val !== 0 && val !== currentSolution[r][c]) {
+          cell.classList.add('err');
+          hasError = true;
+        } else {
+          cell.classList.remove('err');
+        }
+      });
+      if(!hasError) {
+        // 提供視覺反饋表示全對（目前）
+        const btn = document.getElementById('btnSubmitCheck');
+        const origText = btn.textContent;
+        btn.textContent = "無誤";
+        btn.classList.add('bg-green-600');
+        setTimeout(() => {
+          btn.textContent = origText;
+          btn.classList.remove('bg-green-600');
+        }, 1500);
+      }
+    }
+
+    function provideHint() {
+      if(!selectedCell) return;
+      const { r, c } = selectedCell;
+      if(currentPuzzle[r][c] !== 0 || userGrid[r][c] !== 0) return;
+      
+      saveState();
+      userGrid[r][c] = currentSolution[r][c];
+      if(optAutoNotes) clearRelatedNotes(r, c, userGrid[r][c]);
+      renderBoard();
+      checkWin();
+    }
+
+    function checkWin() {
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          if (userGrid[r][c] === 0 || userGrid[r][c] !== currentSolution[r][c]) return;
+        }
+      }
+      // 贏了
+      stopTimer();
+      document.getElementById('winDiff').textContent = document.getElementById('labelDifficulty').textContent;
+      document.getElementById('winTime').textContent = document.getElementById('timer').textContent;
+      document.getElementById('dlgWin').showModal();
+    }
+
+    /* ========= 輔助 UI ========= */
+    function updateKeyStates() {
+      // 找出哪些數字已經填滿 9 個
+      const counts = Array(10).fill(0);
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          let v = currentPuzzle[r][c] || userGrid[r][c];
+          if(v > 0) counts[v]++;
+        }
+      }
+      for (let i = 1; i <= 9; i++) {
+        const btn = document.querySelector(`.key[data-key="${i}"]`);
+        if(counts[i] >= 9) {
+          btn.classList.add('opacity-30', 'pointer-events-none');
+        } else {
+          btn.classList.remove('opacity-30', 'pointer-events-none');
+        }
+      }
+    }
+
+    function showScreen(id) {
+      document.getElementById('screen-welcome').classList.add('hidden');
+      document.getElementById('screen-game').classList.add('hidden');
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    /* ========= 計時器 ========= */
+    function startTimer() {
+      if (!optTimer) { document.getElementById('timer').classList.add('invisible'); return; }
+      document.getElementById('timer').classList.remove('invisible');
+      gameTimer = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const m = Math.floor(elapsed / 60).toString().padStart(2, '0');
+        const s = (elapsed % 60).toString().padStart(2, '0');
+        document.getElementById('timer').textContent = `${m}:${s}`;
+      }, 1000);
+    }
+    function stopTimer() { clearInterval(gameTimer); }
+    function resetTimer() { stopTimer(); startTime = Date.now(); document.getElementById('timer').textContent = '00:00'; }
+
+    /* ========= 事件監聽 ========= */
+    document.addEventListener('DOMContentLoaded', () => {
+      // 首頁難度選擇
+      document.querySelectorAll('.btn-start').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          initGameState(e.currentTarget.dataset.diff);
+        });
+      });
+
+      // 遊戲內按鈕
+      document.getElementById('btnNewGameUI').addEventListener('click', () => {
+        stopTimer();
+        showScreen('screen-welcome');
+      });
+      
+      document.querySelectorAll('.key').forEach(btn => {
+        btn.addEventListener('click', (e) => handleInput(parseInt(e.target.dataset.key)));
+      });
+      
+      document.getElementById('btnNotes').addEventListener('click', toggleNotesMode);
+      document.getElementById('btnErase').addEventListener('click', eraseCell);
+      document.getElementById('btnUndo').addEventListener('click', undo);
+      document.getElementById('btnHint').addEventListener('click', provideHint);
+      document.getElementById('btnSubmitCheck').addEventListener('click', checkMistakes);
+
+      // 鍵盤支援
+      document.addEventListener('keydown', (e) => {
+        if (document.getElementById('screen-game').classList.contains('hidden')) return;
+        if (e.key >= '1' && e.key <= '9') handleInput(parseInt(e.key));
+        else if (e.key === 'Backspace' || e.key === 'Delete') eraseCell();
+        else if (e.key === 'n' || e.key === 'N') toggleNotesMode();
+        else if (e.key === 'z' && (e.ctrlKey || e.metaKey)) undo();
+        else if (selectedCell) {
+          let { r, c } = selectedCell;
+          if (e.key === 'ArrowUp') r = Math.max(0, r - 1);
+          if (e.key === 'ArrowDown') r = Math.min(8, r + 1);
+          if (e.key === 'ArrowLeft') c = Math.max(0, c - 1);
+          if (e.key === 'ArrowRight') c = Math.min(8, c + 1);
+          selectCell(r, c);
+        }
+      });
+
+      // 設定
+      document.getElementById('btnSettings').addEventListener('click', () => document.getElementById('dlgSettings').showModal());
+      document.getElementById('btnCloseSettings').addEventListener('click', () => {
+        optAutoNotes = document.getElementById('optAutoNotes').checked;
+        optHighlight = document.getElementById('optHighlight').checked;
+        optTimer = document.getElementById('optTimer').checked;
+        
+        if(!optTimer) { stopTimer(); document.getElementById('timer').classList.add('invisible'); }
+        else if(optTimer && document.getElementById('timer').classList.contains('invisible')) {
+           startTime = Date.now(); // 簡單處理：重新開始計時
+           startTimer();
+        }
+        
+        if(selectedCell) selectCell(selectedCell.r, selectedCell.c); // 刷新高亮
+        document.getElementById('dlgSettings').close();
+      });
+
+      // 結算畫面
+      document.getElementById('btnWinNewGame').addEventListener('click', () => {
+        document.getElementById('dlgWin').close();
+        showScreen('screen-welcome');
+      });
+      document.getElementById('btnWinClose').addEventListener('click', () => {
+        document.getElementById('dlgWin').close();
+      });
+    });
+  </script>
+</body>
+</html>
