@@ -62,5 +62,16 @@
     ],
     "addedDate": "2026-03-24",
     "featured": true
+  },
+  {
+    "id": "sudoku_classic",
+    "title": "經典極簡數獨",
+    "description": "洗鍊風格的經典數獨。提供四種難度等級，具備專業筆記模式與自動清除功能，享受純粹的解謎樂趣。",
+    "icon": "🔢",
+    "thumbnail": "",
+    "path": "games/sudoku_classic/index.html",
+    "tags": ["單人", "益智", "經典", "筆記"],
+    "addedDate": "2026-04-02",
+    "featured": true
   }
 ]
