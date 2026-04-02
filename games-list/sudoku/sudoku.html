@@ -321,17 +321,17 @@
           class="bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/70 shadow-[0_-8px_24px_rgba(0,0,0,0.06)] rounded-t-3xl p-3">
           <div class="flex flex-col gap-2">
             <div class="grid grid-cols-5 gap-2">
-              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50" data-key="1">1</button>
-              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50" data-key="2">2</button>
-              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50" data-key="3">3</button>
-              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50" data-key="4">4</button>
-              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50" data-key="5">5</button>
+              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50 transition-colors" data-key="1">1</button>
+              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50 transition-colors" data-key="2">2</button>
+              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50 transition-colors" data-key="3">3</button>
+              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50 transition-colors" data-key="4">4</button>
+              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50 transition-colors" data-key="5">5</button>
             </div>
             <div class="grid grid-cols-5 gap-2">
-              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50" data-key="6">6</button>
-              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50" data-key="7">7</button>
-              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50" data-key="8">8</button>
-              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50" data-key="9">9</button>
+              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50 transition-colors" data-key="6">6</button>
+              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50 transition-colors" data-key="7">7</button>
+              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50 transition-colors" data-key="8">8</button>
+              <button class="key tap rounded-2xl py-3 font-extrabold text-lg bg-sky-50 transition-colors" data-key="9">9</button>
               <button class="key tap rounded-2xl py-3 font-bold bg-rose-50 text-rose-700" data-key="erase" title="擦除"><i
                   class="fa-solid fa-eraser"></i></button>
             </div>
@@ -480,6 +480,9 @@
           <button id="btnReplay" class="tap bg-sky-100 rounded-xl py-3 font-bold">重玩本關</button>
           <button id="btnNext" class="tap bg-sky-600 text-white rounded-xl py-3 font-bold">下一題</button>
         </div>
+        <button id="btnBackToSudokuHome" class="tap block w-full bg-white border rounded-xl py-3 mb-2 font-bold text-gray-700 hover:bg-slate-50 transition-all">
+          <i class="fa-solid fa-puzzle-piece mr-1"></i>回到數獨首頁
+        </button>
         <a href="../../index.html"
           class="tap block w-full bg-white border rounded-xl py-3 font-bold text-gray-700 hover:bg-slate-50 transition-all">
           <i class="fa-solid fa-house mr-1"></i>回到遊戲大廳
@@ -910,6 +913,32 @@
       });
       return g;
     }
+    
+    /* 更新下方數字按鈕的顏色狀態 (若盤面已有 9 個該數字則變灰) */
+    function updateKeyStatus() {
+      const counts = Array(10).fill(0);
+      const grid = getGridValues();
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          const val = grid[r][c];
+          if (val >= 1 && val <= 9) counts[val]++;
+        }
+      }
+      for (let i = 1; i <= 9; i++) {
+        const btn = document.querySelector(`.key[data-key='${i}']`);
+        if (btn) {
+          if (counts[i] >= 9) {
+            // 該數字已填滿 9 個，將其標示為淡灰色
+            btn.classList.remove('bg-sky-50');
+            btn.classList.add('bg-slate-100', 'text-slate-400');
+          } else {
+            // 還沒填滿，恢復原本顏色
+            btn.classList.add('bg-sky-50');
+            btn.classList.remove('bg-slate-100', 'text-slate-400');
+          }
+        }
+      }
+    }
 
     function validateAll() {
       const g = getGridValues();
@@ -919,6 +948,8 @@
         const v = Number(cell.textContent.trim()); if (!v) return;
         if (!isValidPlacement(g, r, c, v)) cell.classList.add('err');
       });
+      // 每次驗證盤面（包含輸入、復原、提示）都同步更新按鈕狀態
+      updateKeyStatus();
     }
 
     function checkWin() {
@@ -1106,7 +1137,6 @@
       const difficulty = document.getElementById('defaultDifficulty')?.value || 'easy';
       currentDifficultyKey = difficulty;
 
-      // TODO: Add a loading indicator
       const gen = generatePuzzleWithDifficulty(difficulty);
       currentPuzzle = gen.puzzle;
       initialPuzzle = deepCopy(gen.puzzle);
@@ -1127,6 +1157,9 @@
 
       const firstEmpty = document.querySelector('.cell.user');
       if (firstEmpty) selectCell(firstEmpty);
+      
+      // 初始化時同步一次數字按鍵狀態
+      updateKeyStatus();
     }
 
     /* ========= 事件 ========= */
@@ -1178,6 +1211,12 @@
       document.getElementById('btnNext')?.addEventListener('click', () => {
         try { document.getElementById('dlgWin').close(); } catch (e) { }
         startNewGame();
+      });
+
+      document.getElementById('btnBackToSudokuHome')?.addEventListener('click', () => {
+        try { document.getElementById('dlgWin').close(); } catch (e) { }
+        stopTimer();
+        showScreen('screen-welcome');
       });
 
       document.getElementById('btnSteps')?.addEventListener('click', () => {
