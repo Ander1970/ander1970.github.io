@@ -6,12 +6,7 @@
     "icon": "🧩",
     "thumbnail": "",
     "path": "games-list/sudoku/sudoku.html",
-    "tags": [
-      "單人",
-      "益智",
-      "邏輯",
-      "列印"
-    ],
+    "tags": ["單人", "益智", "邏輯", "列印"],
     "addedDate": "2026-03-23",
     "featured": true
   },
@@ -22,12 +17,7 @@
     "icon": "🧠",
     "thumbnail": "",
     "path": "games-list/memory_training/index.html",
-    "tags": [
-      "單人",
-      "記憶",
-      "益智",
-      "長者友善"
-    ],
+    "tags": ["單人", "記憶", "益智", "長者友善"],
     "addedDate": "2026-03-24",
     "featured": true
   },
@@ -38,12 +28,7 @@
     "icon": "🃏",
     "thumbnail": "",
     "path": "games-list/memory_cards/index.html",
-    "tags": [
-      "單人",
-      "記憶",
-      "翻牌",
-      "長者友善"
-    ],
+    "tags": ["單人", "記憶", "翻牌", "長者友善"],
     "addedDate": "2026-03-24",
     "featured": false
   },
@@ -54,12 +39,7 @@
     "icon": "🌸",
     "thumbnail": "",
     "path": "games-list/garden/garden.html",
-    "tags": [
-      "單人",
-      "動作",
-      "反應",
-      "四季"
-    ],
+    "tags": ["單人", "動作", "反應", "四季"],
     "addedDate": "2026-03-24",
     "featured": true
   },
@@ -72,6 +52,17 @@
     "path": "games-list/sudoku_classic/index.html",
     "tags": ["單人", "益智", "經典", "筆記"],
     "addedDate": "2026-04-02",
+    "featured": true
+  },
+  {
+    "id": "moonrabbit_stargarden",
+    "title": "月兔星星工坊：貓咪數獨",
+    "description": "跟著月兔在星空中解開貓咪數獨！挑戰冒險關卡、收集星星，也能自由生成不同尺寸的謎題。",
+    "icon": "🐈",
+    "thumbnail": "",
+    "path": "games-list/moonrabbit/MoonRabbit_StarGarden_v8_fixed.html",
+    "tags": ["單人", "益智", "數獨", "冒險", "貓咪"],
+    "addedDate": "2026-09-29",
     "featured": true
   }
 ]
