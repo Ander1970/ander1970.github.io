@@ -1,0 +1,1928 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>月兔星星工坊 貓咪數獨 - 冒險關卡</title>
+<style>
+  :root{
+    /* ---- palette ---- */
+    --night-deep:#150f36;
+    --night-mid:#2c2160;
+    --night-high:#3d2f82;
+    --moon-gold:#f6c667;
+    --moon-gold-deep:#d99a3b;
+    --parchment:#fff3da;
+    --parchment-soft:#fdebc7;
+    --lilac:#a597e6;
+    --lilac-soft:#e3daf7;
+    --coral:#ef8399;
+    --coral-deep:#cf5c73;
+    --ink:#2b2350;
+    --ink-soft:#786fa0;
+    --on-dark:#f3ecff;
+    --on-dark-soft:#c3b8ea;
+
+    --shadow-card:0 22px 48px rgba(9,6,32,.45);
+    --radius-card:26px;
+    --radius-pill:999px;
+
+    --n:10;--cell:50px;--fs:30px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+
+  body{
+    min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;
+    padding:28px 14px 48px;
+    font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,sans-serif;
+    color:var(--ink);
+    -webkit-tap-highlight-color:transparent;
+    position:relative;overflow-x:hidden;
+    background:
+      radial-gradient(circle at 84% 6%, rgba(246,198,103,.22), transparent 32%),
+      radial-gradient(circle at 10% 86%, rgba(165,151,230,.18), transparent 38%),
+      radial-gradient(circle at 50% -12%, var(--night-high), transparent 55%),
+      linear-gradient(180deg, var(--night-deep) 0%, #1b1444 55%, var(--night-mid) 100%);
+    background-attachment:fixed;
+  }
+  /* starfield */
+  body::before{
+    content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.85;
+    background-image:
+      radial-gradient(1.6px 1.6px at 10% 20%, rgba(255,255,255,.75), transparent 60%),
+      radial-gradient(1.2px 1.2px at 22% 65%, rgba(255,255,255,.55), transparent 60%),
+      radial-gradient(1.8px 1.8px at 35% 12%, rgba(255,255,255,.65), transparent 60%),
+      radial-gradient(1.3px 1.3px at 48% 78%, rgba(255,255,255,.5), transparent 60%),
+      radial-gradient(1.5px 1.5px at 62% 30%, rgba(255,255,255,.7), transparent 60%),
+      radial-gradient(1.2px 1.2px at 75% 60%, rgba(255,255,255,.45), transparent 60%),
+      radial-gradient(1.7px 1.7px at 88% 15%, rgba(255,255,255,.65), transparent 60%),
+      radial-gradient(1.3px 1.3px at 94% 85%, rgba(255,255,255,.5), transparent 60%),
+      radial-gradient(1.5px 1.5px at 6% 48%, rgba(255,255,255,.55), transparent 60%),
+      radial-gradient(1.4px 1.4px at 58% 92%, rgba(255,255,255,.45), transparent 60%);
+  }
+  @media (prefers-reduced-motion:no-preference){
+    body::after{
+      content:'';position:fixed;z-index:0;pointer-events:none;
+      top:14%;left:24%;width:3px;height:3px;border-radius:50%;
+      background:#fff;box-shadow:0 0 6px 1px rgba(255,255,255,.8);
+      animation:twinkle 3.6s ease-in-out infinite;
+    }
+  }
+  @keyframes twinkle{0%,100%{opacity:.25}50%{opacity:1}}
+
+  header,main,.hintline,.overlay,.toast{position:relative;z-index:1;}
+
+  /* ---- header ---- */
+  .hero{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:22px;}
+  .rabbit-logo{width:72px;height:72px;flex:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,.4));}
+  .rabbit-logo svg{width:100%;height:100%;}
+  .rabbit-logo .head{fill:#fffdf6;}
+  .rabbit-logo .ear{fill:var(--lilac-soft);stroke:var(--lilac);stroke-width:3;}
+  .rabbit-logo .eye{fill:var(--ink);}
+  .rabbit-logo .face{fill:none;stroke:var(--ink);stroke-width:2.5;stroke-linecap:round;}
+  .rabbit-logo .cheek{fill:none;stroke:var(--coral);stroke-width:3;stroke-linecap:round;}
+  .rabbit-logo .moon{fill:var(--moon-gold);}
+  h1{margin:0;font-size:clamp(22px,4.6vw,32px);font-weight:800;letter-spacing:.5px;color:var(--parchment);}
+  .subtitle{margin:5px 0 0;font-size:13.5px;color:var(--on-dark-soft);}
+
+  /* ---- desk: one unified surface for HUD + board + controls ---- */
+  main.desk{
+    width:100%;max-width:640px;
+    background:linear-gradient(180deg, var(--parchment) 0%, var(--parchment-soft) 100%);
+    border-radius:var(--radius-card);
+    box-shadow:var(--shadow-card), 0 0 0 1px rgba(255,255,255,.5) inset;
+    padding:20px 20px 18px;
+    display:flex;flex-direction:column;align-items:center;
+  }
+  .desk-section{width:100%;display:flex;flex-direction:column;align-items:center;}
+  .desk-section + .desk-section{margin-top:16px;padding-top:16px;border-top:1.5px dashed rgba(43,35,80,.15);}
+
+  /* ---- HUD chips ---- */
+  .status{display:flex;flex-direction:row;flex-wrap:wrap;gap:8px;justify-content:center;width:100%;}
+  .chip{
+    background:rgba(255,255,255,.55);border:1.5px solid rgba(43,35,80,.12);
+    border-radius:var(--radius-pill);padding:6px 14px;font-size:13.5px;font-weight:700;
+    display:flex;align-items:center;gap:6px;color:var(--ink);line-height:1.4;
+  }
+  .lives span{display:inline-block;width:15px;height:15px;border-radius:50%;margin:0 2px;background:var(--moon-gold);box-shadow:0 0 0 2px var(--moon-gold-deep) inset;transition:all .3s ease;}
+  .lives span.lost{background:#e4ddf2;box-shadow:none;transform:scale(.82) rotate(-18deg);}
+
+  /* ---- puzzle board ---- */
+  .frame{
+    position:relative;border:5px solid var(--moon-gold);border-radius:18px;
+    overflow:hidden;background:#fdf6e6;
+    box-shadow:0 14px 30px rgba(21,15,54,.35), 0 0 0 3px rgba(246,198,103,.25);
+    line-height:0;font-size:0;
+  }
+  #board{
+    display:grid;
+    grid-template-columns:repeat(var(--n), var(--cell));
+    grid-template-rows:repeat(var(--n), var(--cell));
+    width:calc(var(--cell) * var(--n));
+    height:calc(var(--cell) * var(--n));
+    touch-action:manipulation;user-select:none;line-height:0;font-size:0;
+  }
+  .cell{
+    position:relative;width:var(--cell);height:var(--cell);
+    min-width:0;min-height:0;margin:0;padding:0;font-size:0;line-height:0;
+    contain:layout;cursor:pointer;border-radius:4px;
+    transition:transform .12s ease,filter .15s ease;
+  }
+  .cell:hover{filter:brightness(1.06);}
+  .cell:focus-visible{outline:3px solid var(--lilac);outline-offset:-3px;z-index:2;}
+  #lines{position:absolute;top:0;left:0;pointer-events:none;z-index:3;shape-rendering:crispEdges;}
+  .layer{position:absolute;inset:0;pointer-events:none;z-index:1;}
+
+  .mark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:var(--fs);line-height:1;white-space:nowrap;animation:pop .18s ease-out;}
+  @keyframes pop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+  .mark.x{font-size:calc(var(--fs)*.66);color:var(--ink-soft);font-weight:800;opacity:.6;}
+  .mark.wrong{font-size:calc(var(--fs)*.86);color:#fff;font-weight:900;}
+  .mark.cat{animation:catIn .32s cubic-bezier(.2,1.6,.5,1);}
+  @keyframes catIn{0%{transform:scale(.2) rotate(-25deg);opacity:0}70%{transform:scale(1.18) rotate(6deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+  .mark.reveal{opacity:.55;filter:grayscale(.2);}
+  .mark.star{display:grid;place-items:center;width:82%;height:82%;filter:drop-shadow(0 5px 7px rgba(43,35,80,.32));}
+  .star-svg{width:100%;height:100%;overflow:visible;}
+  .star-svg path{fill:var(--moon-gold);stroke:var(--moon-gold-deep);stroke-width:3;stroke-linejoin:round;}
+  .star-svg circle{fill:#fff7dd;}
+  .glow{position:absolute;inset:10%;border-radius:50%;background:rgba(246,198,103,.4);filter:blur(5px);animation:starGlow 1.7s ease-in-out infinite;}
+  @keyframes starGlow{50%{transform:scale(1.08);opacity:.7}}
+  .wrongbg{position:absolute;inset:12%;border-radius:50%;background:var(--coral);opacity:.88;}
+  .cell.shake .layer{animation:shake .32s ease;}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+  .cell.hint-glow::after{
+    content:'';position:absolute;inset:2px;border-radius:8px;
+    box-shadow:0 0 0 3px var(--moon-gold), 0 0 16px 4px rgba(246,198,103,.7);
+    animation:hintPulse 1s ease-in-out infinite;pointer-events:none;z-index:2;
+  }
+  @keyframes hintPulse{0%,100%{opacity:.55;transform:scale(.94)}50%{opacity:1;transform:scale(1.05)}}
+
+  /* ---- hint panel / status caption ---- */
+  .hint-panel{width:100%;background:rgba(165,151,230,.16);border:1.5px solid var(--lilac);border-radius:14px;padding:12px 16px;display:flex;flex-direction:row;gap:10px;align-items:flex-start;}
+  .hint-panel.hidden{display:none;}
+  .hint-panel .hbody{flex:1;}
+  .hint-panel .htitle{font-weight:800;margin:0 0 4px;font-size:14.5px;color:var(--moon-gold-deep);}
+  .hint-panel .hreason{margin:0;font-size:13.5px;line-height:1.6;color:var(--ink);}
+  .hint-panel .hclose{border:none;background:none;color:var(--ink-soft);font-size:16px;cursor:pointer;padding:0 2px;line-height:1;}
+  .verify{margin:0;font-size:12.5px;color:var(--ink-soft);text-align:center;font-weight:600;}
+
+  /* ---- toolbar / controls ---- */
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;width:100%;}
+  select,button,textarea,input[type="text"],input[type="number"]{
+    font-family:inherit;font-size:13.5px;border-radius:var(--radius-pill);
+    border:1.5px solid rgba(43,35,80,.18);background:#fff;color:var(--ink);
+    padding:8px 14px;transition:transform .08s ease,background .15s ease,box-shadow .15s ease;
+  }
+  textarea{border-radius:12px;}
+  input[type="number"]{width:66px;text-align:center;font-weight:700;border-radius:12px;}
+  select{font-weight:600;cursor:pointer;}
+  button{cursor:pointer;}
+  button:hover:not(:disabled){box-shadow:0 4px 10px rgba(21,15,54,.18);}
+  button:active:not(:disabled){transform:translateY(1px);}
+  button:disabled{opacity:.45;cursor:not-allowed;}
+  button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--lilac);outline-offset:2px;}
+  button.primary{background:var(--moon-gold);border-color:var(--moon-gold-deep);color:var(--ink);font-weight:800;}
+  button.primary:hover:not(:disabled){background:var(--moon-gold-deep);color:#fff;}
+  button.danger{background:var(--coral);border-color:var(--coral-deep);color:#fff;font-weight:700;}
+  button.danger:hover:not(:disabled){background:var(--coral-deep);}
+  button.secondary{background:#fff;border-color:var(--lilac);color:var(--ink);font-weight:700;}
+  button.secondary:hover:not(:disabled){background:var(--lilac-soft);}
+  label.chk{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-soft);user-select:none;cursor:pointer;}
+  .nav-group{display:inline-flex;align-items:center;gap:4px;}
+  .btn-icon{font-size:18px;line-height:0;}
+
+  .hintline{margin-top:18px;color:var(--on-dark-soft);font-size:12.5px;text-align:center;max-width:560px;line-height:1.7;}
+
+  .dev-only{display:none!important;}
+  .dev-only.dev-visible{display:inline-flex!important;}
+  .freeplay-only{display:none!important;}
+  body.mode-free .freeplay-only{display:inline-flex!important;}
+  .adventure-only{display:inline-flex;}
+  body.mode-free .adventure-only{display:none!important;}
+
+  /* ---- overlay / modal (dark glass, same night sky) ---- */
+  .overlay{position:fixed;inset:0;background:rgba(10,7,28,.7);display:flex;align-items:center;justify-content:center;z-index:50;backdrop-filter:blur(4px);padding:16px;}
+  .overlay.hidden{display:none;}
+  .modal{
+    background:linear-gradient(180deg, var(--night-mid), #241a52);
+    border-radius:22px;padding:26px 28px;text-align:center;
+    box-shadow:0 24px 60px rgba(0,0,0,.5);max-width:92vw;width:440px;
+    border:1.5px solid rgba(246,198,103,.32);animation:rise .28s ease-out;color:var(--on-dark);
+  }
+  @keyframes rise{from{transform:translateY(24px) scale(.94);opacity:0}to{transform:none;opacity:1}}
+  .modal .big{font-size:46px;margin-bottom:6px;line-height:1;}
+  .modal h2{margin:0 0 8px;font-size:21px;color:#fff;}
+  .modal p{margin:4px 0;color:var(--on-dark-soft);font-size:14px;}
+  .modal .btns{margin-top:18px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+  .modal textarea{
+    width:100%;height:100px;margin:10px 0;font-family:ui-monospace,Consolas,monospace;font-size:12px;
+    resize:none;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.2);
+    color:var(--on-dark);padding:8px;border-radius:10px;
+  }
+  .spinner{width:38px;height:38px;margin:0 auto 14px;border:4px solid rgba(255,255,255,.18);border-top-color:var(--moon-gold);border-radius:50%;animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .gen-stats{margin-top:10px;font-size:13px;color:var(--on-dark-soft);font-family:ui-monospace,Consolas,monospace;line-height:1.6;}
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+    background:var(--night-mid);color:#fff;padding:10px 20px;border-radius:999px;
+    font-size:14px;box-shadow:0 10px 24px rgba(0,0,0,.35);z-index:100;
+    opacity:0;transition:opacity .3s ease, transform .3s ease;pointer-events:none;
+    border:1px solid rgba(246,198,103,.32);
+  }
+  .toast.show{opacity:1;transform:translate(-50%, -8px);}
+
+  /* ---- level map: star-chart styling ---- */
+  .map-modal{width:580px;max-width:94vw;text-align:left;}
+  .map-modal h2{text-align:center;margin:0 0 2px;color:#fff;}
+  .map-sub{text-align:center;color:var(--on-dark-soft);font-size:13px;margin:0 0 16px;}
+  .level-grid{
+    display:flex;flex-wrap:wrap;gap:16px 12px;justify-content:center;
+    max-height:52vh;overflow-y:auto;padding:8px 4px 12px;
+  }
+  .lv-btn{
+    position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+    width:60px;height:60px;border-radius:50%;
+    background:radial-gradient(circle at 34% 30%, #fff6df, var(--moon-gold) 76%);
+    border:2px solid var(--moon-gold-deep);color:var(--ink);font-family:inherit;
+    cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.32);
+  }
+  .lv-btn:hover:not(.locked){transform:translateY(-2px);}
+  .lv-btn.current{box-shadow:0 0 0 4px rgba(246,198,103,.35), 0 4px 14px rgba(0,0,0,.32);}
+  .lv-btn.cleared{background:radial-gradient(circle at 34% 30%, #fffdf5, var(--moon-gold));}
+  .lv-btn.locked{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.18);color:var(--on-dark-soft);cursor:not-allowed;box-shadow:none;}
+  .lv-btn .lv-num{font-size:15px;font-weight:800;line-height:1;}
+  .lv-btn .lv-size{font-size:9px;font-weight:600;opacity:.8;line-height:1.3;}
+  .lv-stars{position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);font-size:9px;letter-spacing:1px;background:var(--night-mid);padding:1px 6px;border-radius:8px;white-space:nowrap;border:1px solid rgba(246,198,103,.3);}
+  .lv-stars i{font-style:normal;color:rgba(255,255,255,.25);}
+  .lv-stars i.on{color:var(--moon-gold);}
+  .win-stars{font-size:34px;letter-spacing:8px;margin:6px 0 10px;}
+  .win-stars span{color:rgba(255,255,255,.22);}
+  .win-stars span.on{color:var(--moon-gold);text-shadow:0 2px 8px rgba(246,198,103,.5);}
+
+  @media (max-width:600px){
+    main.desk{padding:16px 14px 14px;border-radius:20px;}
+    .cell{border-radius:6px;}
+    .hero{gap:10px;}
+    .rabbit-logo{width:56px;height:56px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="rabbit-logo" aria-hidden="true">
+    <svg viewBox="0 0 120 120" role="img">
+      <path class="ear" d="M34 43 C25 17 29 6 40 12 C50 18 50 36 48 47Z"/>
+      <path class="ear" d="M72 43 C78 16 91 8 96 19 C101 31 91 43 82 49Z"/>
+      <circle class="head" cx="60" cy="61" r="35"/>
+      <circle class="eye" cx="47" cy="61" r="3.2"/>
+      <circle class="eye" cx="73" cy="61" r="3.2"/>
+      <path class="face" d="M53 73 Q60 78 67 73"/>
+      <path class="cheek" d="M37 70 Q31 73 35 78"/>
+      <path class="cheek" d="M83 70 Q89 73 85 78"/>
+      <circle class="moon" cx="91" cy="31" r="8"/>
+    </svg>
+  </div>
+  <div>
+    <h1>月兔星星工坊</h1>
+    <p class="subtitle">陪月兔把今晚的星星，一顆一顆放回正確的位置</p>
+  </div>
+</header>
+
+<main class="desk">
+  <div class="desk-section status">
+    <div class="chip lives" id="lives"></div>
+    <div class="chip" id="progress">星星 0 / 10</div>
+    <div class="chip" id="timer">00:00</div>
+    <div class="chip" id="levelNo">關卡 #0 (共 0 關)</div>
+  </div>
+
+  <div class="desk-section" style="align-items:center;">
+    <div class="frame" id="frame">
+      <div id="board"></div>
+      <svg id="lines" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+  </div>
+
+  <div class="desk-section hint-panel hidden" id="hintPanel">
+    <div class="hbody">
+      <p class="htitle" id="hintTitle"></p>
+      <p class="hreason" id="hintReason"></p>
+    </div>
+    <button class="hclose" id="hintCloseBtn" title="關閉提示">✕</button>
+  </div>
+
+  <div class="desk-section" style="gap:6px;">
+    <p class="verify" id="verify">準備好後，讓月兔替你準備今晚的星空。</p>
+    <div class="toolbar">
+      <button class="secondary adventure-only" id="levelMapBtn">🗺 關卡地圖</button>
+
+      <label class="freeplay-only" for="boardSizeSelect">尺寸：</label>
+      <select id="boardSizeSelect" class="freeplay-only">
+        <option value="5">5 × 5</option>
+        <option value="6">6 × 6</option>
+        <option value="7">7 × 7</option>
+        <option value="8">8 × 8</option>
+        <option value="9">9 × 9</option>
+        <option value="10" selected>10 × 10</option>
+      </select>
+
+      <label class="freeplay-only" for="difficultySelect">難度：</label>
+      <select id="difficultySelect" class="freeplay-only">
+        <option value="any" selected>全部 (Any)</option>
+        <option value="easy">簡單</option>
+        <option value="medium">普通</option>
+        <option value="hard">困難</option>
+        <option value="expert">超難</option>
+      </select>
+
+      <label class="freeplay-only" for="targetCountInput">數量：</label>
+      <input type="number" id="targetCountInput" class="freeplay-only" min="1" max="100" value="5">
+
+      <button class="primary freeplay-only" id="startGenBtn"><span class="btn-icon">✦</span> 開始今晚的星空</button>
+
+      <div class="nav-group freeplay-only">
+        <button id="prevLevelBtn" disabled>上一片星空</button>
+        <button id="nextLevelBtn" disabled>下一片星空</button>
+      </div>
+
+      <button id="exportBtn" class="secondary dev-only" disabled>匯出關卡 JSON</button>
+      <button id="importBtn" class="dev-only">匯入關卡</button>
+      <button id="restartBtn">重新整理星空</button>
+      <button id="hintBtn" class="secondary" disabled>月兔提示 <span id="hintCount">2</span></button>
+      <label class="chk"><input type="checkbox" id="autoX"> 月兔自動整理</label>
+      <button id="soundBtn" class="secondary">聲音：開</button>
+      <button class="secondary" id="modeToggleBtn">🎯 自由練習</button>
+    </div>
+  </div>
+</main>
+
+<p class="hintline">
+  單擊：放下月光標記　•　快速雙擊或右鍵：種下一顆星星<br>
+  每關有 2 次月兔提示。每一列、每一欄、每個星區各有一顆星，而且星星不能互相碰到。
+</p>
+
+<div class="overlay hidden" id="overlay">
+  <div class="modal" id="modal"></div>
+</div>
+
+<div class="overlay hidden" id="mapOverlay">
+  <div class="modal map-modal" id="mapModal"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let currentN = 10;
+const MAX_LIVES = 3;
+const SVGNS = 'http://www.w3.org/2000/svg';
+const PALETTE = [
+  '#ffe0a5', '#b3e5cd', '#c5d2f8', '#f8c0d4', '#d7c4f4',
+  '#ffebaf', '#b3e1ee', '#efcfaf', '#c8eabe', '#efc4e4'
+];
+
+// Web Worker 高效背景運算腳本 (整合邏輯難度分析評分機制)
+const workerScript = `
+const DIRS4 = [[1,0],[-1,0],[0,1],[0,-1]];
+const rnd = n => Math.floor(Math.random()*n);
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=rnd(i+1); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+// 1. 生成合法全域排布解答 (|Δcol| >= 2)
+function randomSolution(n){
+  const cols = new Array(n).fill(-1);
+  const used = new Array(n).fill(false);
+  function rec(r, prev){
+    if(r === n) return true;
+    for(const c of shuffle([...Array(n).keys()])){
+      if(used[c]) continue;
+      if(prev >= 0 && Math.abs(c - prev) <= 1) continue;
+      used[c] = true; cols[r] = c;
+      if(rec(r+1, c)) return true;
+      used[c] = false;
+    }
+    return false;
+  }
+  return rec(0, -1) ? cols.slice() : null;
+}
+
+// 2. 快速區域初始生長（維護邊界 frontier，避免每輪重掃整個棋盤）
+function genRegions(n, sol){
+  const reg = Array.from({length:n}, () => new Array(n).fill(-1));
+  const size = new Array(n).fill(1);
+  for(let r=0;r<n;r++) reg[r][sol[r]] = r;
+
+  const frontier = new Map();
+  const addFrontier = (r,c,g) => {
+    if(r<0||c<0||r>=n||c>=n || reg[r][c] !== -1) return;
+    const idx = r*n+c;
+    let s = frontier.get(idx);
+    if(!s){ s = new Set(); frontier.set(idx, s); }
+    s.add(g);
+  };
+  const spreadFrontier = (r,c,g) => { for(const [dr,dc] of DIRS4) addFrontier(r+dr, c+dc, g); };
+
+  for(let r=0;r<n;r++) spreadFrontier(r, sol[r], r);
+
+  let remain = n*n - n;
+  const slack = Math.random() < 0.35 ? 1 : 0;
+
+  while(remain > 0 && frontier.size){
+    let minS = Infinity;
+    const moves = [];
+    for(const [idx, gs] of frontier){
+      for(const g of gs){
+        moves.push(idx, g);
+        if(size[g] < minS) minS = size[g];
+      }
+    }
+    const poolIdx = [];
+    for(let i=0;i<moves.length;i+=2){
+      if(size[moves[i+1]] <= minS + slack) poolIdx.push(i);
+    }
+    if(!poolIdx.length) break;
+    const pick = poolIdx[rnd(poolIdx.length)];
+    const idx = moves[pick], g = moves[pick+1];
+    const r = (idx/n)|0, c = idx % n;
+
+    reg[r][c] = g;
+    size[g]++;
+    remain--;
+    frontier.delete(idx);
+    spreadFrontier(r, c, g);
+  }
+  for(let r=0;r<n;r++) for(let c=0;c<n;c++){
+    if(reg[r][c] === -1){ reg[r][c] = 0; size[0]++; }
+  }
+  return { reg, size };
+}
+
+// 3. 尋找與正解相異的第一個替代解
+function findAltSolution(n, reg, sol){
+  const colU = new Array(n).fill(false), regU = new Array(n).fill(false), p = new Array(n);
+  let res = null;
+  (function bt(r, prev){
+    if(res) return;
+    if(r === n){
+      for(let i=0;i<n;i++) if(p[i] !== sol[i]){ res = p.slice(); return; }
+      return;
+    }
+    for(let c=0;c<n;c++){
+      if(colU[c]) continue;
+      const g = reg[r][c];
+      if(regU[g]) continue;
+      if(r > 0 && Math.abs(prev-c) <= 1) continue;
+      colU[c] = regU[g] = true; p[r] = c;
+      bt(r+1, c);
+      colU[c] = regU[g] = false;
+      if(res) return;
+    }
+  })(0, -9);
+  return res;
+}
+
+// 4. 驗證單一區塊在移除特定格後的連通性
+function regionConnectedWithout(n, reg, g, xr, xc, expectedTotal){
+  let start = -1;
+  outer:
+  for(let r=0;r<n;r++){
+    for(let c=0;c<n;c++){
+      if(reg[r][c] === g && !(r === xr && c === xc)){ start = r*n+c; break outer; }
+    }
+  }
+  if(start === -1) return expectedTotal === 0;
+
+  const visited = new Uint8Array(n*n);
+  const stack = new Int32Array(n*n);
+  let sp = 0, count = 0;
+  visited[start] = 1;
+  stack[sp++] = start;
+  while(sp > 0){
+    const idx = stack[--sp];
+    count++;
+    const r = (idx/n)|0, c = idx % n;
+    for(const [dr,dc] of DIRS4){
+      const nr=r+dr, nc=c+dc;
+      if(nr<0||nc<0||nr>=n||nc>=n) continue;
+      if(nr === xr && nc === xc) continue;
+      if(reg[nr][nc] !== g) continue;
+      const nidx = nr*n+nc;
+      if(visited[nidx]) continue;
+      visited[nidx] = 1;
+      stack[sp++] = nidx;
+    }
+  }
+  return count === expectedTotal;
+}
+
+// 5. 靶向修剪：針對替代解的衝突格調換所屬區域以破壞替代解
+function refineToUnique(n, reg, sol, size, maxIter){
+  const HARD_MIN = 2, SOFT_MIN = Math.max(2, n-4), SOFT_MAX = n+5;
+  for(let it=0; it<maxIter; it++){
+    const alt = findAltSolution(n, reg, sol);
+    if(!alt) return true;
+    const rows = shuffle([...Array(n).keys()].filter(r => alt[r] !== sol[r]));
+    let moved = false;
+    for(let pass=0; pass<2 && !moved; pass++){
+      const lim = pass ? HARD_MIN : SOFT_MIN;
+      for(const r of rows){
+        const c = alt[r], g = reg[r][c];
+        if(size[g] - 1 < lim) continue;
+        if(!regionConnectedWithout(n, reg, g, r, c, size[g] - 1)) continue;
+        const hs = [];
+        for(const [dr,dc] of DIRS4){
+          const nr=r+dr, nc=c+dc;
+          if(nr<0||nc<0||nr>=n||nc>=n) continue;
+          const h = reg[nr][nc];
+          if(h === g) continue;
+          if(!pass && size[h] + 1 > SOFT_MAX) continue;
+          if(hs.indexOf(h) < 0) hs.push(h);
+        }
+        if(!hs.length) continue;
+        const h = hs[rnd(hs.length)];
+        reg[r][c] = h; size[g]--; size[h]++;
+        moved = true; break;
+      }
+    }
+    if(!moved) return false;
+  }
+  return findAltSolution(n, reg, sol) === null;
+}
+
+// 6. 解的嚴格計數
+function countSolutions(n, reg, limit){
+  limit = limit || 2;
+  let count = 0;
+  const usedCol = new Array(n).fill(false);
+  const usedReg = new Array(n).fill(false);
+  function rec(r, prev){
+    if(count >= limit) return;
+    if(r === n){ count++; return; }
+    for(let c=0;c<n;c++){
+      if(usedCol[c]) continue;
+      if(prev >= 0 && Math.abs(c-prev) <= 1) continue;
+      const g = reg[r][c];
+      if(usedReg[g]) continue;
+      usedCol[c] = usedReg[g] = true;
+      rec(r+1, c);
+      usedCol[c] = usedReg[g] = false;
+      if(count >= limit) return;
+    }
+  }
+  rec(0, -1);
+  return count;
+}
+
+// 7. 純邏輯可解性驗證與難度評定
+//    改為「加權分數」而非單純計次，理由：
+//      (a) 交集排除這一招本身難易差很多 —— 要交叉比對的候選格越多、當下盤面越滿，
+//          人類越難心算出來，所以權重會隨「候選格數」與「當時盤面開放格比例」放大。
+//      (b) 光是「用了幾次」不能反映「最難的那一步有多難」，所以額外記錄 peak（單步最高權重），
+//          且 peak 在最終分數中佔有獨立權重 —— 一步很卡的關卡，體感通常比很多步都很輕鬆的關卡難。
+//      (c) 推導輪數 iterations 過去有算但沒被使用；輪數多代表要反覆掃描全盤才能推進，
+//          也計入分數。
+//      (d) 最後除以 n 做粗略正規化，讓 5×5 與 10×10 的分數落在同一把尺上，
+//          避免用同一組「交集次數」門檻套用到所有尺寸（小盤面 unit 數少，門檻難以達到；
+//          大盤面 unit 數多，門檻形同虛設）。
+//    下面的權重係數是合理的起始值，不是精確科學 —— 之後有真人測試資料時，
+//    建議照玩家實測解題時間 / 卡關率去回頭校正這幾個係數與下方的難度門檻。
+function evaluateLogicalDifficulty(n, reg){
+  const st = Array.from({length:n}, () => new Int8Array(n));
+  const regCells = Array.from({length:n}, () => []);
+  for(let r=0;r<n;r++) for(let c=0;c<n;c++) regCells[reg[r][c]].push(r*n+c);
+
+  const units = [];
+  for(let r=0;r<n;r++){ const u=[]; for(let c=0;c<n;c++) u.push(r*n+c); units.push(u); }
+  for(let c=0;c<n;c++){ const u=[]; for(let r=0;r<n;r++) u.push(r*n+c); units.push(u); }
+  for(let g=0;g<n;g++) units.push(regCells[g]);
+
+  const cache = new Map();
+  function elim(idx){
+    let s = cache.get(idx);
+    if(s) return s;
+    const r=(idx/n)|0, c=idx%n;
+    s = new Set();
+    for(let i=0;i<n;i++){
+      if(i!==c) s.add(r*n+i);
+      if(i!==r) s.add(i*n+c);
+    }
+    for(const k of regCells[reg[r][c]]) if(k!==idx) s.add(k);
+    for(let dr=-1;dr<=1;dr++) for(let dc=-1;dc<=1;dc++){
+      if(dr===0 && dc===0) continue;
+      const nr=r+dr, nc=c+dc;
+      if(nr<0||nc<0||nr>=n||nc>=n) continue;
+      s.add(nr*n+nc);
+    }
+    cache.set(idx, s);
+    return s;
+  }
+
+  const totalCells = n*n;
+  let cats = 0, fail = false, changed = true;
+  let iterations = 0;
+  let intersectionHits = 0;   // 保留原始次數，供除錯/校正時參考
+  let nakedSingleCount = 0;   // 單一候選格（免費技巧），只算次數不太影響分數
+  let techniqueScore = 0;     // 交集排除技巧的加權總分
+  let peakStepWeight = 0;     // 單一步驟中最難的一步
+
+  function setEmpty(idx){
+    const r=(idx/n)|0, c=idx%n;
+    if(st[r][c] === 0){ st[r][c] = -1; changed = true; return true; }
+    else if(st[r][c] === 1){ fail = true; }
+    return false;
+  }
+
+  function setCat(idx){
+    const r=(idx/n)|0, c=idx%n;
+    if(st[r][c] === 1) return;
+    if(st[r][c] === -1){ fail = true; return; }
+    st[r][c] = 1; cats++; changed = true;
+    for(const k of elim(idx)) setEmpty(k);
+  }
+
+  while(changed && !fail){
+    changed = false;
+    iterations++;
+
+    // 這一輪開始時盤面還剩多少「未定」格 —— 開放格越多，代表越早期／越滿，
+    // 這時候要找出交集排除通常比殘局階段難心算得多。
+    let openCount = 0;
+    for(let r=0;r<n;r++) for(let c=0;c<n;c++) if(st[r][c] === 0) openCount++;
+    const openRatio = openCount / totalCells; // 0 ~ 1
+
+    for(const u of units){
+      let hasCat = false;
+      const cands = [];
+      for(const idx of u){
+        const v = st[(idx/n)|0][idx%n];
+        if(v === 1) hasCat = true;
+        else if(v === 0) cands.push(idx);
+      }
+      if(hasCat){ for(const idx of cands) setEmpty(idx); continue; }
+      if(cands.length === 0){ fail = true; break; }
+      if(cands.length === 1){ setCat(cands[0]); nakedSingleCount++; continue; }
+
+      // 交集指向排除 (Pointing Pairs / Locked Candidates 的廣義版)
+      let inter = null;
+      for(const idx of cands){
+        const e = elim(idx);
+        if(inter === null) inter = new Set(e);
+        else { for(const k of inter) if(!e.has(k)) inter.delete(k); }
+        if(inter.size === 0) break;
+      }
+      if(inter && inter.size){
+        let hit = false;
+        for(const k of inter){
+          if(setEmpty(k)) hit = true;
+        }
+        if(hit){
+          intersectionHits++;
+          // 候選格越多需要交叉比對，權重越高；盤面越開放（openRatio 越高），再加乘。
+          const baseWeight = 0.5 + (cands.length - 2) * 0.6;
+          const stepWeight = baseWeight * (0.5 + openRatio);
+          techniqueScore += stepWeight;
+          if(stepWeight > peakStepWeight) peakStepWeight = stepWeight;
+        }
+      }
+      if(fail) break;
+    }
+  }
+
+  const solvable = (!fail && cats === n);
+  if(!solvable) return null; // 無法透過純邏輯推導完成
+
+  // 綜合分數：總體推導量 + 最難單步（獨立加權，因為體感常取決於最卡的那一步）
+  // + 推導輪數（輪數多代表要反覆掃描才推得動），最後除以 n 粗略跨尺寸正規化。
+  const rawScore = techniqueScore + peakStepWeight * 1.2 + iterations * 0.5;
+  const score = rawScore / n;
+
+  return {
+    solvable: true,
+    score,               // 正規化後的難度分數，用來分級
+    peak: peakStepWeight, // 最難單步的權重，可用於除錯/校正
+    iterations,
+    intersectionHits,
+    nakedSingleCount
+  };
+}
+
+// 難度分級門檻（依 score，已跨尺寸正規化）。
+// 這組切點是用產生器本身在 5×5~8×8（9×9、10×10 因產生較慢、樣本數不足，
+// 權重較低）大量取樣後，取分數分布的四分位數（約 p25/p50/p75）訂出來的，
+// 目的是讓四個難度桶在「產生器自然會做出的關卡」裡大致平均分布，
+// 而不是隨便猜的數字。但這終究不是真人測試結果 —— 之後建議依玩家實際
+// 解題時間 / 放棄率回頭調整這四個切點，尤其是 9×9、10×10 這兩個目前
+// 樣本較薄弱的尺寸。
+const DIFFICULTY_BANDS = {
+  easy:   { min: 0,   max: 2.4 },
+  medium: { min: 2.4, max: 3.2 },
+  hard:   { min: 3.2, max: 4.0 },
+  expert: { min: 4.0, max: Infinity }
+};
+
+// Worker 主監聽器
+self.onmessage = function(e){
+  const { n, targetCount, targetDiff } = e.data;
+  const t0 = performance.now();
+  const list = [];
+  let totalAttempts = 0;
+  let currentAttempts = 0;
+  let lastReport = t0;
+
+  for(let i = 0; i < targetCount; i++){
+    let found = false;
+    currentAttempts = 0;
+
+    while(!found){
+      totalAttempts++;
+      currentAttempts++;
+      const now = performance.now();
+
+      if(now - lastReport > 120){
+        self.postMessage({
+          status: 'progress',
+          completed: list.length,
+          targetCount,
+          currentAttempts,
+          totalAttempts,
+          elapsed: ((now - t0) / 1000).toFixed(1)
+        });
+        lastReport = now;
+      }
+
+      const sol = randomSolution(n);
+      if(!sol) continue;
+      const { reg, size } = genRegions(n, sol);
+
+      // 使用靶向修剪快速收斂至唯一解
+      if(!refineToUnique(n, reg, sol, size, 160)) continue;
+
+      // 嚴格雙重驗證：全域唯一解 + 根據加權難度分數精準過濾難度
+      if(countSolutions(n, reg, 2) === 1){
+        const evalRes = evaluateLogicalDifficulty(n, reg);
+        if(evalRes){
+          const score = evalRes.score;
+          let matched = (targetDiff === 'any');
+          if(!matched){
+            const band = DIFFICULTY_BANDS[targetDiff];
+            matched = !!band && score >= band.min && score < band.max;
+          }
+
+          if(matched){
+            // 保持純淨資料結構，匯出時完全不含多餘欄位
+            list.push({ id: list.length + 1, n, sol, reg });
+            found = true;
+            self.postMessage({
+              status: 'progress',
+              completed: list.length,
+              targetCount,
+              currentAttempts,
+              totalAttempts,
+              elapsed: ((performance.now() - t0) / 1000).toFixed(1),
+              puzzle: { id: list.length, n, sol, reg }
+            });
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  self.postMessage({
+    status: 'batch_done',
+    list,
+    totalAttempts,
+    elapsed: ((performance.now() - t0) / 1000).toFixed(1)
+  });
+};
+`;
+
+const workerBlob = new Blob([workerScript], { type: 'application/javascript' });
+let currentWorkers = [];
+let workerStats = [];
+let batchStartTime = 0;
+let batchTargetTotal = 0;
+
+const frameEl  = document.getElementById('frame');
+const boardEl  = document.getElementById('board');
+const linesEl  = document.getElementById('lines');
+const livesEl  = document.getElementById('lives');
+const progEl   = document.getElementById('progress');
+const timerEl  = document.getElementById('timer');
+const levelEl  = document.getElementById('levelNo');
+const verifyEl = document.getElementById('verify');
+const overlay  = document.getElementById('overlay');
+const modal    = document.getElementById('modal');
+const autoXChk = document.getElementById('autoX');
+const exportBtn = document.getElementById('exportBtn');
+const toastEl  = document.getElementById('toast');
+const targetCountInput = document.getElementById('targetCountInput');
+const boardSizeSelect  = document.getElementById('boardSizeSelect');
+const difficultySelect = document.getElementById('difficultySelect');
+const prevLevelBtn = document.getElementById('prevLevelBtn');
+const nextLevelBtn = document.getElementById('nextLevelBtn');
+const hintBtn = document.getElementById('hintBtn');
+const hintPanel = document.getElementById('hintPanel');
+const hintTitleEl = document.getElementById('hintTitle');
+const hintReasonEl = document.getElementById('hintReason');
+const hintCloseBtn = document.getElementById('hintCloseBtn');
+const modeToggleBtn = document.getElementById('modeToggleBtn');
+const levelMapBtn = document.getElementById('levelMapBtn');
+const mapOverlay = document.getElementById('mapOverlay');
+const mapModal = document.getElementById('mapModal');
+
+let puzzlesQueue = [];
+let currentPuzzleIndex = 0;
+let SOL = [], REG = [], CELLS = [];
+let lives = MAX_LIVES, placed = 0, over = false;
+let tickId = null, startTime = 0;
+let clickTimer = null, pendingCell = -1;
+let CELL = 50;
+const MAX_HINTS = 2;
+let hintsLeft = MAX_HINTS;
+let hintHighlightCells = [];
+
+/* =========================================================================
+   Adventure mode：關卡曲線、背景生成 buffer、存檔/紀錄
+   ========================================================================= */
+const DIFF_LABEL = { easy:'簡單', medium:'普通', hard:'困難', expert:'超難' };
+const DIFF_ORDER = ['easy','medium','hard','expert'];
+
+// 關卡曲線：前 80 關手排章節（尺寸 × 難度呈鋸齒狀漸進，每 8 關安排一次喘息關），
+// 超過 80 關之後進入無限模式，尺寸在 8~10 之間循環、難度以 hard/expert 為主。
+const LEVEL_CHAPTERS = [
+  { from:1,  to:8,  n:5,  diff:'easy'   },
+  { from:9,  to:12, n:5,  diff:'medium' },
+  { from:13, to:16, n:6,  diff:'easy'   },
+  { from:17, to:22, n:6,  diff:'medium' },
+  { from:23, to:26, n:6,  diff:'hard'   },
+  { from:27, to:32, n:7,  diff:'medium' },
+  { from:33, to:38, n:7,  diff:'hard'   },
+  { from:39, to:44, n:8,  diff:'medium' },
+  { from:45, to:52, n:8,  diff:'hard'   },
+  { from:53, to:58, n:9,  diff:'hard'   },
+  { from:59, to:64, n:9,  diff:'expert' },
+  { from:65, to:70, n:10, diff:'hard'   },
+  { from:71, to:80, n:10, diff:'expert' }
+];
+const LAST_CURATED_LEVEL = LEVEL_CHAPTERS[LEVEL_CHAPTERS.length - 1].to;
+
+function getLevelSpec(levelIndex){
+  let n, diff;
+  const seg = LEVEL_CHAPTERS.find(s => levelIndex >= s.from && levelIndex <= s.to);
+  if(seg){
+    n = seg.n; diff = seg.diff;
+  } else {
+    // 無限模式：超過手排章節後，尺寸在 8~10 循環，難度以 hard/expert 交替。
+    const cyc = levelIndex - LAST_CURATED_LEVEL - 1;
+    const sizes = [9, 10, 8, 10, 9];
+    n = sizes[cyc % sizes.length];
+    diff = (cyc % 3 === 2) ? 'hard' : 'expert';
+  }
+  // 每 8 關安排一次喘息關（難度降一級），避免曲線一路陡升讓人卡關棄坑。
+  if(levelIndex % 8 === 0){
+    const idx = Math.max(0, DIFF_ORDER.indexOf(diff) - 1);
+    diff = DIFF_ORDER[idx];
+  }
+  return { n, diff };
+}
+
+const ADV_STORAGE_KEY = 'meowdoku_adventure_v1';
+const CURVE_VERSION = 1;
+
+function freshAdvProgress(){
+  return { curveVersion: CURVE_VERSION, frontier: 1, levels: {} };
+}
+function loadAdvProgress(){
+  try{
+    const raw = localStorage.getItem(ADV_STORAGE_KEY);
+    if(!raw) return freshAdvProgress();
+    const data = JSON.parse(raw);
+    if(!data || data.curveVersion !== CURVE_VERSION) return freshAdvProgress();
+    if(!data.levels) data.levels = {};
+    if(!data.frontier) data.frontier = 1;
+    return data;
+  }catch(err){
+    return freshAdvProgress();
+  }
+}
+function saveAdvProgress(){
+  try{ localStorage.setItem(ADV_STORAGE_KEY, JSON.stringify(advProgress)); }
+  catch(err){ /* 儲存空間不可用時安靜略過，不影響本次遊玩 */ }
+}
+function newLevelRecord(){
+  return { status:'unplayed', bestTimeSec:null, bestMistakes:null, bestHints:null, stars:0, timesPlayed:0, firstClearedAt:null };
+}
+function computeStars(mistakes, hintsUsed){
+  if(mistakes === 0 && hintsUsed === 0) return 3;
+  if(mistakes <= 1 && hintsUsed <= 1) return 2;
+  return 1;
+}
+
+let mode = 'adventure'; // 'adventure' | 'free'
+let advProgress = loadAdvProgress();
+let advCurrentLevel = advProgress.frontier;
+let advPuzzleCache = {};   // levelIndex -> {n,diff,sol,reg}
+let advWaiters = {};       // levelIndex -> [callback, ...]（生成中，避免重複開 worker）
+
+function generateLevelPuzzle(levelIndex, done){
+  const spec = getLevelSpec(levelIndex);
+  const w = new Worker(URL.createObjectURL(workerBlob));
+  w.onmessage = (e) => {
+    const data = e.data;
+    if(data.status === 'batch_done'){
+      w.terminate();
+      const p = data.list && data.list[0];
+      done(p ? { n: spec.n, diff: spec.diff, sol: p.sol, reg: p.reg } : null);
+    }
+  };
+  w.postMessage({ n: spec.n, targetCount: 1, targetDiff: spec.diff });
+}
+
+function finishLevelGen(levelIndex, puzzle){
+  if(puzzle){
+    advPuzzleCache[levelIndex] = puzzle;
+    if(!advProgress.levels[levelIndex]) advProgress.levels[levelIndex] = newLevelRecord();
+    advProgress.levels[levelIndex].puzzle = puzzle;
+    advProgress.levels[levelIndex].n = puzzle.n;
+    advProgress.levels[levelIndex].diff = puzzle.diff;
+    saveAdvProgress();
+  }
+  const waiters = advWaiters[levelIndex] || [];
+  delete advWaiters[levelIndex];
+  waiters.forEach(fn => fn(puzzle));
+}
+
+function ensureLevelPuzzle(levelIndex, onReady){
+  const cached = advPuzzleCache[levelIndex];
+  if(cached){ onReady(cached); return; }
+  const rec = advProgress.levels[levelIndex];
+  if(rec && rec.puzzle){
+    advPuzzleCache[levelIndex] = rec.puzzle;
+    onReady(rec.puzzle);
+    return;
+  }
+  if(advWaiters[levelIndex]){
+    advWaiters[levelIndex].push(onReady);
+    return;
+  }
+  advWaiters[levelIndex] = [onReady];
+  generateLevelPuzzle(levelIndex, (puzzle) => {
+    if(puzzle){ finishLevelGen(levelIndex, puzzle); return; }
+    // 極少數狀況下生成失敗（例如逾時被中斷），重試一次
+    generateLevelPuzzle(levelIndex, (p2) => finishLevelGen(levelIndex, p2));
+  });
+}
+
+// 在玩家遊玩目前這關時，於背景預先生成接下來 2 關，維持緩衝存量。
+function prefetchAhead(fromLevel){
+  [1, 2].forEach(off => {
+    const li = fromLevel + off;
+    const already = advPuzzleCache[li] || (advProgress.levels[li] && advProgress.levels[li].puzzle) || advWaiters[li];
+    if(!already) ensureLevelPuzzle(li, () => {});
+  });
+}
+
+function showAdvLoadingModal(levelIndex){
+  const spec = getLevelSpec(levelIndex);
+  modal.innerHTML = `
+    <div class="spinner"></div>
+    <h2>正在鋪好第 ${levelIndex} 關的星空…</h2>
+    <p>${spec.n}×${spec.n}・${DIFF_LABEL[spec.diff] || ''}</p>
+  `;
+  overlay.classList.remove('hidden');
+}
+
+function loadAdventureLevel(levelIndex){
+  mode = 'adventure';
+  document.body.classList.add('mode-adventure');
+  document.body.classList.remove('mode-free');
+  modeToggleBtn.textContent = '🎯 自由練習';
+  advCurrentLevel = levelIndex;
+
+  const cached = advPuzzleCache[levelIndex] || (advProgress.levels[levelIndex] && advProgress.levels[levelIndex].puzzle);
+  if(!cached) showAdvLoadingModal(levelIndex);
+
+  ensureLevelPuzzle(levelIndex, (puzzle) => {
+    if(!puzzle){
+      overlay.classList.add('hidden');
+      showToast('這一關生成失敗了，請再試一次！');
+      return;
+    }
+    currentN = puzzle.n;
+    boardSizeSelect.value = currentN;
+    SOL = puzzle.sol;
+    REG = puzzle.reg;
+    resetState();
+    verifyEl.textContent = `第 ${levelIndex} 關・${puzzle.n}×${puzzle.n}・${DIFF_LABEL[puzzle.diff] || ''}`;
+    closeLevelMap();
+    prefetchAhead(levelIndex);
+  });
+}
+
+function openLevelMap(){
+  renderLevelMap();
+  mapOverlay.classList.remove('hidden');
+}
+function closeLevelMap(){
+  mapOverlay.classList.add('hidden');
+}
+function renderLevelMap(){
+  const frontier = advProgress.frontier;
+  const showUpTo = frontier + 2; // 多顯示 2 關鎖住的關卡，讓玩家知道還有更多
+  let html = '<h2>關卡地圖</h2><p class="map-sub">已通關至第 ' + Math.max(frontier - 1, 0) + ' 關</p><div class="level-grid">';
+  for(let i = 1; i <= showUpTo; i++){
+    const rec = advProgress.levels[i];
+    const spec = getLevelSpec(i);
+    const cleared = rec && rec.status === 'cleared';
+    const locked = i > frontier;
+    const isCurrent = (i === advCurrentLevel && !locked);
+    const stars = rec ? (rec.stars || 0) : 0;
+    const starsHtml = locked ? '' :
+      '<span class="lv-stars">' + [1,2,3].map(s => `<i class="${s<=stars?'on':''}">★</i>`).join('') + '</span>';
+    html += `<button class="lv-btn ${cleared?'cleared':''} ${locked?'locked':''} ${isCurrent?'current':''}" data-lv="${i}" ${locked?'disabled':''}>
+      <span class="lv-num">${locked ? '🔒' : i}</span>
+      <span class="lv-size">${spec.n}×${spec.n}</span>
+      ${starsHtml}
+    </button>`;
+  }
+  html += '</div><div class="btns"><button id="mapCloseBtn">關閉</button></div>';
+  mapModal.innerHTML = html;
+  mapModal.querySelectorAll('.lv-btn:not(.locked)').forEach(btn => {
+    btn.onclick = () => loadAdventureLevel(parseInt(btn.dataset.lv, 10));
+  });
+  document.getElementById('mapCloseBtn').onclick = closeLevelMap;
+}
+
+function setMode(newMode){
+  if(mode === newMode) return;
+  mode = newMode;
+  hideHintPanel();
+  if(newMode === 'free'){
+    document.body.classList.add('mode-free');
+    document.body.classList.remove('mode-adventure');
+    modeToggleBtn.textContent = '🏰 回冒險模式';
+    if(puzzlesQueue.length){
+      loadPuzzleIndex(currentPuzzleIndex);
+    } else {
+      boardSizeSelect.value = currentN;
+      buildEmptyBoard();
+      progEl.textContent = `星星 0 / ${currentN}`;
+      levelEl.textContent = '自由練習・尚未開始';
+      verifyEl.textContent = '選擇尺寸與難度後，點擊「開始今晚的星空」！';
+    }
+  } else {
+    document.body.classList.add('mode-adventure');
+    document.body.classList.remove('mode-free');
+    modeToggleBtn.textContent = '🎯 自由練習';
+    loadAdventureLevel(advCurrentLevel || advProgress.frontier);
+  }
+}
+
+function showToast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  setTimeout(() => toastEl.classList.remove('show'), 2200);
+}
+
+function abortGeneration(){
+  if(currentWorkers.length){
+    currentWorkers.forEach(w => w.terminate());
+    currentWorkers = [];
+  }
+  overlay.classList.add('hidden');
+  if(puzzlesQueue.length > 0){
+    renumberPuzzles();
+    exportBtn.disabled = false;
+    currentPuzzleIndex = 0;
+    loadPuzzleIndex(0);
+    verifyEl.textContent = `⏸ 已中斷生成，已為您載入已產出的 ${puzzlesQueue.length} 個關卡。`;
+  } else {
+    verifyEl.textContent = '⏸ 已中斷生成，未產生任何關卡。';
+  }
+}
+
+function renumberPuzzles(){
+  puzzlesQueue.forEach((p, i) => { p.id = i + 1; });
+}
+
+function updateLoadingModal(stats, nVal, workerCount, diffText){
+  modal.innerHTML = `
+    <div class="spinner"></div>
+    <h2>正在極速生成 ${nVal}×${nVal} [${diffText}] 關卡…</h2>
+    <p>靶向修剪加速演算中 ⚡（${workerCount} 個執行緒平行運算）</p>
+    <div class="gen-stats">
+      總進度：<strong>${stats.completed} / ${stats.target}</strong> 關<br>
+      累計嘗試次數：${stats.totalAttempts} 次<br>
+      已累計耗時：${stats.elapsed} 秒
+    </div>
+    <div class="btns">
+      <button class="danger" onclick="abortGeneration()">🛑 中斷生成 (保留已產出關卡)</button>
+    </div>
+  `;
+}
+
+function splitCount(total, workers){
+  const base = Math.floor(total / workers);
+  const rem = total % workers;
+  const arr = [];
+  for(let i=0;i<workers;i++) arr.push(base + (i < rem ? 1 : 0));
+  return arr;
+}
+
+function computeAggregatedStats(){
+  let completed = 0, totalAttempts = 0;
+  for(const s of workerStats){ completed += s.completed; totalAttempts += s.totalAttempts; }
+  return {
+    completed,
+    totalAttempts,
+    target: batchTargetTotal,
+    elapsed: ((performance.now() - batchStartTime) / 1000).toFixed(1)
+  };
+}
+
+function startBatchGeneration(){
+  if(currentWorkers.length){
+    currentWorkers.forEach(w => w.terminate());
+    currentWorkers = [];
+  }
+
+  const nVal = parseInt(boardSizeSelect.value, 10) || 10;
+  currentN = nVal;
+
+  const targetCount = parseInt(targetCountInput.value, 10);
+  if(isNaN(targetCount) || targetCount < 1){
+    showToast('請輸入有效的目標數量！');
+    return;
+  }
+
+  const targetDiff = difficultySelect.value || 'any';
+  const diffMap = {
+    any: '全部',
+    easy: '簡單',
+    medium: '普通',
+    hard: '困難',
+    expert: '超難'
+  };
+  const diffText = diffMap[targetDiff] || '全部';
+
+  const hc = navigator.hardwareConcurrency || 4;
+  const workerCount = Math.max(1, Math.min(hc, 8, targetCount));
+  const shares = splitCount(targetCount, workerCount);
+
+  puzzlesQueue = [];
+  batchStartTime = performance.now();
+  batchTargetTotal = targetCount;
+  workerStats = shares.map(share => ({ target: share, completed: 0, totalAttempts: 0, done: false, list: [] }));
+
+  updateLoadingModal(computeAggregatedStats(), currentN, workerCount, diffText);
+  overlay.classList.remove('hidden');
+
+  currentWorkers = shares.map((share, idx) => {
+    const w = new Worker(URL.createObjectURL(workerBlob));
+    w.onmessage = (e) => handleWorkerMessage(idx, e, diffText);
+    w.postMessage({ n: currentN, targetCount: share, targetDiff });
+    return w;
+  });
+}
+
+function handleWorkerMessage(idx, e, diffText){
+  const data = e.data;
+  const stat = workerStats[idx];
+  if(!stat) return;
+
+  if(data.status === 'progress'){
+    stat.completed = data.completed;
+    stat.totalAttempts = data.totalAttempts;
+    if(data.puzzle) puzzlesQueue.push(data.puzzle);
+    updateLoadingModal(computeAggregatedStats(), currentN, currentWorkers.length, diffText);
+  } else if(data.status === 'batch_done'){
+    stat.done = true;
+    stat.list = data.list;
+    stat.completed = data.list.length;
+    stat.totalAttempts = data.totalAttempts;
+    if(currentWorkers[idx]) currentWorkers[idx].terminate();
+
+    if(workerStats.every(s => s.done)){
+      finalizeBatch(diffText);
+    } else {
+      updateLoadingModal(computeAggregatedStats(), currentN, currentWorkers.length, diffText);
+    }
+  }
+}
+
+function finalizeBatch(diffText){
+  const stats = computeAggregatedStats();
+  const workerCount = workerStats.length;
+  const merged = [];
+  for(const s of workerStats) merged.push(...s.list);
+
+  puzzlesQueue = merged;
+  renumberPuzzles();
+  currentWorkers = [];
+  overlay.classList.add('hidden');
+
+  if(puzzlesQueue.length > 0){
+    exportBtn.disabled = false;
+    currentPuzzleIndex = 0;
+    loadPuzzleIndex(0);
+    verifyEl.textContent = `✔ 批次成功生成 ${puzzlesQueue.length} 個 ${currentN}×${currentN} [${diffText}] 關卡！(耗時 ${stats.elapsed}s，共嘗試 ${stats.totalAttempts} 次，${workerCount} 執行緒)`;
+    showToast(`已產出 ${puzzlesQueue.length} 個 ${currentN}×${currentN} [${diffText}] 關卡！`);
+  }
+}
+
+function loadPuzzleIndex(idx){
+  if(idx < 0 || idx >= puzzlesQueue.length) return;
+  currentPuzzleIndex = idx;
+  const p = puzzlesQueue[idx];
+  currentN = p.n || currentN;
+  boardSizeSelect.value = currentN;
+  SOL = p.sol;
+  REG = p.reg;
+  resetState();
+  updateNavButtons();
+}
+
+function updateNavButtons(){
+  prevLevelBtn.disabled = currentPuzzleIndex <= 0;
+  nextLevelBtn.disabled = currentPuzzleIndex >= puzzlesQueue.length - 1;
+}
+
+function resetState(){
+  lives = MAX_LIVES; placed = 0; over = false;
+  CELLS = Array.from({length:currentN}, () => new Array(currentN).fill('empty'));
+  clearTimeout(clickTimer); clickTimer = null; pendingCell = -1;
+  hintsLeft = MAX_HINTS;
+  hideHintPanel();
+  buildBoard();
+  updateHUD();
+  startTimer();
+  overlay.classList.add('hidden');
+}
+
+function computeCellSize(){
+  const avail = Math.min(window.innerWidth * 0.92, 540) - 8;
+  const maxCell = currentN <= 6 ? 72 : (currentN <= 8 ? 60 : 50);
+  return Math.min(maxCell, Math.max(26, Math.floor(avail / currentN)));
+}
+
+function applyMetrics(){
+  CELL = computeCellSize();
+  const inner = CELL * currentN;
+  boardEl.style.setProperty('--n', currentN);
+  boardEl.style.setProperty('--cell', CELL + 'px');
+  boardEl.style.setProperty('--fs', Math.round(CELL * 0.62) + 'px');
+  drawLines(inner);
+}
+
+function drawLines(inner){
+  linesEl.setAttribute('width', inner);
+  linesEl.setAttribute('height', inner);
+  linesEl.setAttribute('viewBox', `0 0 ${inner} ${inner}`);
+  linesEl.innerHTML = '';
+
+  // 防禦性檢查：若尚未載入關卡，或 REG 尺寸與當前 currentN 不相符，直接清空線條後返回
+  if(!REG || !REG.length || REG.length !== currentN || !REG[0] || REG[0].length !== currentN){
+    return;
+  }
+
+  let thin = '';
+
+  for(let r=0;r<currentN;r++){
+    for(let c=0;c<currentN;c++){
+      if(c < currentN-1){
+        const x = (c+1) * CELL, y0 = r * CELL, y1 = (r+1) * CELL;
+        thin += `M${x+0.5} ${y0}L${x+0.5} ${y1}`;
+      }
+      if(r < currentN-1){
+        const y = (r+1) * CELL, x0 = c * CELL, x1 = (c+1) * CELL;
+        thin += `M${x0} ${y+0.5}L${x1} ${y+0.5}`;
+      }
+    }
+  }
+
+  const mk = (d, color, w, cap) => {
+    const p = document.createElementNS(SVGNS, 'path');
+    p.setAttribute('d', d);
+    p.setAttribute('stroke', color);
+    p.setAttribute('stroke-width', w);
+    p.setAttribute('fill', 'none');
+    p.setAttribute('stroke-linecap', cap);
+    return p;
+  };
+  if(thin) linesEl.appendChild(mk(thin, 'rgba(43,35,80,.28)', 1.2, 'butt'));
+}
+
+function buildEmptyBoard(){
+  SOL = [];
+  REG = [];
+  applyMetrics();
+  boardEl.innerHTML = '';
+  const frag = document.createDocumentFragment();
+  for(let r=0;r<currentN;r++){
+    for(let c=0;c<currentN;c++){
+      const d = document.createElement('div');
+      d.className = 'cell';
+      d.style.background = '#fdf1da';
+      d.style.boxShadow = '0 0 0 1px #f0dfc0';
+      frag.appendChild(d);
+    }
+  }
+  boardEl.appendChild(frag);
+}
+
+function buildBoard(){
+  applyMetrics();
+  boardEl.innerHTML = '';
+  const frag = document.createDocumentFragment();
+
+  for(let r=0;r<currentN;r++){
+    for(let c=0;c<currentN;c++){
+      const color = PALETTE[REG[r][c] % PALETTE.length];
+      const d = document.createElement('div');
+      d.className = 'cell';
+      d.dataset.r = r; d.dataset.c = c;
+      d.style.background = color;
+      d.style.boxShadow = `0 0 0 1px ${color}`;
+
+      const layer = document.createElement('div');
+      layer.className = 'layer';
+      d.appendChild(layer);
+
+      d.addEventListener('click', onClick);
+      d.addEventListener('contextmenu', e=>{
+        e.preventDefault();
+        flushPending();
+        tryCat(+e.currentTarget.dataset.r, +e.currentTarget.dataset.c);
+      });
+      frag.appendChild(d);
+    }
+  }
+  boardEl.appendChild(frag);
+}
+
+let resizeTimer = null;
+window.addEventListener('resize', ()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(applyMetrics, 120);
+});
+
+const cellEl  = (r,c) => boardEl.children[r*currentN + c];
+const layerOf = (r,c) => cellEl(r,c).firstElementChild;
+
+function starSVG(extra=''){
+  return `<svg class="star-svg ${extra}" viewBox="0 0 100 100" aria-hidden="true">
+    <path d="M50 7 L61 37 L93 38 L68 57 L76 89 L50 71 L24 89 L32 57 L7 38 L39 37 Z"/>
+    <circle cx="39" cy="36" r="5"/>
+  </svg>`;
+}
+
+let soundEnabled = true;
+let audioCtx = null;
+function ensureAudio(){
+  if(!soundEnabled) return null;
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if(audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+function playTone(freq, duration=.08, type='sine', volume=.035, delay=0){
+  const ctx=ensureAudio(); if(!ctx) return;
+  const o=ctx.createOscillator(), g=ctx.createGain();
+  o.type=type; o.frequency.value=freq;
+  g.gain.setValueAtTime(0.0001,ctx.currentTime+delay);
+  g.gain.exponentialRampToValueAtTime(volume,ctx.currentTime+delay+.012);
+  g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+delay+duration);
+  o.connect(g).connect(ctx.destination);
+  o.start(ctx.currentTime+delay); o.stop(ctx.currentTime+delay+duration+.02);
+}
+function soundPlace(){ playTone(660,.10,'triangle',.045); playTone(990,.13,'sine',.035,.08); }
+function soundMark(){ playTone(360,.055,'sine',.022); }
+function soundWrong(){ playTone(180,.12,'sawtooth',.025); playTone(120,.16,'sine',.018,.08); }
+function soundHint(){ playTone(740,.08,'sine',.025); playTone(1040,.13,'sine',.022,.09); }
+function soundWin(){ [660,784,988,1175].forEach((f,i)=>playTone(f,.16,'sine',.03,i*.09)); }
+function rabbitSmallSVG(){
+  return `<svg class="modal-rabbit" viewBox="0 0 120 100" aria-hidden="true">
+    <path d="M35 42 C24 15 29 4 40 12 C49 18 49 34 47 45" fill="#e3daf7" stroke="#a597e6" stroke-width="3"/>
+    <path d="M73 44 C79 16 91 8 97 19 C102 31 92 43 82 49" fill="#e3daf7" stroke="#a597e6" stroke-width="3"/>
+    <circle cx="60" cy="59" r="34" fill="#fffdf6" stroke="#a597e6" stroke-width="3"/>
+    <circle cx="48" cy="59" r="3" fill="#2b2350"/><circle cx="72" cy="59" r="3" fill="#2b2350"/>
+    <path d="M53 72 Q60 78 67 72" fill="none" stroke="#2b2350" stroke-width="2.5" stroke-linecap="round"/>
+  </svg>`;
+}
+
+function paint(r,c){
+  const box = layerOf(r,c), s = CELLS[r][c];
+  box.innerHTML = '';
+  if(s === 'x')      box.innerHTML = '<span class="mark x">×</span>';
+  if(s === 'wrong')  box.innerHTML = '<span class="wrongbg"></span><span class="mark wrong">×</span>';
+  if(s === 'cat')    box.innerHTML = `<span class="glow"></span><span class="mark star">${starSVG()}</span>`;
+  if(s === 'reveal') box.innerHTML = `<span class="mark star reveal">${starSVG('reveal-star')}</span>`;
+}
+
+// ---- 提示系統 ----
+// 找出「合同單元」（列 / 欄 / 宮）內某格與另一格的關聯，用於解釋交集排除的推理原因
+function hintElimCells(n, reg, r, c){
+  const s = new Set();
+  for(let i=0;i<n;i++){
+    if(i!==c) s.add(r*n+i);
+    if(i!==r) s.add(i*n+c);
+  }
+  const g = reg[r][c];
+  for(let i=0;i<n;i++) for(let j=0;j<n;j++){
+    if(reg[i][j]===g && !(i===r&&j===c)) s.add(i*n+j);
+  }
+  for(let dr=-1;dr<=1;dr++) for(let dc=-1;dc<=1;dc++){
+    if(dr===0 && dc===0) continue;
+    const nr=r+dr, nc=c+dc;
+    if(nr<0||nc<0||nr>=n||nc>=n) continue;
+    s.add(nr*n+nc);
+  }
+  return s;
+}
+
+function hintUnitLabel(u){
+  if(u.type === 'row') return `第 ${u.idx+1} 列`;
+  if(u.type === 'col') return `第 ${u.idx+1} 欄`;
+  return `第 ${u.idx+1} 號色塊（宮）`;
+}
+
+// 根據玩家目前實際盤面狀態（CELLS）＋真正解答，找出「卡住時該做的下一步」與理由。
+// 回傳 { type: 'contradiction'|'placeCat'|'markX', cells:[{r,c}], title, reason } 或 null（無事可提示）。
+function computeHint(){
+  const n = currentN, reg = REG, sol = SOL;
+
+  // Step 1：矛盾偵測 —— 玩家是否誤把正解格標記成 ✕
+  for(let r=0;r<n;r++){
+    const c = sol[r];
+    if(CELLS[r][c] === 'x'){
+      return {
+        type: 'contradiction',
+        cells: [{r,c}],
+        title: ' 發現矛盾之處',
+        reason: `第 ${r+1} 列的星星其實應該落在這一格，但這格目前被你標記成 ✕ 了。先取消這個標記，很多卡關的狀況都是這樣造成的。`
+      };
+    }
+  }
+
+  // Step 2：以玩家目前已知資訊（已放置的貓咪 + 已標記 ✕/已知錯誤格）為基礎，逐步推理
+  const st = Array.from({length:n}, () => new Int8Array(n));
+  for(let r=0;r<n;r++) for(let c=0;c<n;c++){
+    const s = CELLS[r][c];
+    if(s === 'cat') st[r][c] = 1;
+    else if(s === 'x' || s === 'wrong') st[r][c] = -1;
+  }
+
+  const units = [];
+  for(let r=0;r<n;r++){ const u=[]; for(let c=0;c<n;c++) u.push({r,c}); units.push({type:'row', idx:r, cells:u}); }
+  for(let c=0;c<n;c++){ const u=[]; for(let r=0;r<n;r++) u.push({r,c}); units.push({type:'col', idx:c, cells:u}); }
+  const regUnits = Array.from({length:n}, () => []);
+  for(let r=0;r<n;r++) for(let c=0;c<n;c++) regUnits[reg[r][c]].push({r,c});
+  regUnits.forEach((cells, g) => units.push({type:'region', idx:g, cells}));
+
+  let changed = true, guard = 0;
+  while(changed && guard < 200){
+    changed = false; guard++;
+    for(const u of units){
+      let hasCat = false;
+      const cands = [];
+      for(const {r,c} of u.cells){
+        if(st[r][c] === 1) hasCat = true;
+        else if(st[r][c] === 0) cands.push({r,c});
+      }
+      if(hasCat){
+        for(const {r,c} of cands){
+          if(CELLS[r][c] === 'empty'){
+            return {
+              type: 'markX',
+              cells: [{r,c}],
+              title: '月兔找到可以排除的位置',
+              reason: `${hintUnitLabel(u)}裡已經有貓咪了，每一列、每一欄、每個色塊都只會有一隻貓，所以這格可以先放下月光標記。`
+            };
+          }
+          st[r][c] = -1; changed = true;
+        }
+        continue;
+      }
+      if(cands.length === 0) continue;
+      if(cands.length === 1){
+        const {r,c} = cands[0];
+        if(CELLS[r][c] === 'empty'){
+          return {
+            type: 'placeCat',
+            cells: [{r,c}],
+            title: '月兔找到必然的一步',
+            reason: `${hintUnitLabel(u)}只剩下這一格還沒被排除，星星一定在這裡。`
+          };
+        }
+        st[r][c] = 1; changed = true;
+        continue;
+      }
+      let inter = null;
+      for(const {r,c} of cands){
+        const e = hintElimCells(n, reg, r, c);
+        if(inter === null) inter = new Set(e);
+        else { for(const k of inter) if(!e.has(k)) inter.delete(k); }
+        if(inter.size === 0) break;
+      }
+      if(inter && inter.size){
+        for(const k of inter){
+          const r = (k/n)|0, c = k % n;
+          if(st[r][c] !== 0) continue;
+          if(CELLS[r][c] === 'empty'){
+            return {
+              type: 'markX',
+              cells: [{r,c}],
+              title: '月兔發現了一個線索',
+              reason: `${hintUnitLabel(u)}裡的星星一定落在其中 ${cands.length} 格之一，但不管實際是哪一格，都會跟這一格同列、同欄、同一星區或緊鄰，因此這格一定不能是貓咪，可以安全標記 ✕。`
+            };
+          }
+          st[r][c] = -1; changed = true;
+        }
+      }
+    }
+  }
+
+  // Step 3：目前的推理引擎（單一候選 + 交集排除）已經找不到新的一步，
+  // 代表這一步需要更高階的技巧 —— 誠實告知，並直接指出下一個正解格。
+  for(let r=0;r<n;r++){
+    const c = sol[r];
+    if(CELLS[r][c] !== 'cat'){
+      return {
+        type: 'placeCat',
+        cells: [{r,c}],
+        title: '月兔先替你指出下一顆星',
+        reason: `這一步需要比目前提示引擎更高階的推理，沒辦法生成清楚的邏輯鏈，所以直接告訴你正解在這裡。`
+      };
+    }
+  }
+
+  return null;
+}
+
+function clearHintHighlights(){
+  for(const {r,c} of hintHighlightCells){
+    const el = cellEl(r,c);
+    if(el) el.classList.remove('hint-glow');
+  }
+  hintHighlightCells = [];
+}
+
+function hideHintPanel(){
+  hintPanel.classList.add('hidden');
+  clearHintHighlights();
+}
+
+function showHintResult(hint){
+  clearHintHighlights();
+  hintHighlightCells = hint.cells;
+  for(const {r,c} of hint.cells){
+    const el = cellEl(r,c);
+    if(el) el.classList.add('hint-glow');
+  }
+  hintTitleEl.textContent = hint.title;
+  hintReasonEl.textContent = hint.reason;
+  hintPanel.classList.remove('hidden');
+}
+
+function useHint(){
+  if(over || !SOL.length || hintsLeft <= 0) return;
+  const hint = computeHint();
+  if(!hint){
+    showToast('目前盤面已經沒有可以提示的地方囉！');
+    return;
+  }
+  hintsLeft--;
+  soundHint();
+  updateHintBtn();
+  showHintResult(hint);
+}
+
+function onClick(e){
+  if(over || !SOL.length) return;
+  const r = +e.currentTarget.dataset.r, c = +e.currentTarget.dataset.c;
+  const idx = r*currentN + c;
+  if(clickTimer !== null && pendingCell === idx){
+    clearTimeout(clickTimer); clickTimer = null; pendingCell = -1;
+    tryCat(r, c);
+    return;
+  }
+  flushPending();
+  pendingCell = idx;
+  clickTimer = setTimeout(()=>{
+    clickTimer = null; pendingCell = -1;
+    toggleX(r, c);
+  }, 230);
+}
+
+function flushPending(){
+  if(clickTimer !== null){
+    clearTimeout(clickTimer); clickTimer = null;
+    const r = (pendingCell/currentN)|0, c = pendingCell % currentN;
+    pendingCell = -1;
+    toggleX(r, c);
+  }
+}
+
+function toggleX(r,c){
+  if(over || !SOL.length) return;
+  const s = CELLS[r][c];
+  if(s === 'cat' || s === 'wrong'){ shake(r,c); return; }
+  CELLS[r][c] = (s === 'x') ? 'empty' : 'x';
+  soundMark();
+  paint(r,c);
+  clearHintHighlights();
+}
+
+function tryCat(r,c){
+  if(over || !SOL.length) return;
+  const s = CELLS[r][c];
+  if(s === 'cat' || s === 'wrong'){ shake(r,c); return; }
+  clearHintHighlights();
+  if(SOL[r] === c){
+    CELLS[r][c] = 'cat';
+    soundPlace();
+    paint(r,c);
+    placed++;
+    if(autoXChk.checked) autoEliminate(r,c);
+    updateHUD();
+    if(placed === currentN) win();
+  }else{
+    CELLS[r][c] = 'wrong';
+    soundWrong();
+    paint(r,c);
+    shake(r,c);
+    lives--;
+    updateHUD();
+    if(lives <= 0) lose();
+  }
+}
+
+function autoEliminate(r,c){
+  const g = REG[r][c];
+  for(let i=0;i<currentN;i++){
+    for(let j=0;j<currentN;j++){
+      if(i===r && j===c) continue;
+      const near = Math.abs(i-r) <= 1 && Math.abs(j-c) <= 1;
+      if(i===r || j===c || REG[i][j]===g || near){
+        if(CELLS[i][j] === 'empty'){ CELLS[i][j] = 'x'; paint(i,j); }
+      }
+    }
+  }
+}
+
+function shake(r,c){
+  const el = cellEl(r,c);
+  el.classList.remove('shake');
+  void el.offsetWidth;
+  el.classList.add('shake');
+}
+
+function updateHUD(){
+  livesEl.innerHTML = '' + Array.from({length:MAX_LIVES},(_,i)=>
+    `<span class="${i < lives ? '' : 'lost'}"></span>`).join('');
+  progEl.textContent = `星星 ${placed} / ${currentN}`;
+  if(mode === 'adventure'){
+    const rec = advProgress.levels[advCurrentLevel];
+    const stars = rec ? (rec.stars || 0) : 0;
+    const starsTxt = stars ? ' ' + '★'.repeat(stars) + '☆'.repeat(3 - stars) : '';
+    levelEl.textContent = `第 ${advCurrentLevel} 關 · ${currentN}×${currentN}${starsTxt}`;
+  } else {
+    levelEl.textContent = `星空 #${currentPuzzleIndex + 1} · ${currentN}×${currentN} · 共 ${puzzlesQueue.length} 片`;
+  }
+  updateHintBtn();
+}
+
+function updateHintBtn(){
+  hintBtn.textContent = `月兔提示 ${hintsLeft}`;
+  hintBtn.disabled = (hintsLeft <= 0) || over || !SOL.length || placed >= currentN;
+}
+
+function startTimer(){
+  clearInterval(tickId);
+  startTime = Date.now();
+  timerEl.textContent = '00:00';
+  tickId = setInterval(()=>{
+    const t = Math.floor((Date.now()-startTime)/1000);
+    timerEl.textContent = '' + String(Math.floor(t/60)).padStart(2,'0') + ':' + String(t%60).padStart(2,'0');
+  }, 500);
+}
+
+function win(){
+  over = true;
+  soundWin(); clearInterval(tickId);
+  hideHintPanel();
+  updateHintBtn();
+  const t = timerEl.textContent.replace('','');
+
+  if(mode === 'adventure'){
+    const mistakes = MAX_LIVES - lives;
+    const hintsUsed = MAX_HINTS - hintsLeft;
+    const stars = computeStars(mistakes, hintsUsed);
+    const elapsedSec = Math.floor((Date.now() - startTime) / 1000);
+
+    let rec = advProgress.levels[advCurrentLevel];
+    if(!rec){ rec = newLevelRecord(); advProgress.levels[advCurrentLevel] = rec; }
+    rec.status = 'cleared';
+    rec.timesPlayed = (rec.timesPlayed || 0) + 1;
+    if(rec.bestTimeSec == null || elapsedSec < rec.bestTimeSec) rec.bestTimeSec = elapsedSec;
+    if(rec.bestMistakes == null || mistakes < rec.bestMistakes) rec.bestMistakes = mistakes;
+    if(rec.bestHints == null || hintsUsed < rec.bestHints) rec.bestHints = hintsUsed;
+    if(stars > (rec.stars || 0)) rec.stars = stars;
+    if(!rec.firstClearedAt) rec.firstClearedAt = new Date().toISOString();
+    if(advCurrentLevel + 1 > advProgress.frontier) advProgress.frontier = advCurrentLevel + 1;
+    saveAdvProgress();
+
+    const starsHtml = '<div class="win-stars">' +
+      [1,2,3].map(i => `<span class="${i<=stars?'on':''}">★</span>`).join('') + '</div>';
+
+    modal.innerHTML =
+      `<div class="big">${starSVG()}</div><h2>第 ${advCurrentLevel} 關過關！</h2>` +
+      starsHtml +
+      `<p>用時 ${t}　•　剩餘月光 ${lives} / ${MAX_LIVES}</p>` +
+      '<div class="btns">' +
+      '<button class="primary" id="mNext">前往下一關</button>' +
+      '<button id="mMap">關卡地圖</button>' +
+      '<button id="mClose">觀看盤面</button></div>';
+    document.getElementById('mNext').onclick = () => loadAdventureLevel(advCurrentLevel + 1);
+    document.getElementById('mMap').onclick = () => { overlay.classList.add('hidden'); openLevelMap(); };
+    document.getElementById('mClose').onclick = () => overlay.classList.add('hidden');
+    overlay.classList.remove('hidden');
+    updateHUD();
+  } else {
+    const hasNext = currentPuzzleIndex + 1 < puzzlesQueue.length;
+    modal.innerHTML =
+      `<div class="big">${starSVG()}</div><h2>${currentN} 顆星星全部回到天空！</h2>` +
+      `<p>用時 ${t}　•　剩餘月光 ${lives} / ${MAX_LIVES}</p>` +
+      '<div class="btns">' +
+      (hasNext ? '<button class="primary" id="mNext"> 前往下一片星空</button>' : '') +
+      '<button id="mExport">匯出星空關卡庫</button>' +
+      '<button id="mClose">觀看盤面</button></div>';
+    if(hasNext) document.getElementById('mNext').onclick = ()=>loadPuzzleIndex(currentPuzzleIndex + 1);
+    document.getElementById('mExport').onclick = openExportModal;
+    document.getElementById('mClose').onclick = ()=>overlay.classList.add('hidden');
+    overlay.classList.remove('hidden');
+  }
+}
+
+function lose(){
+  over = true; clearInterval(tickId);
+  hideHintPanel();
+  updateHintBtn();
+  for(let r=0;r<currentN;r++){
+    const c = SOL[r];
+    if(CELLS[r][c] !== 'cat'){ CELLS[r][c] = 'reveal'; paint(r,c); }
+  }
+  const retryNote = (mode === 'adventure') ? '不會影響你的關卡進度，可以隨時重試。' : '答案已顯示於盤面。';
+  modal.innerHTML =
+    `<div class="big">${rabbitSmallSVG()}</div><h2>月光暫時熄滅了</h2>` +
+    `<p>月光已用盡，${retryNote}</p>` +
+    '<div class="btns"><button class="primary" id="mRetry">↺ 重新整理本片星空</button>' +
+    '<button id="mClose2">查看星星位置</button></div>';
+  document.getElementById('mRetry').onclick = resetState;
+  document.getElementById('mClose2').onclick = ()=>overlay.classList.add('hidden');
+  overlay.classList.remove('hidden');
+}
+
+function openExportModal(){
+  if(!puzzlesQueue.length) return;
+  // 匯出時依然維持乾淨原始的 [{ id, n, sol, reg }] 格式
+  const jsonCode = JSON.stringify(puzzlesQueue, null, 2);
+
+  modal.innerHTML = `
+    <div class="big"></div>
+    <h2>匯出關卡庫 (共 ${puzzlesQueue.length} 關)</h2>
+    <p>可直接下載 .json 檔案或複製代碼（純淨格式，不含難度等自定義標籤）：</p>
+    <div class="btns" style="margin-bottom:12px;">
+      <button class="primary" onclick="downloadJsonFile()"> 下載 levels.json 檔案</button>
+      <button class="secondary" onclick="copyExportJson()">複製 JSON 代碼</button>
+    </div>
+    <textarea id="jsonExportBox" readonly>${jsonCode}</textarea>
+    <div class="btns">
+      <button onclick="overlay.classList.add('hidden')">關閉</button>
+    </div>
+  `;
+  overlay.classList.remove('hidden');
+}
+
+function downloadJsonFile(){
+  if(!puzzlesQueue.length) return;
+  const jsonCode = JSON.stringify(puzzlesQueue, null, 2);
+  const blob = new Blob([jsonCode], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.download = `meowdoku_${currentN}x${currentN}_${puzzlesQueue.length}_levels.json`;
+  link.href = url;
+  link.click();
+  URL.revokeObjectURL(url);
+  showToast('已開始下載關卡 JSON 檔案！');
+}
+
+function copyExportJson(){
+  const textarea = document.getElementById('jsonExportBox');
+  if(!textarea) return;
+  textarea.select();
+  document.execCommand('copy');
+  showToast('關卡 JSON 代碼已複製到剪貼簿！');
+}
+
+function openImportModal(){
+  modal.innerHTML = `
+    <div class="big"></div>
+    <h2>匯入關卡</h2>
+    <p>支援單關或批次關卡 JSON 格式 (5×5 ~ 10×10)：</p>
+    <textarea id="jsonImportBox" placeholder='例如: [{"n":10,"reg":[[...]],"sol":[...]}]'></textarea>
+    <div class="btns">
+      <button class="primary" onclick="processImportJson()">載入關卡</button>
+      <button onclick="overlay.classList.add('hidden')">取消</button>
+    </div>
+  `;
+  overlay.classList.remove('hidden');
+}
+
+function processImportJson(){
+  const box = document.getElementById('jsonImportBox');
+  if(!box || !box.value.trim()){
+    showToast('請先貼上有效的 JSON 代碼！');
+    return;
+  }
+
+  try {
+    const data = JSON.parse(box.value.trim());
+    let list = Array.isArray(data) ? data : [data];
+    if(!list.length || !list[0].n || list[0].n < 5 || list[0].n > 10 || !Array.isArray(list[0].reg) || !Array.isArray(list[0].sol)){
+      showToast('格式不符！請確認是否為 5×5 ~ 10×10 關卡格式。');
+      return;
+    }
+    puzzlesQueue = list;
+    currentPuzzleIndex = 0;
+    exportBtn.disabled = false;
+    loadPuzzleIndex(0);
+    verifyEl.textContent = `✔ 成功載入 ${puzzlesQueue.length} 個匯入關卡！`;
+    overlay.classList.add('hidden');
+    showToast(`成功匯入 ${puzzlesQueue.length} 個關卡！`);
+  } catch(err){
+    showToast('JSON 解析失敗，請檢查格式是否正確。');
+  }
+}
+
+boardSizeSelect.onchange = () => {
+  mode = 'free';
+  currentN = parseInt(boardSizeSelect.value, 10);
+  puzzlesQueue = [];
+  currentPuzzleIndex = 0;
+  SOL = [];
+  REG = [];
+  updateNavButtons();
+  exportBtn.disabled = true;
+  hideHintPanel();
+  hintsLeft = MAX_HINTS;
+  updateHintBtn();
+  buildEmptyBoard();
+  progEl.textContent = `星星 0 / ${currentN}`;
+  levelEl.textContent = `關卡 #0 (${currentN}×${currentN})`;
+  verifyEl.textContent = `已切換為 ${currentN}×${currentN} 規格，點擊「開始今晚的星空」即可開始生成。`;
+};
+
+document.getElementById('startGenBtn').onclick = ()=>{ mode = 'free'; startBatchGeneration(); };
+document.getElementById('exportBtn').onclick = openExportModal;
+document.getElementById('importBtn').onclick = openImportModal;
+document.getElementById('restartBtn').onclick = ()=>{ if(SOL.length) resetState(); };
+hintBtn.onclick = useHint;
+hintCloseBtn.onclick = hideHintPanel;
+prevLevelBtn.onclick = ()=>{ if(currentPuzzleIndex > 0) loadPuzzleIndex(currentPuzzleIndex - 1); };
+nextLevelBtn.onclick = ()=>{ if(currentPuzzleIndex < puzzlesQueue.length - 1) loadPuzzleIndex(currentPuzzleIndex + 1); };
+levelMapBtn.onclick = openLevelMap;
+modeToggleBtn.onclick = ()=> setMode(mode === 'adventure' ? 'free' : 'adventure');
+
+window.abortGeneration = abortGeneration;
+window.downloadJsonFile = downloadJsonFile;
+window.copyExportJson = copyExportJson;
+window.processImportJson = processImportJson;
+
+
+const soundBtn = document.getElementById('soundBtn');
+soundBtn.onclick = ()=>{
+  soundEnabled = !soundEnabled;
+  soundBtn.textContent = `聲音：${soundEnabled ? '開' : '關'}`;
+  if(soundEnabled) { ensureAudio(); playTone(660,.08); }
+};
+document.addEventListener('pointerdown', ()=>{ if(soundEnabled) ensureAudio(); }, {once:true});
+
+buildEmptyBoard();
+document.body.classList.add('mode-adventure');
+setTimeout(()=>{
+  loadAdventureLevel(advProgress.frontier);
+}, 200);
+</script>
+
+<script>
+document.addEventListener('keydown', e=>{
+  if(e.ctrlKey && e.shiftKey && e.key.toLowerCase()==='d'){
+    document.querySelectorAll('.dev-only').forEach(el=>el.classList.toggle('dev-visible'));
+  }
+});
+</script>
+</body>
+</html>
+<!-- MoonRabbit v2: soft region visual override enabled -->
